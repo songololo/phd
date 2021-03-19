@@ -7,6 +7,7 @@ numpy
 palettable
 pandas
 pyarrow
+pyproj
 pytest
 scipy
 seaborn

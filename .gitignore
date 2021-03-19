@@ -5,10 +5,10 @@
 tf_venv/
 
 # temp images folder
-phd/temp_data/
-phd/temp_images/
-phd/temp_logs/
-phd/temp_weights/
+src/temp_data/
+src/temp_images/
+src/temp_logs/
+src/temp_weights/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
