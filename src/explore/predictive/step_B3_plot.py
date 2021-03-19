@@ -26,7 +26,7 @@ from matplotlib.collections import LineCollection
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
-from src import phd_util
+from src import util_funcs
 from src.explore.theme_setup import data_path, weights_path, generate_theme
 from src.explore.predictions import step_C1_graphs
 from src.explore.predictions.step_B2_MMML_DNN import mmml_phd
@@ -178,7 +178,7 @@ else:
             anim.append(np.load(str(dir_sub_path / f'{title}_{data_key}.npy')))
 
 #  %% plot animation
-phd_util.plt_setup(dark=False)
+util_funcs.plt_setup(dark=False)
 fig, axes = plt.subplots(1, 3, figsize=(24, 8))
 # prepare lists for data
 anims = [anim_a, anim_b, anim_c]  #

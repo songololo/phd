@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler, quantile_transform
 
-from src import phd_util
+from src import util_funcs
 from src.explore import plot_funcs
 from src.explore.signatures import sig_models
 from src.explore.signatures import step_B2_vae_latents_UDR
@@ -185,7 +185,7 @@ else:
 '''
 VAE losses
 '''
-phd_util.plt_setup()
+util_funcs.plt_setup()
 fig, axes = plt.subplots(2, 4, figsize=(12, 8))
 theme_sets = [['val_loss', 'val_rec_loss', 'udr', 'mask'],
               ['val_capacity_term', 'val_kl', 'val_kl_beta', 'val_kl_beta_cap']]
@@ -220,7 +220,7 @@ df_20 = df_20.set_index('id')
 table = df_20
 X_raw, distances, labels = generate_theme(table, 'all', bandwise=True)
 X_trans = StandardScaler().fit_transform(X_raw)
-test_idx = phd_util.train_test_idxs(df_20, 200)  # 200 gives about 25%
+test_idx = util_funcs.train_test_idxs(df_20, 200)  # 200 gives about 25%
 
 # setup paramaters
 epochs = 25
@@ -267,7 +267,7 @@ latent_A, latent_B, latent_C = vae.encode_sub_latents(X_trans)
 plot latent maps
 '''
 # plot
-phd_util.plt_setup()
+util_funcs.plt_setup()
 fig, axes = plt.subplots(2, 8, figsize=(12, 8))
 for ax_row, inverse in zip(axes, [False, True]):
     L = np.copy(Z_mu)
@@ -294,7 +294,7 @@ plt.savefig(path, dpi=300)
 '''
 plot latent correlations
 '''
-phd_util.plt_setup()
+util_funcs.plt_setup()
 fig, axes = plt.subplots(2, 8, figsize=(12, 8))
 for ax_row, inverse in zip(axes, [False, True]):
     L = np.copy(Z_mu)
@@ -321,7 +321,7 @@ plt.savefig(path, dpi=300)
 Plot split model latents - correlations
 '''
 for inverse in [False, True]:
-    phd_util.plt_setup()
+    util_funcs.plt_setup()
     fig = plt.figure(figsize=(12, 6))
     gs = fig.add_gridspec(3, 8, height_ratios=[5, 18, 4], width_ratios=[1, 1, 1, 1, 1, 1, 1, 1])
     for title, ax_row, label_indices, sub_latent_X in zip(
@@ -368,7 +368,7 @@ set_A = [('Cent: C-{n}', (0, 6), (0, 5), latent_A),
 set_B = [('Uses: LU-{n}', (0, 8), (5, 24), latent_B)]
 
 for lb, set in zip(['A', 'B'], [set_A, set_B]):
-    phd_util.plt_setup()
+    util_funcs.plt_setup()
     fig, axes = plt.subplots(2, 8, figsize=(12, 8), gridspec_kw={'height_ratios': [1] * 2, 'width_ratios': [1] * 8})
     for title, ax_indices, label_indices, sub_latent_X in set:
         lab = labels[label_indices[0]:label_indices[1]]  # five row labels
@@ -564,7 +564,7 @@ for l1, l2 in [[2, 3], [3, 7]]:
     # select indices for display
     display_idx = [1, 4, 5, 7, 9, 14, 15, 16, 23]
     # plot
-    phd_util.plt_setup()
+    util_funcs.plt_setup()
     fig, ax_rows = plt.subplots(7, 7, figsize=(10, 12))
     for i_idx, i_key in enumerate(sweeps):
         for j_idx, j_key in enumerate(sweeps):
@@ -612,7 +612,7 @@ max_val = np.min(max_val)
 arrs /= max_val
 
 for i, (latent_start, latent_end) in enumerate(zip([1, 3, 5, 7], [3, 5, 7, 9])):
-    phd_util.plt_setup()
+    util_funcs.plt_setup()
     fig, ax_rows = plt.subplots(2, 9, figsize=(12, 8))
     for j, latent_idx in enumerate(list(range(latent_start, latent_end))):
         for sweep_idx, sweep in enumerate(sweeps):

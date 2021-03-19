@@ -10,7 +10,7 @@ import pandas as pd
 from pyproj import Proj, transform
 from sklearn.preprocessing import StandardScaler
 
-from src import phd_util
+from src import util_funcs
 from src.explore import plot_funcs
 from src.explore.signatures import sig_models, sig_model_runners
 from src.explore.theme_setup import data_path, logs_path
@@ -45,7 +45,7 @@ table = df_20
 X_raw, distances, labels = generate_theme(table, 'all', bandwise=False)
 trans_model = StandardScaler()
 X_trans = trans_model.fit_transform(X_raw)
-test_idx = phd_util.train_test_idxs(df_20, 200)  # 200 gives about 25%
+test_idx = util_funcs.train_test_idxs(df_20, 200)  # 200 gives about 25%
 
 bng = Proj('epsg:27700')
 lng_lat = Proj('epsg:4326')
@@ -119,7 +119,7 @@ Z_mu, Z_log_var, Z = vae.encode(X_trans, training=False)
 Plots decoded landuses from latents for respective example locations
 '''
 # plots decoded exemplar landuses
-phd_util.plt_setup()
+util_funcs.plt_setup()
 fig, axes = plt.subplots(1, 8, figsize=(13, 6))
 names = [n for n in location_keys.keys()]
 indices = [i['iloc'] for i in location_keys.values()]

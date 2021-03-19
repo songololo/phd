@@ -28,14 +28,14 @@ pop_map, landuse_maps, capacitance_maps = mmm_layercake_b(graph,
 
 # %%
 import networkx as nx
-from src import phd_util
+from src import util_funcs
 import matplotlib.pyplot as plt
 from celluloid import Camera
 from matplotlib.colors import LinearSegmentedColormap
 
 cmap = LinearSegmentedColormap.from_list('cityseer', ['#64c1ff', '#d32f2f'])
 
-phd_util.plt_setup()
+util_funcs.plt_setup()
 fig, ax = plt.subplots(1, 1, figsize=(20, 20), facecolor='#2e2e2e')
 camera = Camera(fig)
 

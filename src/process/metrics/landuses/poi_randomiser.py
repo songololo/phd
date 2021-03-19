@@ -34,7 +34,8 @@ async def randomise_poi(db_config,
     if poi_randomised_exists:
         logger.warning(f'Randomised POI table {data_table} already exists, skipping...')
     else:
-        logger.info(f'Copying base columns from data table: {data_table_original} to new table: {data_table}')
+        logger.info(f'Copying base columns from data table: {data_table_original} '
+                    f'to new table: {data_table}')
         base_cols = [
             'urn',
             'class_code',

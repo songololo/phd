@@ -17,12 +17,14 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-async def population_aggregator(db_config, nodes_table, census_table, city_pop_id):
+async def population_aggregator(db_config,
+                                nodes_table,
+                                census_table,
+                                city_pop_id):
     db_con = await asyncpg.connect(**db_config)
-
-    distances = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600]
+    distances = [100, 200, 300, 400, 500, 600, 700, 800,
+                 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600]
     betas = networks.beta_from_distance(distances)
-
     # create the columns
     await db_con.execute(f'''
     ALTER TABLE {nodes_table}
@@ -32,7 +34,6 @@ async def population_aggregator(db_config, nodes_table, census_table, city_pop_i
         ADD COLUMN IF NOT EXISTS cens_dwellings real[],
         ADD COLUMN IF NOT EXISTS cens_students real[];
     ''')
-
     # iterate the nodes and assign the new values to a list
     logger.info(f'fetching all ids for city {city_pop_id}')
     uids = []
@@ -43,7 +44,6 @@ async def population_aggregator(db_config, nodes_table, census_table, city_pop_i
     ''')
     for r in records:
         uids.append(r['id'])
-
     logger.info(f'processing population for {len(uids)} ids')
     agg_results = []
     count = 0
@@ -58,7 +58,8 @@ async def population_aggregator(db_config, nodes_table, census_table, city_pop_i
         dwellings = []
         students = []
         for dist, beta in zip(distances, betas):
-            # NB -> Use ST_DWithin (uses index) AND NOT ST_Distance which calculates everything from scratch
+            # NB -> Use ST_DWithin (uses index)
+            # AND NOT ST_Distance which calculates everything from scratch
             # data = tot_pop, adults, employed, dwellings, students
             record = await db_con.fetchrow(f'''
             SELECT
@@ -103,7 +104,6 @@ async def population_aggregator(db_config, nodes_table, census_table, city_pop_i
         # add to main agg
         agg_results.append((uid, tot_pop, adults, employed, dwellings, students))
     assert len(agg_results) == len(uids)
-
     # write back to db
     await db_con.executemany(f'''
     UPDATE {nodes_table}
@@ -115,23 +115,20 @@ async def population_aggregator(db_config, nodes_table, census_table, city_pop_i
             cens_students = $6
         WHERE id = $1
     ''', agg_results)
-
     await db_con.close()
 
 
 if __name__ == '__main__':
 
-    db_config = {
-        'host': 'localhost',
-        'port': 5432,
-        'user': 'gareth',
-        'database': 'gareth',
-        'password': ''
-    }
+    db_config = {}
     census_table = 'census_2011.census_centroids'
     nodes_table = 'analysis.nodes_20'
     for city_pop_id in range(669, 932):
         logger.info(
-            f'Starting population aggregation for city id: {city_pop_id} on table {nodes_table}')
-        asyncio.run(population_aggregator(db_config, nodes_table, census_table, city_pop_id))
+            f'Starting population aggregation for city id: '
+            f'{city_pop_id} on table {nodes_table}')
+        asyncio.run(population_aggregator(db_config,
+                                          nodes_table,
+                                          census_table,
+                                          city_pop_id))
     logger.info('completed')

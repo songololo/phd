@@ -10,7 +10,7 @@ from sklearn.ensemble import ExtraTreesClassifier
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split, GridSearchCV
 
-from src import phd_util
+from src import util_funcs
 from src.explore.theme_setup import data_path
 from src.explore.theme_setup import generate_theme
 
@@ -32,8 +32,8 @@ db_config = {
 }
 
 # load boundaries data
-bound_data = phd_util.load_data_as_pd_df(db_config,
-                                         ['pop_id',
+bound_data = util_funcs.load_data_as_pd_df(db_config,
+                                           ['pop_id',
                                           'city_name',
                                           'city_type',
                                           'city_area',
@@ -43,8 +43,8 @@ bound_data = phd_util.load_data_as_pd_df(db_config,
                                           'city_species_unique',
                                           'city_streets_len',
                                           'city_intersections_count'],
-                                         'analysis.city_boundaries_150',
-                                         'WHERE pop_id IS NOT NULL ORDER BY pop_id')
+                                           'analysis.city_boundaries_150',
+                                           'WHERE pop_id IS NOT NULL ORDER BY pop_id')
 # add indices for city-wide data
 bound_data.set_index('pop_id', inplace=True)
 bound_data.sort_index(inplace=True)

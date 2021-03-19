@@ -9,57 +9,21 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 '''
-Convolutional and LSTM variants no longer maintained, see deprecated folder
-
-- transform the data, otherwise betweenness exaggerates a small error / loss
-- unconstrained - should be similar to PCA
-- add regularisation - not helping on shallow
-- add dropout - seems to hurt rather than help
-- batch normalisation seems to help a bit
-- relu / swish helps prevent vanishing gradients (vs. elu)
-- deep - helps, a bit
-
 On hyperparameter tuning for beta vae with capacity increase
 https://github.com/1Konny/Beta-VAE/issues/8#issuecomment-445126239
-"Gamma sets the strength of the penalty for deviating from the target KL, C.
-Here you want to tune this such that the (batch) average KL stays close to C (say within < 1 nat) across the range of C that you use.
-This exact value doesn't usually matter much, but just avoid it being too high such that it destabilises the optimisation.
-C itself should start from low (e.g. 0 or 1) and gradually increase to a value high enough such that reconstructions end up good quality.
-A good way to estimate Cmax is to train B-VAE on your dataset with a beta low enough such that reconstructions end up good quality and look at the trained model's average KL.
-That KL can be your Cmax because it gives you a rough guide as to the average amount of representational capacity needed to encode your dataset."
 
-6 latent dimensions at beta=1 with capacity=0: about 7.5 average KL...?
-
-'''
-
-'''
-the two following sources seem to agree in principle...
+Some examples of code implementations:
 https://keras.io/examples/variational_autoencoder/
 https://tiao.io/post/tutorial-on-variational-autoencoders-with-a-concise-keras-implementation/
-see below for more detailed comments on vae loss
 
+See below for detailed comments on vae loss
 '''
-
-'''
-The classes use multiple inheritance to reduce duplication:
-- Call parent class explicitly -- instead of super() -- to avoid conflict via MRO
-- MRO causes unexpected errors unless forcing keyword arguments... (siblings are checked for methods before parents)
-
-To resolve:
-1 - Class inheritance order: pass-in the template first otherwise keras Model throws a symbolic tensor error
-    (due to empty _encode / _decode functions)
-2 - Initialise parent classes directly (instead of super) to avoid unexpected argument errors
-3 - Initialise Autoencoder before SimpleMixin otherwise template layers trigger complaint of missing Model parent
-4 - Do not subclass Templates from Model otherwise diamond pattern triggers sibling MRO and missing arg errors
-'''
-
 
 def mse_sum(y_true, y_pred):
     # sum over dimensions
     rl = K.sum(K.square(y_pred - y_true), axis=-1)
     # take mean over samples
     return K.mean(rl)
-
 
 # default bias initialiser is zeros
 # default weights initialiser is glorot uniform (Xavier)
@@ -146,8 +110,10 @@ class SamplingLayer(layers.Layer):
 
 
 # custom losses
-# https://stackoverflow.com/questions/52034983/how-is-total-loss-calculated-over-multiple-classes-in-keras
-# https://stackoverflow.com/questions/52172859/loss-calculation-over-different-batch-sizes-in-keras/52173844#52173844
+# https://stackoverflow.com/questions/52034983/
+# how-is-total-loss-calculated-over-multiple-classes-in-keras
+# https://stackoverflow.com/questions/52172859/
+# loss-calculation-over-different-batch-sizes-in-keras/52173844#52173844
 # y_true and y_pred are batches of N samples x N features
 # the keras loss function archetype outputs the mean loss per sample
 # i.e. N samples x 1d loss per sample
@@ -463,9 +429,11 @@ class Gamma(layers.Layer):
         cat_pi = self.cat_pi_softmax(self.cat_pi)
         # gamma - see equation 19 in Appendix B of original paper
         # tensors are batch x dimension x components
-        # insert components dimension for Z vars -> i.e. K.expand_dims(self.Z_mu, 2) (broadcasting may also be option)
+        # insert components dimension for Z vars -> i.e. K.expand_dims(self.Z_mu, 2)
+        # (broadcasting may also be option)
         # then repeat the elements along the new axis
-        # current strategy can also be switched for K.permute_dimensions(K.repeat(z, self.n_components), (0, 2, 1))
+        # current strategy can also be switched for
+        # K.permute_dimensions(K.repeat(z, self.n_components), (0, 2, 1))
         Z_expand = K.repeat_elements(K.expand_dims(Z, -1), self.n_components, 2)
         # different repos differ here
         # some place K.log(cat_pi) term inside sum vs. others (outside seems correct)
@@ -503,7 +471,8 @@ class Gamma(layers.Layer):
         # Sum over the components
         log_pzc = K.sum(gamma * 0.5 * h, axis=1)  # batch x components -> batch
         # log q(z|x) -> sum across latent dimensions
-        # The VaDE paper includes the pi term but the VaDE code repo omits the pi term - mistake mentioned by others?
+        # The VaDE paper includes the pi term but the VaDE code repo omits the pi term
+        # - mistake mentioned by others?
         # Note use of self.Z_log_var, i.e. not version with added dimension for components
         q_entropy = -0.5 * K.sum(K.log(2 * np.pi) + 1 + Z_log_var,
                                  axis=1)  # batch x latent -> batch
@@ -533,11 +502,14 @@ https://arxiv.org/abs/1611.05148
 Code repo for VaDE paper (keras - but not very canonical...?)
 https://github.com/slim1017/VaDE/blob/master/VaDE.py
 Claim mistakes were made in above (torch)
-https://github.com/eelxpeng/UnsupervisedDeepLearning-Pytorch/blob/master/udlp/clustering/vade.py
+https://github.com/eelxpeng/UnsupervisedDeepLearning-Pytorch/
+    blob/master/udlp/clustering/vade.py
 Similar but clearer implementation (torch)
-https://github.com/IoannisStournaras/Deep-Learning-for-Deconvolution-of-scRNA-seq-Data/blob/master/Networks/VADE.py
+https://github.com/IoannisStournaras/Deep-Learning-for-Deconvolution-of-scRNA-seq-Data/
+    blob/master/Networks/VADE.py
 can't follow changes:
-https://github.com/scespinoza/sc-autoencoders/blob/fe62606f96c3890875c41dd4867da7db7469304f/models.py#L577
+https://github.com/scespinoza/sc-autoencoders/blob/fe62606f96c3890875c41dd4867da7db7469304f/
+    models.py#L577
 Keras implementation
 https://github.com/OwalnutO/deep-generative-models/blob/master/VaDE/run_VaDE.py
 '''

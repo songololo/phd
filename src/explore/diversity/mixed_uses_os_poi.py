@@ -6,7 +6,7 @@ from scipy.stats import spearmanr
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 
-from src import phd_util
+from src import util_funcs
 from src.explore import plot_funcs
 
 # db connection params
@@ -104,33 +104,33 @@ def get_band(df, dist, target, seg_beta_norm=False):
 
 #  %%
 # load data
-df_full = await phd_util.load_data_as_pd_df(db_config,
-                                            columns,
+df_full = await util_funcs.load_data_as_pd_df(db_config,
+                                              columns,
                                             'analysis.nodes_full',
                                             'WHERE city_pop_id = 1 and within = true')
 df_full = df_full.set_index('id')
-df_full = phd_util.clean_pd(df_full, drop_na='all', fill_inf=np.nan)
+df_full = util_funcs.clean_pd(df_full, drop_na='all', fill_inf=np.nan)
 
-df_100 = await phd_util.load_data_as_pd_df(db_config,
-                                           columns,
+df_100 = await util_funcs.load_data_as_pd_df(db_config,
+                                             columns,
                                            'analysis.nodes_100',
                                            'WHERE city_pop_id = 1 and within = true')
 df_100 = df_100.set_index('id')
-df_100 = phd_util.clean_pd(df_100, drop_na='all', fill_inf=np.nan)
+df_100 = util_funcs.clean_pd(df_100, drop_na='all', fill_inf=np.nan)
 
-df_50 = await phd_util.load_data_as_pd_df(db_config,
-                                          columns,
+df_50 = await util_funcs.load_data_as_pd_df(db_config,
+                                            columns,
                                           'analysis.nodes_50',
                                           'WHERE city_pop_id = 1 and within = true')
 df_50 = df_50.set_index('id')
-df_50 = phd_util.clean_pd(df_50, drop_na='all', fill_inf=np.nan)
+df_50 = util_funcs.clean_pd(df_50, drop_na='all', fill_inf=np.nan)
 
-df_20 = await phd_util.load_data_as_pd_df(db_config,
-                                          columns,
+df_20 = await util_funcs.load_data_as_pd_df(db_config,
+                                            columns,
                                           'analysis.nodes_20',
                                           'WHERE city_pop_id = 1 and within = true')
 df_20 = df_20.set_index('id')
-df_20 = phd_util.clean_pd(df_20, drop_na='all', fill_inf=np.nan)
+df_20 = util_funcs.clean_pd(df_20, drop_na='all', fill_inf=np.nan)
 
 # %%
 '''
@@ -159,7 +159,7 @@ theme_wt = (False, True, False)
 for theme_set, theme_labels, t_meta, p_meta, weighted in zip(theme_sets, theme_label_sets, theme_metas, path_metas,
                                                              theme_wt):
     print(f'processing metas: {t_meta}')
-    phd_util.plt_setup()
+    util_funcs.plt_setup()
     fig, axes = plt.subplots(3, 2, figsize=(8, 12))
     for t_idx, (t, label) in enumerate(zip(theme_set, theme_labels)):
         for d_idx, (dist, beta) in enumerate(zip([100, 800], [r'-0.04', r'-0.005'])):
@@ -277,7 +277,7 @@ plt.savefig(path, dpi=300)
 '''
 scatter and distributions for selected examples contrasting hill vs. non hill typical behaviour
 '''
-phd_util.plt_setup()
+util_funcs.plt_setup()
 fig, axes = plt.subplots(6, 2, figsize=(8, 12), gridspec_kw={'height_ratios': [4, 1, 4, 1, 4, 1]})
 dist = 800
 _y = X_pca_20[:, 0]
@@ -356,7 +356,7 @@ labels = ['Hill $_{q=0}$',
 for pca_dim in range(2):
     print(f'Processing dimension {pca_dim + 1}')
     # setup the plot
-    phd_util.plt_setup()
+    util_funcs.plt_setup()
     fig, axes = plt.subplots(2, 2, figsize=(12, 10))
     # fetch the slice
     pca_slice = X_pca_20[:, pca_dim]
@@ -428,7 +428,7 @@ for table in [df_full, df_100, df_50, df_20]:
     X_trans = StandardScaler().fit_transform(X_raw)
     pca_models.append(PCA(n_components=10, whiten=False).fit_transform(X_trans))
 
-phd_util.plt_setup()
+util_funcs.plt_setup()
 fig, axes = plt.subplots(4, 1, figsize=(8, 12))
 # theme per ax
 for t_idx, (ax, theme, label, weighted) in enumerate(zip(axes, themes, labels, theme_wt)):
@@ -508,7 +508,7 @@ themes_weighted = [
     ('mu_hill_pairwise_wt_2_{dist}', 'Hill pairwise distance wt. $_{q=2}$', '--', '.', 1, 1)
 ]
 
-phd_util.plt_setup()
+util_funcs.plt_setup()
 fig, axes = plt.subplots(4, 1, figsize=(8, 12))
 
 for ax_row, ax in enumerate(axes):
@@ -574,7 +574,7 @@ labels = [
     'all landuses'
 ]
 
-phd_util.plt_setup()
+util_funcs.plt_setup()
 fig, axes = plt.subplots(4, 1, figsize=(8, 12))
 
 for ax_row, ax in enumerate(axes):
@@ -841,7 +841,7 @@ while len(class_code_list):
 6C
 '''
 
-phd_util.plt_setup()
+util_funcs.plt_setup()
 
 fig, axes = plt.subplots(2, 1, figsize=(8, 12))
 

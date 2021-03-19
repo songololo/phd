@@ -9,9 +9,9 @@ import numpy as np
 from scipy import optimize
 from scipy import stats
 
-from src import phd_util
+from src import util_funcs
 
-Style = phd_util.Style()
+Style = util_funcs.Style()
 
 # db connection params
 db_config = {
@@ -22,7 +22,7 @@ db_config = {
     'password': ''
 }
 
-df = phd_util.load_data_as_pd_df(
+df = util_funcs.load_data_as_pd_df(
     db_config,
     ['pop_id',
      'city_name',
@@ -39,7 +39,7 @@ df = phd_util.load_data_as_pd_df(
 
 # %% area vs population and density
 
-phd_util.plt_setup()
+util_funcs.plt_setup()
 
 fig, axes = plt.subplots(1, 2, sharey='row', figsize=(6, 3))
 
@@ -107,7 +107,7 @@ plt.show()
 # %% plot powerlaw distributions for city population
 
 # clear previous figures and set matplotlib defaults
-phd_util.plt_setup()
+util_funcs.plt_setup()
 
 fig, axes = plt.subplots(1, 2, sharey='row', figsize=(6, 3))
 

@@ -5,7 +5,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from scipy.stats import spearmanr
 from sklearn import preprocessing
 
-from src import phd_util
+from src import util_funcs
 from src.explore import plot_funcs
 
 # db connection params
@@ -84,13 +84,13 @@ for col in columns_interp:
         columns.append(col_template.format(col=col, i=i + 1, dist=d))
 
 print('loading columns')
-df_full = phd_util.load_data_as_pd_df(
+df_full = util_funcs.load_data_as_pd_df(
     db_config,
     columns,
     'analysis.nodes_full',
     'WHERE city_pop_id = 1 and within = true')
 df_full = df_full.set_index('id')
-df_full = phd_util.clean_pd(df_full, drop_na='all', fill_inf=np.nan)
+df_full = util_funcs.clean_pd(df_full, drop_na='all', fill_inf=np.nan)
 
 for d in all_distances:
     df_full[f'node_improved_{d}'] = df_full[f'c_node_density_{d}'] ** 2 / df_full[f'c_node_farness_{d}']
@@ -104,29 +104,29 @@ for col in columns_interp:
     for i, d in enumerate(distances):
         columns.append(col_template.format(col=col, i=i + 1, dist=d))
 
-df_100 = phd_util.load_data_as_pd_df(
+df_100 = util_funcs.load_data_as_pd_df(
     db_config,
     columns,
     'analysis.nodes_100',
     'WHERE city_pop_id = 1 and within = true')
 df_100 = df_100.set_index('id')
-df_100 = phd_util.clean_pd(df_100, drop_na='all', fill_inf=np.nan)
+df_100 = util_funcs.clean_pd(df_100, drop_na='all', fill_inf=np.nan)
 
-df_50 = phd_util.load_data_as_pd_df(
+df_50 = util_funcs.load_data_as_pd_df(
     db_config,
     columns,
     'analysis.nodes_50',
     'WHERE city_pop_id = 1 and within = true')
 df_50 = df_50.set_index('id')
-df_50 = phd_util.clean_pd(df_50, drop_na='all', fill_inf=np.nan)
+df_50 = util_funcs.clean_pd(df_50, drop_na='all', fill_inf=np.nan)
 
-df_20 = phd_util.load_data_as_pd_df(
+df_20 = util_funcs.load_data_as_pd_df(
     db_config,
     columns,
     'analysis.nodes_20',
     'WHERE city_pop_id = 1 and within = true')
 df_20 = df_20.set_index('id')
-df_20 = phd_util.clean_pd(df_20, drop_na='all', fill_inf=np.nan)
+df_20 = util_funcs.clean_pd(df_20, drop_na='all', fill_inf=np.nan)
 
 for d in distances:
     # improved closeness
@@ -208,7 +208,7 @@ slim_distances = [50, 100, 200, 300, 400, 600, 800, 1000, 1200, 1600, 3200, 4800
 for lu_theme_base, lu_label in zip(lu_themes, lu_labels):
     print(f'Processing landuse theme {lu_theme_base}')
     # setup the plot
-    phd_util.plt_setup()
+    util_funcs.plt_setup()
     fig, axes = plt.subplots(2, 2, figsize=(10, 12))
     # iterate the permutations
     for ax_row, rdm in enumerate([False, True]):
@@ -302,7 +302,7 @@ theme_wts = (4, 4, 4, 2, 2)
 for n, (theme_set, theme_labels, theme_meta, theme_wt) in enumerate(
         zip(theme_sets, theme_label_sets, theme_metas, theme_wts)):
     print(f'processing set: {n}')
-    phd_util.plt_setup()
+    util_funcs.plt_setup()
     fig, axes = plt.subplots(3, 2, figsize=(8, 12))
     for t_idx, (t, label) in enumerate(zip(theme_set, theme_labels)):
         for d_idx, (dist, beta) in enumerate(zip([400, 1200], [r'-0.01', r'-0.00\overline{3}'])):
@@ -336,7 +336,7 @@ in which case a certain number of adjacent nodes is reached, resulting in a stab
 this would not be present in gravity-weighted forms of centrality
 '''
 
-phd_util.plt_setup()
+util_funcs.plt_setup()
 fig, axes = plt.subplots(2, 2,
                          figsize=(10, 5),
                          sharey='row',
@@ -377,7 +377,7 @@ plt.savefig(path, dpi=300)
 plot betweenness vs closeness, coloring mixed-uses
 '''
 
-phd_util.plt_setup()
+util_funcs.plt_setup()
 
 fig, ax = plt.subplots(1, 1, figsize=(5, 5))
 
@@ -419,7 +419,7 @@ plt.savefig(path, dpi=300)
 '''
 compare different variants of closeness
 '''
-phd_util.plt_setup()
+util_funcs.plt_setup()
 fig, axes = plt.subplots(4, 1, figsize=(8, 12))
 y_themes = [
     'mu_hill_branch_wt_0_200',
@@ -488,7 +488,7 @@ plt.savefig(path, dpi=300)
 
 #  %%
 # compare variants of betweenness
-phd_util.plt_setup()
+util_funcs.plt_setup()
 fig, axes = plt.subplots(4, 1, figsize=(8, 12))
 y_themes = [
     'mu_hill_branch_wt_0_200',
@@ -590,7 +590,7 @@ for angular in [False, True]:
     else:
         outer_th = outer_themes
         outer_lb = outer_labels
-    phd_util.plt_setup()
+    util_funcs.plt_setup()
     fig, axes = plt.subplots(4, 1, figsize=(8, 12))
     for ax, outer_theme, outer_label in zip(axes, outer_th, outer_lb):
         print(f'calculating for theme: {outer_label}')
@@ -671,7 +671,7 @@ metas = ['node_harm', 'seg_harm']
 font = {'size': 5}
 for target, label, meta in zip(targets, labels, metas):
 
-    phd_util.plt_setup()
+    util_funcs.plt_setup()
     fig, axes = plt.subplots(4, 5, figsize=(12, 8))
 
     for t_idx, (table, table_label) in enumerate(zip(tables, table_labels)):

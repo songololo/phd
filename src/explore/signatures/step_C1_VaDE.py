@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
-from src import phd_util
+from src import util_funcs
 from src.explore import plot_funcs
 from src.explore.signatures import sig_models, sig_model_runners
 from src.explore.theme_setup import data_path, logs_path
@@ -21,7 +21,7 @@ df_20 = df_20.set_index('id')
 table = df_20
 X_raw, distances, labels = generate_theme(table, 'all', bandwise=True)
 X_trans = StandardScaler().fit_transform(X_raw)
-test_idx = phd_util.train_test_idxs(df_20, 200)  # gives about 25%
+test_idx = util_funcs.train_test_idxs(df_20, 200)  # gives about 25%
 
 # setup paramaters
 seed = 0
@@ -71,7 +71,7 @@ plot_funcs.plot_prob_clusters(X_raw,
                               table.x,
                               table.y)
 # plot combined map
-phd_util.plt_setup()
+util_funcs.plt_setup()
 fig, ax = plt.subplots(1, 1, figsize=(12, 8))
 colours, sizes = plot_funcs.map_diversity_colour(X_raw, cluster_assign_VaDE, n_components=n_components)
 plot_funcs.plot_scatter(ax,

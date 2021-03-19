@@ -14,7 +14,7 @@ from tensorflow.keras import losses
 from tensorflow.keras.callbacks import TensorBoard, ReduceLROnPlateau, TerminateOnNaN, \
     ModelCheckpoint
 
-from src import phd_util
+from src import util_funcs
 from src.explore import plot_funcs
 from src.explore.signatures import sig_model_runners
 from src.explore.theme_setup import data_path, logs_path, weights_path
@@ -34,8 +34,8 @@ def load_bounds():
         'password': ''
     }
     # load boundaries data
-    bound_data = phd_util.load_data_as_pd_df(db_config,
-                                             ['pop_id',
+    bound_data = util_funcs.load_data_as_pd_df(db_config,
+                                               ['pop_id',
                                               'city_name',
                                               'city_type',
                                               'city_population'],
@@ -263,7 +263,7 @@ def plot_latents(df,
     '''
     plot latents
     '''
-    phd_util.plt_setup()
+    util_funcs.plt_setup()
     fig, axes = plt.subplots(3, 8, figsize=(12, 8))
     # plot correlations
     for latent_idx, ax in enumerate(axes[0]):

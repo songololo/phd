@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from src import phd_util
+from src import util_funcs
 from src.explore.theme_setup import data_path
 from src.explore.theme_setup import generate_theme
 
@@ -28,8 +28,8 @@ db_config = {
 }
 
 # load boundaries data
-bound_data = phd_util.load_data_as_pd_df(db_config,
-                                         ['pop_id',
+bound_data = util_funcs.load_data_as_pd_df(db_config,
+                                           ['pop_id',
                                           'city_name',
                                           'city_type',
                                           'city_area',
@@ -39,8 +39,8 @@ bound_data = phd_util.load_data_as_pd_df(db_config,
                                           'city_species_unique',
                                           'city_streets_len',
                                           'city_intersections_count'],
-                                         'analysis.city_boundaries_150',
-                                         'WHERE pop_id IS NOT NULL ORDER BY pop_id')
+                                           'analysis.city_boundaries_150',
+                                           'WHERE pop_id IS NOT NULL ORDER BY pop_id')
 
 
 # %%
@@ -53,7 +53,7 @@ def pop_plot(city_data, city_theme, city_label, bound_data, bound_label):
         else:
             other_towns.append(d['pop_id'])
 
-    phd_util.plt_setup()
+    util_funcs.plt_setup()
     fig, axes = plt.subplots(4, 1, figsize=(8, 10))
 
     max_pop_id = city_data.city_pop_id.max()

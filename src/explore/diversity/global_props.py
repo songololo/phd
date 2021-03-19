@@ -6,7 +6,7 @@ import numpy as np
 from scipy import optimize
 from scipy import stats
 
-from src import phd_util
+from src import util_funcs
 
 # db connection params
 db_config = {
@@ -17,19 +17,19 @@ db_config = {
     'password': ''
 }
 
-df = asyncio.run(phd_util.load_data_as_pd_df(
+df = asyncio.run(util_funcs.load_data_as_pd_df(
     db_config,
     ['pop_id', 'city_name', 'city_type', 'city_area', 'city_population',
      'city_species_count', 'city_species_unique', 'city_streets_len', 'city_intersections_count'],
     'analysis.city_boundaries_150',
     'ORDER BY pop_id'))
 
-Style = phd_util.Style()
+Style = util_funcs.Style()
 
 #  %% plot population vs. total number of POI
 
 # clear previous figures and set matplotlib defaults
-phd_util.plt_setup()
+util_funcs.plt_setup()
 
 fig, axes = plt.subplots(1, 2, sharey='row', figsize=(6, 3))
 
@@ -99,7 +99,7 @@ plt.show()
 #  %% plot population vs. unique number of POI
 
 # clear previous figures and set matplotlib defaults
-phd_util.plt_setup()
+util_funcs.plt_setup()
 
 fig, axes = plt.subplots(1, 2, figsize=(6, 3))
 

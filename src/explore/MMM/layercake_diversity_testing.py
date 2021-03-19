@@ -3,7 +3,7 @@ import os
 
 import matplotlib.pyplot as plt
 
-from src import phd_util
+from src import util_funcs
 
 os.environ['CITYSEER_QUIET_MODE'] = '1'
 from src.explore.MMM._blocks import generate_graph
@@ -13,7 +13,7 @@ iters = 50
 spans = 200
 graph = generate_graph(spans)
 
-phd_util.plt_setup()
+util_funcs.plt_setup()
 fig, ax = plt.subplots(1, 1, figsize=(12, 20))
 
 layer_spec = {

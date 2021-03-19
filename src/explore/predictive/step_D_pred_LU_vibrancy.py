@@ -20,7 +20,7 @@ from tensorflow.keras import losses
 from tensorflow.keras.callbacks import TensorBoard, ReduceLROnPlateau, TerminateOnNaN, \
     ModelCheckpoint
 
-from src import phd_util
+from src import util_funcs
 from src.explore import plot_funcs
 from src.explore.theme_setup import data_path, logs_path, weights_path
 from src.explore.theme_setup import generate_theme
@@ -36,13 +36,13 @@ X_trans_all = StandardScaler().fit_transform(X_raw).astype(np.float32)
 # get y
 y_all = df_20['ac_eating_400'].values
 # test split - use spatial splitting - 300 modulo gives about 11%
-xy_test_idx = phd_util.train_test_idxs(df_20, 300)
+xy_test_idx = util_funcs.train_test_idxs(df_20, 300)
 X_trans_train = X_trans_all[~xy_test_idx]
 X_trans_test = X_trans_all[xy_test_idx]
 y_train = y_all[~xy_test_idx]
 y_test = y_all[xy_test_idx]
 # validation split - 200 modulo gives about 25%
-xy_val_idx = phd_util.train_test_idxs(df_20[~xy_test_idx], 200)
+xy_val_idx = util_funcs.train_test_idxs(df_20[~xy_test_idx], 200)
 X_trans_val = X_trans_train[xy_val_idx]  # do first before repurposing variable name
 X_trans_train = X_trans_train[~xy_val_idx]
 y_val = y_train[xy_val_idx]  # do first before repurposing variable name
@@ -140,7 +140,7 @@ y_pred = reg.predict(X_trans_idx, verbose=1).flatten()
 y_diff = y_pred - y_all_idx
 
 #  %%
-phd_util.plt_setup()
+util_funcs.plt_setup()
 fig, axes = plt.subplots(1, 3, figsize=(12, 8))
 for ax_idx, (ax, vals, title) in enumerate(zip(axes,
                                                (y_all_idx, y_pred, y_diff),
@@ -150,7 +150,7 @@ for ax_idx, (ax, vals, title) in enumerate(zip(axes,
     if ax_idx == 2:
         mm = 20
         vmin, vmax = -mm, mm
-        cmap = phd_util.cityseer_diverging_cmap()
+        cmap = util_funcs.cityseer_diverging_cmap()
         c = vals
         s = 1
     else:
@@ -183,7 +183,7 @@ path = f'../phd-admin/PhD/part_3/images/predicted/eatery_predictions_400_{reg.th
 plt.savefig(path, dpi=300)
 
 #  %%
-phd_util.plt_setup()
+util_funcs.plt_setup()
 fig, ax = plt.subplots(1, 1, figsize=(8, 6))
 
 x_arr = np.array(range(1, len(hist_float['mean_squared_error']) + 1))

@@ -8,7 +8,7 @@ import pandas as pd
 import seaborn as sns
 from scipy.stats import spearmanr
 
-from src import phd_util
+from src import util_funcs
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # cityseer cmap
-cityseer_cmap = phd_util.cityseer_cmap()
+cityseer_cmap = util_funcs.cityseer_cmap()
 
 # db connection params 
 db_config = {
@@ -52,37 +52,37 @@ distances_bandwise = distances[1:]
 
 # %%
 print('loading columns')
-df_full = await phd_util.load_data_as_pd_df(
+df_full = await util_funcs.load_data_as_pd_df(
     db_config,
     columns,
     'analysis.nodes_full',
     'WHERE city_pop_id = 1 and within = true')
 df_full = df_full.set_index('id')
-df_full = phd_util.clean_pd(df_full, drop_na='all', fill_inf=np.nan)
+df_full = util_funcs.clean_pd(df_full, drop_na='all', fill_inf=np.nan)
 
-df_100 = await phd_util.load_data_as_pd_df(
+df_100 = await util_funcs.load_data_as_pd_df(
     db_config,
     columns,
     'analysis.nodes_100',
     'WHERE city_pop_id = 1 and within = true')
 df_100 = df_100.set_index('id')
-df_100 = phd_util.clean_pd(df_100, drop_na='all', fill_inf=np.nan)
+df_100 = util_funcs.clean_pd(df_100, drop_na='all', fill_inf=np.nan)
 
-df_50 = await phd_util.load_data_as_pd_df(
+df_50 = await util_funcs.load_data_as_pd_df(
     db_config,
     columns,
     'analysis.nodes_50',
     'WHERE city_pop_id = 1 and within = true')
 df_50 = df_50.set_index('id')
-df_50 = phd_util.clean_pd(df_50, drop_na='all', fill_inf=np.nan)
+df_50 = util_funcs.clean_pd(df_50, drop_na='all', fill_inf=np.nan)
 
-df_20 = await phd_util.load_data_as_pd_df(
+df_20 = await util_funcs.load_data_as_pd_df(
     db_config,
     columns,
     'analysis.nodes_20',
     'WHERE city_pop_id = 1 and within = true')
 df_20 = df_20.set_index('id')
-df_20 = phd_util.clean_pd(df_20, drop_na='all', fill_inf=np.nan)
+df_20 = util_funcs.clean_pd(df_20, drop_na='all', fill_inf=np.nan)
 
 
 def get_band(df, dist, target, seg_beta_norm=False):
@@ -118,7 +118,7 @@ distance thresholds (including large distances) for correlations vs. Spearman mi
 Compares correlations as measured, vs. randomised, vs. difference between the two
 '''
 
-phd_util.plt_setup()
+util_funcs.plt_setup()
 
 fig = plt.figure(figsize=(12, 8))
 # use grid spec to allow merging legend columns
@@ -295,7 +295,7 @@ for t, l in zip(tables, table_labels):
 # generate the merged dataframe
 df_merged = pd.concat(merged_data)
 
-phd_util.plt_setup()
+util_funcs.plt_setup()
 
 fig = plt.figure(figsize=(8, 12))
 # use grid spec to allow merging legend columns
@@ -434,7 +434,7 @@ distance thresholds for full, 100, 50, 20m decompositions vs.
 Spearman mixed-use correlations / r^2 / moran's I
 '''
 
-phd_util.plt_setup()
+util_funcs.plt_setup()
 
 fig, axes = plt.subplots(5, 3,
                          figsize=(12, 8),

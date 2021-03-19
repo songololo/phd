@@ -141,7 +141,7 @@ class M2(models.Model):
     Inputs must include a y classification column.
     Where samples have y=-1 these will be treated as unlabelled.
 
-    See the following implementations:
+    See the following implementations for examples of code implementations:
     - https://github.com/dpkingma/nips14-ssl
     - http://bjlkeng.github.io/posts/semi-supervised-learning-with-variational-autoencoders/
     - https://github.com/bjlkeng/sandbox/tree/master/notebooks/vae-semi_supervised_learning

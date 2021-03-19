@@ -12,7 +12,7 @@ from sklearn.decomposition import PCA
 from sklearn.mixture import GaussianMixture
 from sklearn.preprocessing import StandardScaler
 
-from src import phd_util
+from src import util_funcs
 from src.explore import plot_funcs
 from src.explore.signatures import sig_models
 from src.explore.theme_setup import data_path
@@ -60,7 +60,7 @@ cluster_assign_VaDE = np.argmax(cluster_probs_VaDE, axis=1)
 '''
 Overall cluster max plot
 '''
-phd_util.plt_setup()
+util_funcs.plt_setup()
 fig, ax = plt.subplots(1, 1, figsize=(12, 8))
 colours, sizes = plot_funcs.map_diversity_colour(X_raw, cluster_assign_VaDE, n_components=n_components)
 plot_funcs.plot_scatter(ax,
@@ -113,7 +113,7 @@ Lng: 0.2142670213065938 Lat: 51.57348446030934
 bng = Proj('epsg:27700')
 lng_lat = Proj('epsg:4326')
 #
-phd_util.plt_setup()
+util_funcs.plt_setup()
 fig, axes = plt.subplots(3, 7, figsize=(8, 11))
 cluster_idx = 0
 for row_idx, ax_row in enumerate(axes):
@@ -216,7 +216,7 @@ cluster_assign_PCA = np.argmax(cluster_probs_PCA, axis=1)
 # Map plots
 themes = ['GMM - Input variables', 'GMM - autoencoder latents', 'GMM - PCA latents', 'GMM - VaDE']
 assignments = [cluster_assign_X, cluster_assign_VAE_Z, cluster_assign_PCA, cluster_assign_VaDE]
-phd_util.plt_setup()
+util_funcs.plt_setup()
 fig, axes = plt.subplots(2, 2, figsize=(12, 8))
 theme_idx = 0
 for ax_row in axes:

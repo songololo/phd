@@ -75,7 +75,8 @@ async def stats_aggregator(db_config, nodes_table, census_table, city_pop_id):
               LIMIT {max_nodes}) as stats
         ''', uid)
         dist = 0
-        dens = no_cars = cars = ttw_foot = ttw_bicycle = ttw_motor = ttw_pubtrans = ttw_home = 0
+        dens = no_cars = cars = ttw_foot = ttw_bicycle = \
+            ttw_motor = ttw_pubtrans = ttw_home = 0
         err = False
         if len(stats) == 0:
             err = True
@@ -122,16 +123,13 @@ async def stats_aggregator(db_config, nodes_table, census_table, city_pop_id):
             WHERE id = $1
         ''', results_agg)
     await db_con.close()
-    logger.warning(f'{non_matches} roadnodes had no corresponding census data within the {max_dist} max distance')
+    logger.warning(f'{non_matches} roadnodes had no corresponding '
+                   f'census data within the {max_dist} max distance')
 
 
 if __name__ == '__main__':
     db_config = {
-        'host': 'localhost',
-        'port': 5433,
-        'user': 'gareth',
-        'database': 'gareth',
-        'password': ''
+
     }
     """
     # for building the area column, only needs to be done once if column doesn't exist
@@ -152,27 +150,33 @@ if __name__ == '__main__':
             UPDATE census_2011.census_centroids AS cent
                 SET area = ST_Area(ST_Union(geom_a.a, geom_b.b))
                     FROM
-                        (SELECT geom as a FROM census_2011.census_boundaries WHERE id = 100186) as geom_a,
-                        (SELECT geom as b FROM census_2011.census_boundaries WHERE id = 100187) as geom_b
+                        (SELECT geom as a FROM census_2011.census_boundaries 
+                            WHERE id = 100186) as geom_a,
+                        (SELECT geom as b FROM census_2011.census_boundaries 
+                            WHERE id = 100187) as geom_b
                     WHERE id = 4293;
             
             UPDATE census_2011.census_centroids AS cent
                 SET area = ST_Area(ST_Union(geom_a.a, geom_b.b))
                     FROM
-                        (SELECT geom as a FROM census_2011.census_boundaries WHERE id = 98088) as geom_a,
-                        (SELECT geom as b FROM census_2011.census_boundaries WHERE id = 98089) as geom_b
+                        (SELECT geom as a FROM census_2011.census_boundaries 
+                            WHERE id = 98088) as geom_a,
+                        (SELECT geom as b FROM census_2011.census_boundaries 
+                            WHERE id = 98089) as geom_b
                     WHERE id = 119887;
             
             UPDATE census_2011.census_centroids AS cent
                 SET area = ST_Area(geom.a)
                     FROM
-                        (SELECT geom as a FROM census_2011.census_boundaries WHERE id = 76938) as geom
+                        (SELECT geom as a FROM census_2011.census_boundaries 
+                            WHERE id = 76938) as geom
                     WHERE id = 119123;
             
             UPDATE census_2011.census_centroids AS cent
                 SET area = ST_Area(geom.a)
                     FROM
-                        (SELECT geom as a FROM census_2011.census_boundaries WHERE id = 97848) as geom
+                        (SELECT geom as a FROM census_2011.census_boundaries 
+                            WHERE id = 97848) as geom
                     WHERE id = 113160;
 
         ''')

@@ -4,7 +4,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from scipy.stats import pearsonr
 from sklearn.preprocessing import minmax_scale
 
-from src import phd_util
+from src import util_funcs
 
 
 def view_idx(xs, ys, x_extents, y_extents, relative_extents):
@@ -68,7 +68,7 @@ def plot_scatter(ax,
         raise ValueError('Please pass a single dimensional array')
 
     if cmap is None:
-        cmap = phd_util.cityseer_cmap_red(dark=dark)
+        cmap = util_funcs.cityseer_cmap_red(dark=dark)
 
     select_idx, x_left, x_right, y_bottom, y_top = view_idx(xs,
                                                             ys,
@@ -145,7 +145,7 @@ def plot_heatmap(heatmap_ax,
     # plot
     if heatmap is not None:
         if cmap is None:
-            cmap = phd_util.cityseer_diverging_cmap(dark=dark)
+            cmap = util_funcs.cityseer_diverging_cmap(dark=dark)
         im = heatmap_ax.imshow(heatmap,
                                cmap=cmap,
                                vmin=constrain[0],
@@ -217,7 +217,7 @@ def plot_components(component_idxs,
     n_rows = 2
     n_cols = len(component_idxs)
 
-    phd_util.plt_setup(dark=dark)
+    util_funcs.plt_setup(dark=dark)
     fig, axes = plt.subplots(n_rows,
                              n_cols,
                              figsize=(n_cols * 1.5, 8),
@@ -286,7 +286,7 @@ def plot_prob_clusters(X_raw,
     # print the axes in order of the strength of m_m
     sorted_cluster_idx = np.argsort(m_m)[::-1]
     # plot the axes
-    phd_util.plt_setup()
+    util_funcs.plt_setup()
     fig, axes = plt.subplots(3, 7, figsize=(12, 8))
     counter = 0
     cmap = plt.cm.get_cmap(plt_cmap)

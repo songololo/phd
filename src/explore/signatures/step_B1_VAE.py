@@ -16,7 +16,7 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
-from src import phd_util
+from src import util_funcs
 from src.explore import plot_funcs
 from src.explore.signatures import sig_models, sig_model_runners
 from src.explore.theme_setup import data_path, logs_path, weights_path
@@ -28,7 +28,7 @@ df_20 = df_20.set_index('id')
 table = df_20
 X_raw, distances, labels = generate_theme(table, 'all', bandwise=True)
 X_trans = StandardScaler().fit_transform(X_raw)
-test_idx = phd_util.train_test_idxs(df_20, 200)  # 200 gives about 25%
+test_idx = util_funcs.train_test_idxs(df_20, 200)  # 200 gives about 25%
 
 # setup paramaters
 epochs = 25
@@ -83,7 +83,7 @@ if seed <= 1:
     # average kl divergence per latent
     kl_vec = np.mean(kl_loss, axis=0)
     # plot
-    phd_util.plt_setup()
+    util_funcs.plt_setup()
     fig, axes = plt.subplots(2, 8, figsize=(12, 8))
     for ax_row, inverse in zip(axes, [False, True]):
         L = np.copy(Z_mu)

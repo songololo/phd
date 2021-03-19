@@ -10,7 +10,7 @@ import tensorflow as tf
 from tensorflow.keras import backend as K
 from tensorflow.keras import metrics
 
-from src import phd_util
+from src import util_funcs
 from src.explore import plot_funcs
 
 logging.basicConfig(level=logging.INFO)
@@ -157,7 +157,8 @@ class Trainer():
                 self.training_step(validation_batch, training=False)
             if not np.isfinite(self.val_loss.result()):
                 logger.warning(
-                    f'Step: {epoch_step + 1}: non finite validation loss encountered: {self.val_loss.result()}')
+                    f'Step: {epoch_step + 1}: non finite validation loss encountered: '
+                    f'{self.val_loss.result()}')
             else:
                 logger.info(
                     f'Step: {epoch_step + 1}: validation loss: {self.val_loss.result()}')
@@ -252,7 +253,7 @@ class VAE_trainer(Trainer):
                 # stack if passing data directly
                 # stacked_img = np.vstack([x_img, x_hat_img])
                 # stacked_img = np.reshape(stacked_img, (-1, len(labels), len(distances), 1))
-                phd_util.plt_setup()
+                util_funcs.plt_setup()
                 fig, axes = plt.subplots(1, 3, figsize=(6, 8))
                 plot_funcs.plot_heatmap(axes[0], x_img, row_labels=self.labels,
                                         col_labels=self.distances)
@@ -263,7 +264,7 @@ class VAE_trainer(Trainer):
                 tf.summary.image('x | x hat | diff', plot_to_image(fig), step=epoch_step)
                 # images of latents
                 latent_dim = Z_mu.shape[1]
-                phd_util.plt_setup()
+                util_funcs.plt_setup()
                 fig, axes = plt.subplots(1, latent_dim, figsize=(12, 8))
                 for l_idx in range(latent_dim):
                     corr = plot_funcs.correlate_heatmap(len(self.labels),

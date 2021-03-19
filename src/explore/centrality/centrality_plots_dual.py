@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import spearmanr
 
-from src import phd_util
+from src import util_funcs
 from src.explore import plot_funcs
 
 # db connection params 
@@ -49,13 +49,13 @@ distances_bandwise = distances[1:]
 
 #  %% load nodes data
 print('loading columns')
-df_full = phd_util.load_data_as_pd_df(
+df_full = util_funcs.load_data_as_pd_df(
     db_config,
     columns,
     'analysis.nodes_full_dual',
     'WHERE city_pop_id = 1 and within = true')
 df_full = df_full.set_index('id')
-df_full = phd_util.clean_pd(df_full, drop_na='all', fill_inf=np.nan)
+df_full = util_funcs.clean_pd(df_full, drop_na='all', fill_inf=np.nan)
 
 #  %%
 '''
@@ -93,7 +93,7 @@ y_labels = [
     r'Commercial $_{\beta=-0.005\ d_{max}=800m}$'
 ]
 
-phd_util.plt_setup()
+util_funcs.plt_setup()
 fig, axes = plt.subplots(2, 2, figsize=(10, 6))
 theme_dim = 0
 for ax_row in range(2):

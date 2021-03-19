@@ -9,7 +9,7 @@ from src.explore.MMM.layercake_d import mmm_layercake_d
 from matplotlib import animation
 
 import numpy as np
-from src import phd_util
+from src import util_funcs
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.collections import LineCollection
@@ -37,7 +37,7 @@ pop_map, landuse_maps, capacitance_maps, flow_maps = mmm_layercake_d(graph,
 # %%
 cmap = LinearSegmentedColormap.from_list('cityseer', ['#64c1ff', '#d32f2f'])
 
-phd_util.plt_setup(dark=True)
+util_funcs.plt_setup(dark=True)
 fig, ax = plt.subplots(1, 1, figsize=(20, 20))
 
 pos = {}

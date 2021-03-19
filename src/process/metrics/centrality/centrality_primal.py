@@ -24,7 +24,9 @@ async def centrality_shortest(db_config, nodes_table, links_table, city_pop_id, 
         'node_betweenness_beta'
     ]
     N.node_centrality(measures=node_measures)
-    logger.info(f'Algo duration: {datetime.timedelta(seconds=time.mktime(time.localtime()) - time.mktime(start))}')
+    time_duration = datetime.timedelta(
+        seconds=time.mktime(time.localtime()) - time.mktime(start))
+    logger.info(f'Algo duration: {time_duration}')
 
     logger.info('Calculating shortest-path segment centralities')
     start = time.localtime()
@@ -35,7 +37,9 @@ async def centrality_shortest(db_config, nodes_table, links_table, city_pop_id, 
         'segment_betweenness'
     ]
     N.segment_centrality(measures=segment_measures)
-    logger.info(f'Algo duration: {datetime.timedelta(seconds=time.mktime(time.localtime()) - time.mktime(start))}')
+    time_duration = datetime.timedelta(
+        seconds=time.mktime(time.localtime()) - time.mktime(start))
+    logger.info(f'Algo duration: {time_duration}')
 
     logger.info('Calculating simplest-path node centralities')
     start = time.localtime()
@@ -44,7 +48,9 @@ async def centrality_shortest(db_config, nodes_table, links_table, city_pop_id, 
         'node_betweenness_angular'
     ]
     N.node_centrality(measures=angular_node_measures, angular=True)
-    logger.info(f'Algo duration: {datetime.timedelta(seconds=time.mktime(time.localtime()) - time.mktime(start))}')
+    time_duration = datetime.timedelta(
+        seconds=time.mktime(time.localtime()) - time.mktime(start))
+    logger.info(f'Algo duration: {time_duration}')
 
     logger.info('Calculating simplest-path segment centralities')
     start = time.localtime()
@@ -53,7 +59,9 @@ async def centrality_shortest(db_config, nodes_table, links_table, city_pop_id, 
         'segment_betweeness_hybrid'
     ]
     N.segment_centrality(measures=angular_segment_measures, angular=True)
-    logger.info(f'Algo duration: {datetime.timedelta(seconds=time.mktime(time.localtime()) - time.mktime(start))}')
+    time_duration = datetime.timedelta(
+        seconds=time.mktime(time.localtime()) - time.mktime(start))
+    logger.info(f'Algo duration: {time_duration}')
 
     # Quite slow writing to database so do all distances at once
     logger.info('Prepping data for database')
@@ -91,10 +99,16 @@ async def centrality_shortest(db_config, nodes_table, links_table, city_pop_id, 
     for measure in comb_measures:
         # prepend with "c_"
         c_measure = f'c_{measure}'
-        await db_con.execute(f'ALTER TABLE {nodes_table} ADD COLUMN IF NOT EXISTS {c_measure} real[];')
+        await db_con.execute(f'''
+        ALTER TABLE {nodes_table}
+            ADD COLUMN IF NOT EXISTS {c_measure} real[];
+        ''')
     for ang_measure in com_ang_measures:
         c_ang_measure = f'c_{ang_measure}'
-        await db_con.execute(f'ALTER TABLE {nodes_table} ADD COLUMN IF NOT EXISTS {c_ang_measure} real[];')
+        await db_con.execute(f'''
+        ALTER TABLE {nodes_table}
+            ADD COLUMN IF NOT EXISTS {c_ang_measure} real[];
+        ''')
     await db_con.executemany(f'''
     UPDATE {nodes_table}
         SET
@@ -138,19 +152,25 @@ if __name__ == '__main__':
 
     nodes_table = 'analysis.nodes_20'
     links_table = 'analysis.links_20'
-    # distances = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 3200, 4800, 6400, 8000]
-    distances = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600]
+    # distances = [50, 100, 200, 300, 400, 500, 600, 700, 800,
+    # 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 3200, 4800, 6400, 8000]
+    distances = [50, 100, 200, 300, 400, 500, 600, 700, 800,
+                 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600]
 
     # 931 for full and 20m
     # 1 only for 50m and 100m
     for city_pop_id in range(1, 2):
         start_time = time.localtime()
-        logger.info(f'Started {start_time[0]}-{start_time[1]}-{start_time[2]} at {start_time[3]}h:{start_time[4]}m')
+        logger.info(f'Started {start_time[0]}-{start_time[1]}-{start_time[2]} '
+                    f'at {start_time[3]}h:{start_time[4]}m')
         asyncio.run(centrality_shortest(db_config,
                                         nodes_table,
                                         links_table,
                                         city_pop_id,
                                         distances))
-        logger.info(f'Duration: {datetime.timedelta(seconds=time.mktime(time.localtime()) - time.mktime(start_time))}')
+        time_duration = datetime.timedelta(
+            seconds=time.mktime(time.localtime()) - time.mktime(start_time))
+        logger.info(f'Duration: {time_duration}')
         end_time = time.localtime()
-        logger.info(f'Ended {end_time[0]}-{end_time[1]}-{end_time[2]} at {end_time[3]}h:{end_time[4]}m')
+        logger.info(f'Ended {end_time[0]}-{end_time[1]}-{end_time[2]} '
+                    f'at {end_time[3]}h:{end_time[4]}m')

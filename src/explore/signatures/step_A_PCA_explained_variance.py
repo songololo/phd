@@ -10,7 +10,7 @@ from sklearn.decomposition import PCA
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import StandardScaler
 
-from src import phd_util
+from src import util_funcs
 from src.explore import plot_funcs
 from src.explore.theme_setup import data_path
 from src.explore.theme_setup import generate_theme
@@ -98,8 +98,8 @@ for n_components in components:
 '''
 Plot explained variance and error loss
 '''
-cityseer_cmap = phd_util.cityseer_cmap()
-phd_util.plt_setup()
+cityseer_cmap = util_funcs.cityseer_cmap()
+util_funcs.plt_setup()
 fig, ax = plt.subplots(1, 1, figsize=(5, 2.5))
 # plot the explained variance row
 # explained variance is plotted in the first row in respective table order

@@ -11,7 +11,7 @@ from sklearn.metrics import classification_report
 from sklearn.preprocessing import StandardScaler
 from src.explore.predictions import pred_tools
 
-from src import phd_util
+from src import util_funcs
 from src.explore import plot_funcs
 
 #  %%
@@ -22,7 +22,7 @@ max_dist = 1600
 df_20, X_raw, X_clean, distances, labels = pred_tools.load_data(selected_data, max_dist=max_dist)
 X_trans = StandardScaler().fit_transform(X_clean)
 # test train split
-test_idx = phd_util.train_test_idxs(df_20, 200)  # 200 gives about 25%
+test_idx = util_funcs.train_test_idxs(df_20, 200)  # 200 gives about 25%
 X_trans_train = X_trans[~test_idx]
 X_trans_test = X_trans[test_idx]
 y_train = X_raw.targets[~test_idx]
@@ -92,7 +92,7 @@ for x, y, town_name in [(485970, 236920, 'Milton Keynes'),
     x_extents = (x - 2500, x + 2500)
     y_extents = (y - 5000, y + 5000)
 
-    phd_util.plt_setup()
+    util_funcs.plt_setup()
     fig, ax = plt.subplots(1, 1, figsize=(8, 8))
     plot_funcs.plot_scatter(ax,
                             df_20.x,
@@ -100,7 +100,7 @@ for x, y, town_name in [(485970, 236920, 'Milton Keynes'),
                             # color range is from 0.0 to 1.0
                             # don't manipulate in this context
                             c=y_col,
-                            cmap=phd_util.cityseer_cmap(),
+                            cmap=util_funcs.cityseer_cmap(),
                             s=1,
                             vmin=0.0,  # in some cases plt doesn't correct infer extents
                             vmax=1.0,
@@ -117,7 +117,7 @@ for pop_id, town_row in selected_data.iterrows():
     pred = y_plot[X_raw.city_pop_id == pop_id]
     selected_data.loc[pop_id, 'clf_nt_points_perc'] = np.sum(pred) / len(pred) * 100
 # plot
-phd_util.plt_setup()
+util_funcs.plt_setup()
 fig, ax = plt.subplots(1, 2, figsize=(8, 8))
 # sizes
 pop = selected_data.city_population.to_numpy(dtype='int')
@@ -134,7 +134,7 @@ for ax_theme, y_pred, points_perc, points_perc_norm in zip(
     # plot distribution of nt probs
     N, bin_lower_limits, patches = ax[0].hist(y_pred, bins=100, edgecolor='w', linewidth=0.1)
     # set bin colours
-    cityseer_cmap = phd_util.cityseer_cmap()
+    cityseer_cmap = util_funcs.cityseer_cmap()
     for bll, patch in zip(bin_lower_limits, patches):
         patch.set_facecolor(cityseer_cmap(bll))
     ax[0].set_xlabel(f'{ax_theme} - Distribution of New Town probabilities')

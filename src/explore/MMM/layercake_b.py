@@ -3,7 +3,7 @@ import numpy as np
 from cityseer.metrics import networks
 from tqdm import tqdm
 
-from src import phd_util
+from src import util_funcs
 from src.explore.MMM._blocks import generate_data_layer, plotter
 
 
@@ -211,7 +211,7 @@ def mmm_single(_graph,
     if dark:
         background_col = '#2e2e2e'
 
-    phd_util.plt_setup()
+    util_funcs.plt_setup()
 
     if isinstance(_layer_specs, dict):
         pop_map, landuse_maps, capacitance_maps = mmm_layercake_b(_graph,

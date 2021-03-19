@@ -28,7 +28,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from sklearn.preprocessing import StandardScaler
 from src.explore.predictions import pred_tools
 
-from src import phd_util
+from src import util_funcs
 from src.explore import plot_funcs
 
 #  %%
@@ -40,7 +40,7 @@ df_20, X_raw, X_clean, distances, labels = pred_tools.load_data(selected_data,
                                                                 max_dist=max_dist)
 X_trans = StandardScaler().fit_transform(X_clean)
 # test train split
-test_idx = phd_util.train_test_idxs(df_20, 200)  # 200 gives about 25%
+test_idx = util_funcs.train_test_idxs(df_20, 200)  # 200 gives about 25%
 X_trans_train = X_trans[~test_idx]
 X_trans_test = X_trans[test_idx]
 y_train = X_raw.targets[~test_idx]
@@ -87,7 +87,7 @@ theme_base = f'M2_ONLY_prob{conf_tail}_batch{batch}_lr{lr}_l{latent_dim}_final_b
 # combine X and y
 X_combined = np.hstack([X_trans, y_pruned_balanced])
 # spatial validation set
-test_idx = phd_util.train_test_idxs(df_20, 200)  # 200 gives about 25%
+test_idx = util_funcs.train_test_idxs(df_20, 200)  # 200 gives about 25%
 
 m2 = pred_tools.generate_M2(X_combined,
                             raw_dim=X_trans.shape[1],
@@ -166,7 +166,7 @@ for x, y, town_name in [(485970, 236920, 'Milton Keynes'),
     x_extents = (x - 2500, x + 2500)
     y_extents = (y - 5000, y + 5000)
 
-    phd_util.plt_setup()
+    util_funcs.plt_setup()
     fig, ax = plt.subplots(1, 1, figsize=(8, 8))
     mappable = plot_funcs.plot_scatter(ax,
                                        df_20.x,
@@ -174,7 +174,7 @@ for x, y, town_name in [(485970, 236920, 'Milton Keynes'),
                                        # color range is from 0.0 to 1.0
                                        # don't manipulate in this context
                                        c=m2_pred_nt,
-                                       cmap=phd_util.cityseer_cmap(),
+                                       cmap=util_funcs.cityseer_cmap(),
                                        s=1,
                                        x_extents=x_extents,
                                        y_extents=y_extents,
@@ -204,7 +204,7 @@ for pop_id, town_row in selected_data.iterrows():
     selected_data.loc[pop_id, 'm2_nt_points_perc'] = np.sum(m2_pred) / len(
         m2_pred) * 100
 # plot
-phd_util.plt_setup()
+util_funcs.plt_setup()
 fig, axes = plt.subplots(2, 2, figsize=(8, 8))
 # sizes
 pop = selected_data.city_population.to_numpy(dtype='int')
@@ -225,7 +225,7 @@ for ax_row, ax_theme, y_pred, points_perc, points_perc_norm in zip(
     # plot distribution of nt probs
     N, bin_lower_limits, patches = ax_row[0].hist(y_pred, bins=100, edgecolor='w', linewidth=0.1)
     # set bin colours
-    cityseer_cmap = phd_util.cityseer_cmap()
+    cityseer_cmap = util_funcs.cityseer_cmap()
     for bll, patch in zip(bin_lower_limits, patches):
         patch.set_facecolor(cityseer_cmap(bll))
     ax_row[0].set_xlabel(f'{ax_theme} - Distribution of new (vs. historic) probabilities')

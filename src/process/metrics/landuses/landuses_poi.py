@@ -19,7 +19,8 @@ def pairwise_disparity_weight(c_i, c_j, weight_1=1 / 3, weight_2=2 / 3, weight_3
 
     Weight can be topological, e.g. 1, 2, 3 or 1, 2, 5 or 0.25, 0.5, 1
     OR weighted per Warwick and Clarke based on decrease in taxonomic diversity
-    Warwick and Clarke taxonomic distance - Clarke & Warwick: Weighting step lengths for taxonomic distinctness
+    Warwick and Clarke taxonomic distance - Clarke & Warwick:
+    Weighting step lengths for taxonomic distinctness
     note that this doesn't necessarily add much benefit to topological distance
     also that it constrains the measure to the specific index
 
@@ -76,39 +77,57 @@ class Accessibility_Codes():
         # generate the class categories by filtering ranges per OS POI categories
         if not compact:
             self.class_categories = {
-                'accommodation': [cl for cl in landuse_classes if int(cl) >= 1010000 and int(cl) < 1020000],
+                'accommodation': [cl for cl in landuse_classes if
+                                  int(cl) >= 1010000 and int(cl) < 1020000],
                 'eating': [cl for cl in landuse_classes if
                            (int(cl) >= 1020000 and int(cl) < 1020034) or
                            (int(cl) >= 1020043 and int(cl) < 2000000)],
-                'drinking': [cl for cl in landuse_classes if int(cl) >= 1020034 and int(cl) < 1020043],
-                'commercial': [cl for cl in landuse_classes if int(cl) >= 2000000 and int(cl) < 3000000],
-                'tourism': [cl for cl in landuse_classes if int(cl) >= 3200000 and int(cl) < 3580000],
-                'entertainment': [cl for cl in landuse_classes if int(cl) >= 4250000 and int(cl) < 5000000],
-                'government': [cl for cl in landuse_classes if int(cl) >= 6000000 and int(cl) < 7000000],
-                'manufacturing': [cl for cl in landuse_classes if int(cl) >= 7000000 and int(cl) < 8000000],
-                'retail_food': [cl for cl in landuse_classes if int(cl) >= 9470000 and int(cl) < 9480000],
+                'drinking': [cl for cl in landuse_classes if
+                             int(cl) >= 1020034 and int(cl) < 1020043],
+                'commercial': [cl for cl in landuse_classes if
+                               int(cl) >= 2000000 and int(cl) < 3000000],
+                'tourism': [cl for cl in landuse_classes if
+                            int(cl) >= 3200000 and int(cl) < 3580000],
+                'entertainment': [cl for cl in landuse_classes if
+                                  int(cl) >= 4250000 and int(cl) < 5000000],
+                'government': [cl for cl in landuse_classes if
+                               int(cl) >= 6000000 and int(cl) < 7000000],
+                'manufacturing': [cl for cl in landuse_classes if
+                                  int(cl) >= 7000000 and int(cl) < 8000000],
+                'retail_food': [cl for cl in landuse_classes if
+                                int(cl) >= 9470000 and int(cl) < 9480000],
                 'retail_other': [cl for cl in landuse_classes if
                                  (int(cl) >= 9000000 and int(cl) < 9470000) or
                                  (int(cl) >= 9480000 and int(cl) < 10000000)],
-                'transport': [cl for cl in landuse_classes if int(cl) >= 10000000 and int(cl) < 11000000],
-                'health': [cl for cl in landuse_classes if int(cl) >= 5280000 and int(cl) < 5310000],
-                'education': [cl for cl in landuse_classes if int(cl) >= 5310000 and int(cl) < 6000000],
-                'parks': [cl for cl in landuse_classes if int(cl) >= 3180000 and int(cl) < 3190000],
-                'cultural': [cl for cl in landuse_classes if int(cl) >= 3170000 and int(cl) < 3180000],
-                'sports': [cl for cl in landuse_classes if int(cl) >= 4000000 and int(cl) < 4250000]
+                'transport': [cl for cl in landuse_classes if
+                              int(cl) >= 10000000 and int(cl) < 11000000],
+                'health': [cl for cl in landuse_classes if
+                           int(cl) >= 5280000 and int(cl) < 5310000],
+                'education': [cl for cl in landuse_classes if
+                              int(cl) >= 5310000 and int(cl) < 6000000],
+                'parks': [cl for cl in landuse_classes if
+                          int(cl) >= 3180000 and int(cl) < 3190000],
+                'cultural': [cl for cl in landuse_classes if
+                             int(cl) >= 3170000 and int(cl) < 3180000],
+                'sports': [cl for cl in landuse_classes if
+                           int(cl) >= 4000000 and int(cl) < 4250000]
             }
         else:
             self.class_categories = {
                 'eating': [cl for cl in landuse_classes if
                            (int(cl) >= 1020000 and int(cl) < 1020034) or
                            (int(cl) >= 1020043 and int(cl) < 2000000)],
-                'drinking': [cl for cl in landuse_classes if int(cl) >= 1020034 and int(cl) < 1020043],
-                'commercial': [cl for cl in landuse_classes if int(cl) >= 2000000 and int(cl) < 3000000],
-                'retail_food': [cl for cl in landuse_classes if int(cl) >= 9470000 and int(cl) < 9480000],
+                'drinking': [cl for cl in landuse_classes if
+                             int(cl) >= 1020034 and int(cl) < 1020043],
+                'commercial': [cl for cl in landuse_classes if
+                               int(cl) >= 2000000 and int(cl) < 3000000],
+                'retail_food': [cl for cl in landuse_classes if
+                                int(cl) >= 9470000 and int(cl) < 9480000],
                 'retail_other': [cl for cl in landuse_classes if
                                  (int(cl) >= 9000000 and int(cl) < 9470000) or
                                  (int(cl) >= 9480000 and int(cl) < 10000000)],
-                'transport': [cl for cl in landuse_classes if int(cl) >= 10000000 and int(cl) < 11000000]
+                'transport': [cl for cl in landuse_classes if
+                              int(cl) >= 10000000 and int(cl) < 11000000]
             }
 
         # prepare data structure for unpacking results
@@ -137,7 +156,8 @@ class Accessibility_Codes():
                 for dist in self.metrics[theme][cat].keys():
                     for class_code in self.class_categories[cat]:
                         # array-wise
-                        self.metrics[theme][cat][dist] += access_metrics_dict[theme][class_code][dist]
+                        self.metrics[theme][cat][dist] += \
+                            access_metrics_dict[theme][class_code][dist]
         # add totals
         # pre-total categories
         for wt in self.metrics.keys():
@@ -172,7 +192,8 @@ async def accessibility_calc(db_config,
         data_table += '_randomised'
 
     logger.info(
-        f'Starting LU calcs for city id: {city_pop_id} on network table {nodes_table} and data table {data_table}')
+        f'Starting LU calcs for city id: {city_pop_id} on network table '
+        f'{nodes_table} and data table {data_table}')
     logger.info(f'Loading network data')
     G = await postGIS_to_networkX(db_config, nodes_table, links_table, city_pop_id)
     N = networks.NetworkLayerFromNX(G, distances)
@@ -224,7 +245,9 @@ async def accessibility_calc(db_config,
                          accessibility_keys=Acc_codes.all_codes,
                          cl_disparity_wt_matrix=cl_disparity_wt_matrix,
                          qs=[0, 1, 2])
-    logger.info(f'Algo duration: {datetime.timedelta(seconds=time.mktime(time.localtime()) - time.mktime(start))}')
+    time_duration = datetime.timedelta(
+        seconds=time.mktime(time.localtime()) - time.mktime(start))
+    logger.info(f'Algo duration: {time_duration}')
 
     # squash the accessibility data
     logger.info('Squashing accessibility data')
@@ -375,7 +398,10 @@ async def accessibility_calc(db_config,
     col_strings = []
     counter = 2
     for measure_col in measure_cols:
-        await db_con.execute(f'ALTER TABLE {nodes_table} ADD COLUMN IF NOT EXISTS {measure_col} real[];')
+        await db_con.execute(f'''
+        ALTER TABLE {nodes_table}
+            ADD COLUMN IF NOT EXISTS {measure_col} real[];
+        ''')
         col_strings.append(f'{measure_col} = ${counter}')
         counter += 1
     await db_con.executemany(f'UPDATE {nodes_table} SET ' + ', '.join(col_strings) + ' WHERE id = $1;', bulk_data)
@@ -406,7 +432,8 @@ if __name__ == '__main__':
     date_last_updated = asyncio.run(fetch_date_last_updated(db_config))
     data_where = f"date_last_updated = date('{date_last_updated}')"
     max_dist = 1600
-    distances = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600]
+    distances = [50, 100, 200, 300, 400, 500, 600, 700, 800,
+                 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600]
     nodes_table = 'analysis.nodes_20'
     links_table = 'analysis.links_20'
     rdm = False
@@ -414,7 +441,8 @@ if __name__ == '__main__':
 
     for city_pop_id in range(362, 932):
         start_time = time.localtime()
-        logger.info(f'Started {start_time[0]}-{start_time[1]}-{start_time[2]} at {start_time[3]}h:{start_time[4]}m')
+        logger.info(f'Started {start_time[0]}-{start_time[1]}-{start_time[2]} '
+                    f'at {start_time[3]}h:{start_time[4]}m')
         asyncio.run(
             accessibility_calc(db_config,
                                nodes_table,
@@ -424,6 +452,9 @@ if __name__ == '__main__':
                                data_where=data_where,
                                rdm_flag=rdm,
                                dual_flag=dual))
-        logger.info(f'Duration: {datetime.timedelta(seconds=time.mktime(time.localtime()) - time.mktime(start_time))}')
+        time_duration = datetime.timedelta(
+            seconds=time.mktime(time.localtime()) - time.mktime(start_time))
+        logger.info(f'Duration: {time_duration}')
         end_time = time.localtime()
-        logger.info(f'Ended {end_time[0]}-{end_time[1]}-{end_time[2]} at {end_time[3]}h:{end_time[4]}m')
+        logger.info(f'Ended {end_time[0]}-{end_time[1]}-{end_time[2]} '
+                    f'at {end_time[3]}h:{end_time[4]}m')

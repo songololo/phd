@@ -2,7 +2,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from src import phd_util
+from src import util_funcs
 
 # %%
 # solve for beta using: log(1/y)/d where y = 0.01831563888873418
@@ -14,7 +14,7 @@ for d_max in [50, 100, 150, 200, 300, 400, 600, 800, 1200, 1600]:
 
 
 # %%
-phd_util.plt_setup()
+util_funcs.plt_setup()
 
 fig, ax = plt.subplots(1, 1, figsize=(5, 2.5))
 w_min = 0.01831563888873418

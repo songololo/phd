@@ -3,7 +3,7 @@ import numpy as np
 from cityseer.metrics import networks
 from tqdm import tqdm
 
-from src import phd_util
+from src import util_funcs
 from src.explore.MMM._blocks import generate_data_layer, plotter
 
 
@@ -247,7 +247,7 @@ def mmm_single(_graph,
     for n, d in _graph.nodes(data=True):
         xs.append(d['x'])
 
-    phd_util.plt_setup(dark=dark)
+    util_funcs.plt_setup(dark=dark)
 
     if isinstance(_layer_specs, dict):
         pop_map, landuse_maps, capacitance_maps, flow_maps = mmm_layercake_a(_graph,
@@ -310,7 +310,7 @@ def mmm_nested_split(_graph,
     for n, d in _graph.nodes(data=True):
         xs.append(d['x'])
 
-    phd_util.plt_setup(dark=dark)
+    util_funcs.plt_setup(dark=dark)
 
     assert isinstance(_layer_specs, (list, tuple))
     fig, axes = plt.subplots(1, 3, figsize=figsize)
@@ -372,7 +372,7 @@ def mmm_nested_doubles(_graph,
     for n, d in _graph.nodes(data=True):
         xs.append(d['x'])
 
-    phd_util.plt_setup(dark=dark)
+    util_funcs.plt_setup(dark=dark)
 
     assert isinstance(_layer_specs, (list, tuple))
     fig, axes = plt.subplots(1, 3, figsize=figsize)

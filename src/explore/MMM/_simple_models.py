@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
 
-from src import phd_util
+from src import util_funcs
 
 os.environ['CITYSEER_QUIET_MODE'] = '1'
 from cityseer.util import mock
@@ -28,7 +28,7 @@ spans = 200
 spine_nx = generate_graph(_spans=spans)
 spine_nx_stepped = generate_graph(_spans=spans, _stepped=True)
 
-phd_util.plt_setup()
+util_funcs.plt_setup()
 fig, axes = plt.subplots(1, 2, figsize=(12, 20))
 
 for ax_n, graph in enumerate([spine_nx, spine_nx_stepped]):
@@ -84,7 +84,7 @@ spans = 200
 spine_nx = generate_graph(_spans=spans)
 spine_nx_stepped = generate_graph(_spans=spans, _stepped=True)
 
-phd_util.plt_setup()
+util_funcs.plt_setup()
 fig, axes = plt.subplots(1, 3, figsize=(18, 20))
 
 for ax_n, (graph, randomised) in enumerate(zip([spine_nx, spine_nx, spine_nx_stepped],

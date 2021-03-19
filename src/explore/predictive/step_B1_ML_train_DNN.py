@@ -47,7 +47,7 @@ from tensorflow.keras import losses
 from tensorflow.keras.callbacks import TensorBoard, ReduceLROnPlateau, TerminateOnNaN, \
     ModelCheckpoint
 
-from src import phd_util
+from src import util_funcs
 from src.explore.theme_setup import data_path, logs_path, weights_path, generate_theme
 
 #  %%
@@ -82,13 +82,13 @@ for target, target_dist in zip(targets, target_distances):
     transformer = StandardScaler()
     X_trans_all = transformer.fit_transform(X_dropped).astype(np.float32)
     # test split - use spatial splitting - 300 modulo gives about 11%
-    xy_test_idx = phd_util.train_test_idxs(df_20, 300)
+    xy_test_idx = util_funcs.train_test_idxs(df_20, 300)
     X_trans_train = X_trans_all[~xy_test_idx]
     X_trans_test = X_trans_all[xy_test_idx]
     y_train = y_all[~xy_test_idx]
     y_test = y_all[xy_test_idx]
     # validation split - 200 modulo gives about 25%
-    xy_val_idx = phd_util.train_test_idxs(df_20[~xy_test_idx], 200)
+    xy_val_idx = util_funcs.train_test_idxs(df_20[~xy_test_idx], 200)
     X_trans_val = X_trans_train[xy_val_idx]  # do first before repurposing variable name
     X_trans_train = X_trans_train[~xy_val_idx]
     y_val = y_train[xy_val_idx]  # do first before repurposing variable name

@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-from src import phd_util
+from src import util_funcs
 from src.explore.theme_setup import data_path
 from src.explore.theme_setup import generate_theme
 
@@ -60,7 +60,7 @@ def compound_kde(df,
     data = df.copy(deep=True)
 
     # setup colormap if not set explicitly
-    cmap = phd_util.cityseer_cmap()
+    cmap = util_funcs.cityseer_cmap()
 
     # plot the data for each city
     ylim_max = []
@@ -103,7 +103,7 @@ def compound_kde(df,
 
 
 def kde_plot(data, theme, label, x_max=100, y_chunks=500):
-    cmap = phd_util.cityseer_cmap()
+    cmap = util_funcs.cityseer_cmap()
     city_pop_range = range(1, int(data.city_pop_id.max() + 1))
 
     # figure out the y scale
@@ -128,7 +128,7 @@ def kde_plot(data, theme, label, x_max=100, y_chunks=500):
             target = ((max_size - min_size) * y_frac) + min_size
             y_scales.append(target / y_max)
 
-    phd_util.plt_setup()
+    util_funcs.plt_setup()
     fig, axes = plt.subplots(1, 4, figsize=(12, 10))
     for n, (dist, y_scale) in enumerate(zip(['200', '400', '800', '1600'], y_scales)):
         col_key = theme.format(dist=dist)
