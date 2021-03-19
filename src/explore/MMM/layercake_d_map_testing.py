@@ -72,7 +72,7 @@ comp_rate = comp_rate.replace('.', '_')
 
 theme = f'test_er{explore_rate}_cr{comp_rate}'
 fig.suptitle(theme)
-fp = f'./explore/MMM/exploratory_plots/{theme}.mp4'
+fp = f'./src/explore/MMM/exploratory_plots/{theme}.mp4'
 
 
 def init_func():

@@ -71,7 +71,7 @@ plot_funcs.plot_scatter(ax,
                         x_extents=(-7000, 11500),
                         y_extents=(-4500, 7500))
 plt.suptitle('Individual probabilistic components - VaDE GMM')
-path = f'../../phd-admin/PhD/part_3/images/signatures/{vade.theme}_cluster.png'
+path = f'../phd-admin/PhD/part_3/images/signatures/{vade.theme}_cluster.png'
 plt.savefig(path, dpi=300)
 
 # %%
@@ -151,7 +151,7 @@ for row_idx, ax_row in enumerate(axes):
             ax.axis('off')
         cluster_idx += 1
 plt.suptitle('Mean composition of each VaDE - GMM component')
-path = f'../../phd-admin/PhD/part_3/images/signatures/{vade.theme}_cluster_mus.png'
+path = f'../phd-admin/PhD/part_3/images/signatures/{vade.theme}_cluster_mus.png'
 plt.savefig(path, dpi=300)
 
 # %%
@@ -235,5 +235,5 @@ for ax_row in axes:
         ax.set_title(theme)
         theme_idx += 1
 plt.suptitle('Comparative GMM clustering scenarios')
-path = f'../../phd-admin/PhD/part_3/images/signatures/{vade.theme}_gmm_comparisons_maps.png'
+path = f'../phd-admin/PhD/part_3/images/signatures/{vade.theme}_gmm_comparisons_maps.png'
 plt.savefig(path, dpi=300)

@@ -256,7 +256,7 @@ for col_idx, col_theme in enumerate(column_themes):
 
 plt.suptitle('Spearman correlation coefficients for mixed-use richness compared to network centrality')
 
-path = f'../../phd-admin/PhD/part_1/images/cityseer/primal_correlations_vs_randomised_mu.png'
+path = f'../phd-admin/PhD/part_1/images/cityseer/primal_correlations_vs_randomised_mu.png'
 plt.savefig(path, dpi=300)
 
 plt.show()
@@ -371,7 +371,7 @@ ax_legend.legend(
 
 plt.suptitle('Violin plots comparing actual landuses to randomised landuses')
 
-path = f'../../phd-admin/PhD/part_1/images/cityseer/landuse_stats_comparisons_decomp.png'
+path = f'../phd-admin/PhD/part_1/images/cityseer/landuse_stats_comparisons_decomp.png'
 plt.savefig(path, dpi=300)
 
 plt.show()
@@ -580,7 +580,7 @@ for n, ax in enumerate(axes[0]):
 
 plt.suptitle('Correlations, $r^{2}$, and Moran\'s I for centrality and mixed-use richness $H_{0}$ ')
 
-path = f'../../phd-admin/PhD/part_1/images/cityseer/primal_correlations_cent_vs_mu.png'
+path = f'../phd-admin/PhD/part_1/images/cityseer/primal_correlations_cent_vs_mu.png'
 plt.savefig(path, dpi=300)
 
 plt.show()

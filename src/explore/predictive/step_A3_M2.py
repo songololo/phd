@@ -184,7 +184,7 @@ for x, y, town_name in [(485970, 236920, 'Milton Keynes'),
     cax = divider.append_axes('right', size='2%', pad=0.05)
     plt.colorbar(mappable, cax=cax, aspect=80)
     plt.suptitle(f'{town_name} - 20m resolution "New Town" predicted probabilities')
-    path = f'../../phd-admin/PhD/part_3/images/predicted/nt_hyperlocal_pred_{town_name}_{m2.theme}_{clf.theme}.png'
+    path = f'../phd-admin/PhD/part_3/images/predicted/nt_hyperlocal_pred_{town_name}_{m2.theme}_{clf.theme}.png'
     plt.savefig(path, dpi=300)
 
 #  %%
@@ -250,5 +250,5 @@ for ax_row, ax_theme, y_pred, points_perc, points_perc_norm in zip(
 
 plt.suptitle(
     'New (vs. historic) probabilities compared for towns between 8,200 and 290,000 people.')
-path = f'../../phd-admin/PhD/part_3/images/predicted/nt_dists_probs_{m2.theme}_{clf.theme}.png'
+path = f'../phd-admin/PhD/part_3/images/predicted/nt_dists_probs_{m2.theme}_{clf.theme}.png'
 plt.savefig(path, dpi=300)

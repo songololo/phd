@@ -81,5 +81,5 @@ plot_funcs.plot_scatter(ax,
                         s=sizes,
                         x_extents=(-7000, 11500),
                         y_extents=(-4500, 7500))
-path = f'../../phd-admin/PhD/part_3/images/signatures/{vade.theme}_d{latent_dim}_e{epochs}_comp{n_components}_clust_comb.png'
+path = f'../phd-admin/PhD/part_3/images/signatures/{vade.theme}_d{latent_dim}_e{epochs}_comp{n_components}_clust_comb.png'
 plt.savefig(path, dpi=300)

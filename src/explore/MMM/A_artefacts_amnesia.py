@@ -40,7 +40,7 @@ for ax_n, cap_step in enumerate([0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 1.0]):
     })
 
 theme = 'mmm_cap_step'
-path = f'./explore/MMM/exploratory_plots/{theme}.png'
+path = f'./src/explore/MMM/exploratory_plots/{theme}.png'
 mmm_single(graph, iters, _layer_specs=specs, _title=titles, theme=theme, path=path, figsize=(40, 20), dark=True)
 
 # population threshold series
@@ -63,7 +63,7 @@ for ax_n, pop_thresh in enumerate([10, 25, 50, 100, 200, 500, 1000]):
     })
 
 theme = 'mmm_pop_thresh'
-path = f'./explore/MMM/exploratory_plots/{theme}.png'
+path = f'./src/explore/MMM/exploratory_plots/{theme}.png'
 mmm_single(graph, iters, _layer_specs=specs, _title=titles, theme=theme, path=path, figsize=(40, 20), dark=True)
 
 # distance threshold series
@@ -85,7 +85,7 @@ for ax_n, dist_thresh in enumerate([100, 200, 400, 600, 800, 1200, 1600]):
     })
 
 theme = 'mmm_dist_threshold'
-path = f'./explore/MMM/exploratory_plots/{theme}.png'
+path = f'./src/explore/MMM/exploratory_plots/{theme}.png'
 mmm_single(graph, iters, _layer_specs=specs, _title=titles, theme=theme, path=path, figsize=(40, 20), dark=True)
 
 # comp_rate rate series
@@ -107,7 +107,7 @@ for ax_n, comp_rate in enumerate([0.0, 0.1, 0.25, 0.5, 0.75, 0.9, 1.0]):
     })
 
 theme = 'mmm_comp_rate'
-path = f'./explore/MMM/exploratory_plots/{theme}.png'
+path = f'./src/explore/MMM/exploratory_plots/{theme}.png'
 mmm_single(graph, iters, _layer_specs=specs, _title=titles, theme=theme, path=path, figsize=(40, 20), dark=True)
 
 # exploration rate series
@@ -129,7 +129,7 @@ for ax_n, explore_rate in enumerate([0.0, 0.1, 0.25, 0.5, 0.75, 0.9, 1.0]):
     })
 
 theme = 'mmm_exploration_rate'
-path = f'./explore/MMM/exploratory_plots/{theme}.png'
+path = f'./src/explore/MMM/exploratory_plots/{theme}.png'
 mmm_single(graph, iters, _layer_specs=specs, _title=titles, theme=theme, path=path, figsize=(40, 20), dark=True)
 
 # echos rate series
@@ -151,5 +151,5 @@ for ax_n, echo_rate in enumerate([0.0, 0.1, 0.25, 0.5, 0.75, 0.9, 1.0]):
     })
 
 theme = 'mmm_echo_rate'
-path = f'./explore/MMM/exploratory_plots/{theme}.png'
+path = f'./src/explore/MMM/exploratory_plots/{theme}.png'
 mmm_single(graph, iters, _layer_specs=specs, _title=titles, theme=theme, path=path, figsize=(40, 20), dark=True)

@@ -176,7 +176,7 @@ def pop_plot(city_data, city_theme, city_label, bound_data, bound_label):
         axes[n].set_xscale('log')
         axes[n].legend(loc=2)
 
-    path = f'../../phd-admin/PhD/part_3/images/predicted/mus/{city_theme.strip("_{dist}")}.png'
+    path = f'../phd-admin/PhD/part_3/images/predicted/mus/{city_theme.strip("_{dist}")}.png'
     plt.savefig(path, dpi=300)
 
 

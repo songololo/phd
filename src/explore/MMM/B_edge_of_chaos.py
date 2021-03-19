@@ -36,7 +36,7 @@ hybrid_layers = (fast_layer.copy(), slow_layer.copy())
 
 title = ''
 theme = 'mmm_hybrid_fast_slow'
-path = f'./explore/MMM/exploratory_plots/{theme}_split.png'
+path = f'./src/explore/MMM/exploratory_plots/{theme}_split.png'
 
 mmm_nested_split(graph,
                  iters,
@@ -46,7 +46,7 @@ mmm_nested_split(graph,
                  path=path,
                  dark=True)
 
-path = f'./explore/MMM/exploratory_plots/{theme}_doubles.png'
+path = f'./src/explore/MMM/exploratory_plots/{theme}_doubles.png'
 mmm_nested_doubles(graph,
                    iters,
                    hybrid_layers,

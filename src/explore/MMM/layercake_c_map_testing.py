@@ -87,4 +87,4 @@ explore_rate = explore_rate.replace('.', '_')
 comp_rate = str(layer_specs["comp_rate"])
 comp_rate = comp_rate.replace('.', '_')
 
-animation.save(f'./explore/H_mmm/exploratory_plots/{theme}_exp_{explore_rate}_comp_{comp_rate}.mp4')
+animation.save(f'./src/explore/H_mmm/exploratory_plots/{theme}_exp_{explore_rate}_comp_{comp_rate}.mp4')

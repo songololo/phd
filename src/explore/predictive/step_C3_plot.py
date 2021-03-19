@@ -354,7 +354,7 @@ def animate_func(i):
 
 #  %%
 fig.suptitle(title)
-fp = f'../../phd-admin/PhD/part_3/images/predicted/{title}.mp4'
+fp = f'../phd-admin/PhD/part_3/images/predicted/{title}.mp4'
 
 # for "frames" argument, int is piped to a range operator
 anim = animation.FuncAnimation(fig,

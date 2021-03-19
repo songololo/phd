@@ -28,5 +28,5 @@ mmm_wrap(ax, graph, layer_spec, iters, spans)
 
 theme = 'test'
 fig.suptitle(theme)
-plt.savefig(f'./explore/H_mmm/exploratory_plots/{theme}.png', dpi=300)
+plt.savefig(f'./src/explore/H_mmm/exploratory_plots/{theme}.png', dpi=300)
 plt.show()

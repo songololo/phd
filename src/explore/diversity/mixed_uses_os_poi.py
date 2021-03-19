@@ -183,7 +183,7 @@ for theme_set, theme_labels, t_meta, p_meta, weighted in zip(theme_sets, theme_l
 
     plt.suptitle(f'Comparative plots of {t_meta} mixed-use measures for inner London')
 
-    path = f'../../phd-admin/PhD/part_2/images/diversity/diversity_comparisons_{p_meta}.png'
+    path = f'../phd-admin/PhD/part_2/images/diversity/diversity_comparisons_{p_meta}.png'
     plt.savefig(path, dpi=300)
 
 # %% prepare PCA
@@ -270,7 +270,7 @@ plot_funcs.plot_components(component_idx,
 
 plt.suptitle(f'Feature extraction - first {len(component_idx)} PCA components derived from POI landuse accessibilities')
 
-path = f'../../phd-admin/PhD/part_2/images/diversity/PCA.png'
+path = f'../phd-admin/PhD/part_2/images/diversity/PCA.png'
 plt.savefig(path, dpi=300)
 
 # %%
@@ -310,7 +310,7 @@ for ax_row, divs, div_labels in zip(
 
 plt.suptitle(f'A comparison of mixed-use measure distributions')
 
-path = f'../../phd-admin/PhD/part_2/images/diversity/mixed_uses_example_distributions.png'
+path = f'../phd-admin/PhD/part_2/images/diversity/mixed_uses_example_distributions.png'
 plt.savefig(path, dpi=300)
 
 # %%
@@ -401,7 +401,7 @@ for pca_dim in range(2):
             ax.set_title(ax_title)
 
     plt.suptitle(f'Correlations for mixed-use measures to PCA component {pca_dim}')
-    path = f'../../phd-admin/PhD/part_2/images/diversity/mixed_use_measures_correlated_pca_{pca_dim}.png'
+    path = f'../phd-admin/PhD/part_2/images/diversity/mixed_use_measures_correlated_pca_{pca_dim}.png'
     plt.savefig(path, dpi=300)
 
 # %%
@@ -479,7 +479,7 @@ for t_idx, (ax, theme, label, weighted) in enumerate(zip(axes, themes, labels, t
 
 plt.suptitle(r'Correlations for variants of Hill mixed-use measures to PCA at increasing network decomposition')
 
-path = f'../../phd-admin/PhD/part_2/images/diversity/mixed_use_measures_corr_pca_decompositions.png'
+path = f'../phd-admin/PhD/part_2/images/diversity/mixed_use_measures_corr_pca_decompositions.png'
 plt.savefig(path, dpi=300)
 
 # %%
@@ -548,7 +548,7 @@ for ax_row, ax in enumerate(axes):
 
 plt.suptitle('Correlations for weighted / unweighted mixed-use measures to PCA components 1 & 2')
 
-path = f'../../phd-admin/PhD/part_2/images/diversity/mixed_use_measures_corr_pca_themes.png'
+path = f'../phd-admin/PhD/part_2/images/diversity/mixed_use_measures_corr_pca_themes.png'
 plt.savefig(path, dpi=300)
 
 # %%
@@ -612,7 +612,7 @@ for ax_row, ax in enumerate(axes):
 
 plt.suptitle('Correlations for landuse accessibilities to PCA components & mixed-use measures')
 
-path = f'../../phd-admin/PhD/part_2/images/diversity/landuse_accessibilities.png'
+path = f'../phd-admin/PhD/part_2/images/diversity/landuse_accessibilities.png'
 plt.savefig(path, dpi=300)
 
 # %%
@@ -933,5 +933,5 @@ for ax, y_top, x_right in zip(axes, [None, 30], [5000, 500]):
     ax.set_ylabel('diversity / effective number of uses')
     ax.legend(loc='upper right', title='')
 
-path = f'../../phd-admin/PhD/part_2/images/diversity/mixed_uses_random_removal.png'
+path = f'../phd-admin/PhD/part_2/images/diversity/mixed_uses_random_removal.png'
 plt.savefig(path, dpi=300)

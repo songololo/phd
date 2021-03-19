@@ -173,7 +173,7 @@ def kde_plot(data, theme, label, x_max=100, y_chunks=500):
                          fontdict={'size': 6},
                          color=c)
 
-    path = f'../../phd-admin/PhD/part_3/images/predicted/kde/{theme.strip("_{dist}")}.png'
+    path = f'../phd-admin/PhD/part_3/images/predicted/kde/{theme.strip("_{dist}")}.png'
     plt.savefig(path, dpi=300)
 
 

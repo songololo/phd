@@ -62,7 +62,7 @@ for ax_n, graph in enumerate([spine_nx, spine_nx_stepped]):
 
 theme = 'density_agglomeration'
 fig.suptitle(theme)
-plt.savefig(f'./explore/H_mmm/exploratory_plots/{theme}.png', dpi=300)
+plt.savefig(f'./src/explore/H_mmm/exploratory_plots/{theme}.png', dpi=300)
 plt.show()
 
 #  %%
@@ -177,5 +177,5 @@ for ax_n, (graph, randomised) in enumerate(zip([spine_nx, spine_nx, spine_nx_ste
 
 theme = 'density_vs_mixed_uses'
 fig.suptitle(theme)
-plt.savefig(f'./explore/H_mmm/exploratory_plots/{theme}.png', dpi=300)
+plt.savefig(f'./src/explore/H_mmm/exploratory_plots/{theme}.png', dpi=300)
 plt.show()

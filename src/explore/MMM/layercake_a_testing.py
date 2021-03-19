@@ -18,7 +18,7 @@ layer_specs = {
 }
 
 theme = 'test_layercake'
-path = f'./explore/H_mmm/exploratory_plots/{theme}.png'
+path = f'./src/explore/H_mmm/exploratory_plots/{theme}.png'
 mmm_single(graph,
            iters,
            _layer_specs=layer_specs,

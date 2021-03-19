@@ -164,5 +164,5 @@ for ax_idx, ax in enumerate(axes):
     z_txt_b = str.join(", ", z_txt[4:])
     ax.set_xlabel(f'landuses decoded from latents:\n{z_txt_a} \n{z_txt_b}', fontsize='x-small', )
 plt.suptitle('Landuse decodings for example locations')
-path = f'../../phd-admin/PhD/part_3/images/signatures/vae_example_decodings.png'
+path = f'../phd-admin/PhD/part_3/images/signatures/vae_example_decodings.png'
 plt.savefig(path, dpi=300)

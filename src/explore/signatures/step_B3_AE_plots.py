@@ -208,7 +208,7 @@ for ax_row, theme_row in zip(axes, theme_sets):
             generate_heatmap(ax, theme, epochs, latent_dims[0], history_data)
 
 plt.suptitle(r'10 seed avg. losses for $\beta$ and $C$ hyperparameters (10 epochs)')
-path = f'../../phd-admin/PhD/part_3/images/signatures/model_scores_fine.png'
+path = f'../phd-admin/PhD/part_3/images/signatures/model_scores_fine.png'
 plt.savefig(path, dpi=300)
 
 # %%
@@ -287,7 +287,7 @@ for ax_row, inverse in zip(axes, [False, True]):
         if inverse:
             ax.set_title(f'Dim. {latent_idx + 1} - Inverse')
 plt.suptitle(r"Geographic mappings (and inverses) for the latents of the VAE model")
-path = f'../../phd-admin/PhD/part_3/images/signatures/latents_map_inv_{beta}_{str(cap).replace(".", "_")}.png'
+path = f'../phd-admin/PhD/part_3/images/signatures/latents_map_inv_{beta}_{str(cap).replace(".", "_")}.png'
 plt.savefig(path, dpi=300)
 
 #  %%
@@ -313,7 +313,7 @@ for ax_row, inverse in zip(axes, [False, True]):
         if inverse:
             ax.set_title(f'Dim. {latent_idx + 1} - Inverse')
 plt.suptitle(r"Pearson's $\rho$ correlations (and inverses) to source variables for the latents of the VAE model")
-path = f'../../phd-admin/PhD/part_3/images/signatures/latents_corr_inv_{beta}_{str(cap).replace(".", "_")}.png'
+path = f'../phd-admin/PhD/part_3/images/signatures/latents_corr_inv_{beta}_{str(cap).replace(".", "_")}.png'
 plt.savefig(path, dpi=300)
 
 #  %%
@@ -353,7 +353,7 @@ for inverse in [False, True]:
     if inverse:
         st += ' - Inverse'
     plt.suptitle(st)
-    path = f'../../phd-admin/PhD/part_3/images/signatures/sub_latent_correlations_{beta}_{str(cap).replace(".", "_")}'
+    path = f'../phd-admin/PhD/part_3/images/signatures/sub_latent_correlations_{beta}_{str(cap).replace(".", "_")}'
     if inverse:
         path += '_inverse'
     path += '.png'
@@ -408,7 +408,7 @@ for lb, set in zip(['A', 'B'], [set_A, set_B]):
                                     s_exp=3.5)
             axes[1][col_start_idx + latent_idx].set_title(t + ' - Inverse')
     plt.suptitle(r"Geographic mapping of the split sub-latents of the VAE model")
-    path = f'../../phd-admin/PhD/part_3/images/signatures/sub_latent_maps_{lb}_{beta}_{str(cap).replace(".", "_")}.png'
+    path = f'../phd-admin/PhD/part_3/images/signatures/sub_latent_maps_{lb}_{beta}_{str(cap).replace(".", "_")}.png'
     plt.savefig(path, dpi=300)
 
 #  %%
@@ -530,7 +530,7 @@ for ax_idx in range(6):
         ax.plot(theta, values, linewidth=1, linestyle='solid', label=f'latent {data_label}')
         ax.fill(theta, values, 'b', alpha=0.1)
 plt.suptitle('Spider plots showing distribution of sub-latent weights relative to latents.')
-path = f'../../phd-admin/PhD/part_3/images/signatures/latent_spiders.png'
+path = f'../phd-admin/PhD/part_3/images/signatures/latent_spiders.png'
 plt.savefig(path, dpi=300)
 '''
 
@@ -585,7 +585,7 @@ for l1, l2 in [[2, 3], [3, 7]]:
                                     set_col_labels=cl)
             ax.set_xlabel(f'{i_key} $\sigma$ | {j_key} $\sigma$')
     plt.suptitle(f'VAE latent variable sweeps across latent dimensions {l1 + 1} & {l2 + 1}.')  # 5 and 3 in unsorted Z
-    path = f'../../phd-admin/PhD/part_3/images/signatures/vae_grid_{beta}_{str(cap).replace(".", "_")}_{l1}_{l2}.png'
+    path = f'../phd-admin/PhD/part_3/images/signatures/vae_grid_{beta}_{str(cap).replace(".", "_")}_{l1}_{l2}.png'
     plt.savefig(path, dpi=300)
 
 #  %%
@@ -633,5 +633,5 @@ for i, (latent_start, latent_end) in enumerate(zip([1, 3, 5, 7], [3, 5, 7, 9])):
                                     set_col_labels=cl)
             ax.set_xlabel(f'latent {latent_idx}: {sweep} $\sigma$')
     plt.suptitle(f'VAE latent variable sweeps across individual latent dimensions {latent_start} & {latent_end - 1}.')
-    path = f'../../phd-admin/PhD/part_3/images/signatures/vae_sweep_{i}_{beta}_{str(cap).replace(".", "_")}.png'
+    path = f'../phd-admin/PhD/part_3/images/signatures/vae_sweep_{i}_{beta}_{str(cap).replace(".", "_")}.png'
     plt.savefig(path, dpi=300)
