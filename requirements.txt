@@ -1,0 +1,17 @@
+asyncpg
+cityseer
+keras
+matplotlib
+networkx
+numpy
+palettable
+pandas
+pyarrow
+pytest
+scipy
+seaborn
+shapely
+sklearn
+# as of 2020/03 tensorflow is not yet compatible with python 3.9
+tensorflow
+tqdm

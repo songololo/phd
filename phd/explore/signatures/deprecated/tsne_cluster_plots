@@ -1,0 +1,54 @@
+#%%
+# run TSNE on partial data for performance
+x_mu = np.mean(table.x)
+y_mu = np.mean(table.y)
+buffer = 7000
+select = list(table.x > x_mu - buffer)
+select = np.logical_and(select, list(table.x < x_mu + buffer))
+select = np.logical_and(select, list(table.y > y_mu - buffer))
+select = np.logical_and(select, list(table.y < y_mu + buffer))
+select_idx = np.where(select)[0]
+n_samples = 10000  # seems to scale fairly nicely but slightly exponential
+sample_idx = select_idx[np.random.choice(len(select_idx), n_samples, replace=False)]
+
+# TSNE - unfolds "points" to splay-out local structures
+# use perplexity to control degree on local (smaller p) vs global (larger p) structures
+# smaller perplexity is faster
+tsne = TSNE(n_components=2,
+            init='pca',  # init of PCA seems to give more integrity to layout
+            perplexity=50,  # between 30 and 50 seems to work well
+            early_exaggeration=12.5,  # default seems fine
+            learning_rate=200,  # default seems fine
+            random_state=0,
+            angle=0.5,  # default seems fine
+            n_jobs=4,
+            verbose=2)
+tsne_X = tsne.fit_transform(cluster_probs_X[sample_idx])
+tsne_VAE_Z = tsne.fit_transform(cluster_probs_VAE_Z_gmm[sample_idx])
+tsne_PCA = tsne.fit_transform(cluster_probs_PCA[sample_idx])
+tsne_VaDE = tsne.fit_transform(cluster_probs_VaDE[sample_idx])  # sample
+
+#  %%
+# TSNE plots
+themes = ['GMM - Input variables', 'GMM - VAE latents', 'GMM - PCA latents', 'GMM - VaDE']
+tsnes = [tsne_X, tsne_VAE_Z, tsne_PCA, tsne_VaDE]
+assignments = [cluster_assign_X, cluster_assign_VAE_Z, cluster_assign_PCA, cluster_assign_VaDE]
+phd_util.plt_setup()
+fig, axes = plt.subplots(2, 2, figsize=(12, 12))
+theme_idx = 0
+for ax_row in axes:
+    for ax in ax_row:
+        theme = themes[theme_idx]
+        ts = tsnes[theme_idx]
+        assigned = assignments[theme_idx]
+        colours, sizes = plot_funcs.map_diversity_colour(X_raw, assigned, n_components)
+        c = colours[sample_idx]
+        s = sizes[sample_idx]
+        ax.scatter(ts[:, 0], ts[:, 1], c=c, s=s, alpha=0.5)
+        ax.set_xlim(left=np.nanpercentile(ts[:, 0], .1), right=np.nanpercentile(ts[:, 0], 99.9))
+        ax.set_ylim(bottom=np.nanpercentile(ts[:, 1], .1), top=np.nanpercentile(ts[:, 1],  99.9))
+        ax.set_title(theme)
+        theme_idx += 1
+plt.suptitle('2 component TSNE plots of comparitive GMM')
+path = f'../../phd-admin/PhD/part_3/images/signatures/{vade.theme}_gmm_comparisons_tsne.png'
+plt.savefig(path, dpi=300)
