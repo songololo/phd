@@ -12,9 +12,9 @@ from sklearn.mixture import GaussianMixture
 from sklearn.preprocessing import StandardScaler
 
 from src.explore.signatures import sig_models
+from src.explore.signatures.udr import udr_custom
 from src.explore.theme_setup import data_path, weights_path
 from src.explore.theme_setup import generate_theme
-from src.explore.signatures.udr import udr_custom
 
 
 # %% load from disk

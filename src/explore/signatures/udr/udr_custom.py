@@ -33,8 +33,9 @@ from __future__ import print_function
 
 import numpy as np
 from absl import logging
-from src.explore.signatures.udr import udr
 from sklearn import preprocessing
+
+from src.explore.signatures.udr import udr
 
 
 def compute_udr_sklearn(inferred_model_reps,

@@ -3,16 +3,14 @@
 Correlation plots for e.g. centrality and mixed-uses by town size
 '''
 
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from scipy import stats
+
 from src import phd_util
 from src.explore.theme_setup import data_path
 from src.explore.theme_setup import generate_theme
-from scipy import stats
-
-
 
 # %% load from disk
 df_full = pd.read_feather(data_path / 'df_full_all.feather')

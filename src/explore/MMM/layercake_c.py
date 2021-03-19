@@ -1,9 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from src import phd_util
 from cityseer.metrics import networks
-from src.explore.MMM._blocks import generate_data_layer, plotter
 from tqdm import tqdm
+
+from src import phd_util
+from src.explore.MMM._blocks import generate_data_layer, plotter
 
 
 def mmm_layercake_c(_graph,

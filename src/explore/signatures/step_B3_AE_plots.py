@@ -11,13 +11,14 @@ import pathlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from sklearn.preprocessing import StandardScaler, quantile_transform
+
 from src import phd_util
 from src.explore import plot_funcs
 from src.explore.signatures import sig_models
 from src.explore.signatures import step_B2_vae_latents_UDR
 from src.explore.theme_setup import data_path, weights_path
 from src.explore.theme_setup import generate_theme
-from sklearn.preprocessing import StandardScaler, quantile_transform
 
 # %% load from disk
 df_20 = pd.read_feather(data_path / 'df_20.feather')

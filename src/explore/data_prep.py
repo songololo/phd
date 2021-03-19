@@ -5,7 +5,6 @@ Loads the data from the database and saves as feather files - dramatically faste
 '''
 
 # %%
-import src.phd_util
 from src.explore.theme_setup import data_path
 
 # db connection params 

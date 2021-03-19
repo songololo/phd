@@ -1,14 +1,12 @@
 # %%
 import asyncio
 
-
 import matplotlib.pyplot as plt
 import numpy as np
-from src import phd_util
 from scipy import optimize
 from scipy import stats
 
-
+from src import phd_util
 
 # db connection params
 db_config = {

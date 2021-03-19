@@ -4,14 +4,12 @@ Plots scatter and powerlaw info for global relationships / powerlaw etc.
 Based on GLOBAL population and area
 '''
 
-
 import matplotlib.pyplot as plt
 import numpy as np
-from src import phd_util
 from scipy import optimize
 from scipy import stats
 
-
+from src import phd_util
 
 Style = phd_util.Style()
 

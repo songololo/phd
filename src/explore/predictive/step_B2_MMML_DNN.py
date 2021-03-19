@@ -2,10 +2,11 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
-from src import phd_util
 from cityseer.metrics import networks, layers
-from src.explore.MMM._blocks import generate_data_layer, plotter
 from tqdm import tqdm
+
+from src import phd_util
+from src.explore.MMM._blocks import generate_data_layer, plotter
 
 os.environ['CITYSEER_QUIET_MODE'] = '1'
 

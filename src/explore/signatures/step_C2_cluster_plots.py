@@ -7,15 +7,16 @@ import pathlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from pyproj import Proj, transform
+from sklearn.decomposition import PCA
+from sklearn.mixture import GaussianMixture
+from sklearn.preprocessing import StandardScaler
+
 from src import phd_util
 from src.explore import plot_funcs
 from src.explore.signatures import sig_models
 from src.explore.theme_setup import data_path
 from src.explore.theme_setup import generate_theme
-from pyproj import Proj, transform
-from sklearn.decomposition import PCA
-from sklearn.mixture import GaussianMixture
-from sklearn.preprocessing import StandardScaler
 
 #  %%
 '''

@@ -7,8 +7,9 @@ import logging
 import numpy as np
 import tensorflow as tf
 import tensorflow.keras.backend as K
-from src.explore.signatures.sig_models import DeepLayer, SamplingLayer
 from tensorflow.keras import layers, models, metrics, losses, initializers
+
+from src.explore.signatures.sig_models import DeepLayer, SamplingLayer
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

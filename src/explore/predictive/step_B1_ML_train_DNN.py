@@ -39,15 +39,16 @@ from datetime import datetime
 
 import numpy as np
 import pandas as pd
-from src import phd_util
-from src.explore.predictions import pred_models
-from src.explore.theme_setup import data_path, logs_path, weights_path, generate_theme
 from sklearn.metrics import r2_score
 from sklearn.preprocessing import StandardScaler
+from src.explore.predictions import pred_models
 from tensorflow.keras import backend as K
 from tensorflow.keras import losses
 from tensorflow.keras.callbacks import TensorBoard, ReduceLROnPlateau, TerminateOnNaN, \
     ModelCheckpoint
+
+from src import phd_util
+from src.explore.theme_setup import data_path, logs_path, weights_path, generate_theme
 
 #  %%
 # load data and prep

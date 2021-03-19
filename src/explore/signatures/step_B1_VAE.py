@@ -14,12 +14,13 @@ import pathlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from sklearn.preprocessing import StandardScaler
+
 from src import phd_util
 from src.explore import plot_funcs
 from src.explore.signatures import sig_models, sig_model_runners
 from src.explore.theme_setup import data_path, logs_path, weights_path
 from src.explore.theme_setup import generate_theme
-from sklearn.preprocessing import StandardScaler
 
 # load data and prep
 df_20 = pd.read_feather(data_path / 'df_20.feather')

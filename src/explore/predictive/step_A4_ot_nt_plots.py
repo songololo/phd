@@ -6,10 +6,11 @@ A collection of plots visualising outputs from previous steps
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
 import numpy as np
+from sklearn.preprocessing import StandardScaler
+from src.explore.predictions import pred_tools
+
 from src import phd_util
 from src.explore import plot_funcs
-from src.explore.predictions import pred_tools
-from sklearn.preprocessing import StandardScaler
 
 #  %%
 # load boundaries

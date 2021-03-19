@@ -6,11 +6,12 @@ from datetime import datetime
 
 import matplotlib.pyplot as plt
 import numpy as np
-from src import phd_util
 import tensorflow as tf
-from src.explore import plot_funcs
 from tensorflow.keras import backend as K
 from tensorflow.keras import metrics
+
+from src import phd_util
+from src.explore import plot_funcs
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

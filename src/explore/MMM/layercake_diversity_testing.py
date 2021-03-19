@@ -2,6 +2,7 @@
 import os
 
 import matplotlib.pyplot as plt
+
 from src import phd_util
 
 os.environ['CITYSEER_QUIET_MODE'] = '1'

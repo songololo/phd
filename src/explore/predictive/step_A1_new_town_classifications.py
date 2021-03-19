@@ -6,12 +6,13 @@ new town vs. old town designations for mid-sized towns in Great Britain
 '''
 import numpy as np
 import pandas as pd
-from src import phd_util
-from src.explore.theme_setup import data_path
-from src.explore.theme_setup import generate_theme
 from sklearn.ensemble import ExtraTreesClassifier
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split, GridSearchCV
+
+from src import phd_util
+from src.explore.theme_setup import data_path
+from src.explore.theme_setup import generate_theme
 
 #  %% load from disk
 df_full = pd.read_feather(data_path / 'df_full_all.feather')

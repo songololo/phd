@@ -1,12 +1,13 @@
 import asyncio
 import logging
-from tqdm import tqdm
+
 import asyncpg
-import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib.colors import LinearSegmentedColormap
+import numpy as np
 import pandas as pd
+from matplotlib.colors import LinearSegmentedColormap
+from tqdm import tqdm
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -26,7 +27,7 @@ def plt_setup(dark=False):
     plt.close('all')
     plt.cla()
     plt.clf()
-    
+
     mpl.rcdefaults()  # resets seaborn
     mpl_rc_path = './src/matplotlib.rc'
     mpl.rc_file(mpl_rc_path)
@@ -48,7 +49,6 @@ def plt_setup(dark=False):
 class Style:
 
     def __init__(self):
-
         logger.info('setting colormaps and highlight colours')
 
         self.def_cmap = 'plasma_r'
@@ -62,11 +62,14 @@ class Style:
         self.alt_col_hl2 = 'indigo'
         self.alt_col_hl2_a = 0.4
 
+
 def cityseer_cmap():
     return LinearSegmentedColormap.from_list('cityseer', ['#64c1ff', '#d32f2f'])
 
+
 def cityseer_cmap_intense():
     return LinearSegmentedColormap.from_list('cityseer_intense', ['#0064b7', '#9a0007'])
+
 
 # ordering of colours by darkest, lightest, mid is intentional for use with opacity or size gradients
 def cityseer_cmap_red(dark=False):
@@ -75,6 +78,7 @@ def cityseer_cmap_red(dark=False):
     else:
         return LinearSegmentedColormap.from_list('cityseer_red', ['#2E2E2E', '#9a0007', '#ff6659', '#d32f2f'])
 
+
 # ordering of colours by darkest, lightest, mid is intentional for use with opacity or size gradients
 def cityseer_cmap_blue(dark=False):
     if dark:
@@ -82,15 +86,19 @@ def cityseer_cmap_blue(dark=False):
     else:
         return LinearSegmentedColormap.from_list('cityseer_blue', ['#2E2E2E', '#0064b7', '#64c1ff', '#0091ea'])
 
+
 def cityseer_diverging_cmap(dark=False):
     if dark:
-        return LinearSegmentedColormap.from_list('cityseer', ['#0064b7', '#0091ea', '#64c1ff', '#2E2E2E', '#ff6659', '#d32f2f', '#9a0007'])
+        return LinearSegmentedColormap.from_list('cityseer',
+                                                 ['#0064b7', '#0091ea', '#64c1ff', '#2E2E2E', '#ff6659', '#d32f2f',
+                                                  '#9a0007'])
     else:
-        return LinearSegmentedColormap.from_list('cityseer', ['#0064b7', '#0091ea', '#64c1ff', '#FAFAFA', '#ff6659', '#d32f2f', '#9a0007'])
+        return LinearSegmentedColormap.from_list('cityseer',
+                                                 ['#0064b7', '#0091ea', '#64c1ff', '#FAFAFA', '#ff6659', '#d32f2f',
+                                                  '#9a0007'])
 
 
 async def _fetch_cols(db_config, column_names, table_name, conditions):
-
     cols = ', '.join(column_names)
     q = f'SELECT {cols} FROM {table_name} {conditions};'
     logger.info(f'Example query: {q}')
@@ -122,7 +130,7 @@ async def _fetch_cols(db_config, column_names, table_name, conditions):
     return data_dict
 
 
-def load_data_as_pd_df(db_config, column_names:list, table_name:str, conditions:str):
+def load_data_as_pd_df(db_config, column_names: list, table_name: str, conditions: str):
     logger.info('loading data from DB')
     data_dict = asyncio.run(_fetch_cols(db_config, column_names, table_name, conditions))
     logger.info('generating data frame')
@@ -148,7 +156,6 @@ async def _write_cols(db_config, table_name, data_arr, data_col, data_col_type, 
 
 
 def write_col_data(db_config, table_name, data_arr, data_col, data_col_type, id_arr, id_col):
-
     assert len(data_arr) == len(id_arr)
     asyncio.run(_write_cols(db_config,
                             table_name,
@@ -179,7 +186,6 @@ def clean_pd(df, drop_na='all', fill_inf=np.nan):
 
 # the following plotting function per https://github.com/rasbt/python-machine-learning-book/blob/master/code/ch06/ch06.ipynb
 def plot_ml_learning_curve(ax, train_scores, val_scores):
-
     # if multiple batches - use average of batch and fill areas between standard deviation
     if isinstance(train_scores, np.ndarray) and train_scores.ndim > 1:
         sample_size = np.array(range(1, len(train_scores.shape[1]) + 1))
@@ -206,7 +212,6 @@ def plot_ml_learning_curve(ax, train_scores, val_scores):
 
 # the following plotting function per https://github.com/rasbt/python-machine-learning-book/blob/master/code/ch06/ch06.ipynb
 def plot_ml_validation_curve(ax, param_name, param_range, train_scores, val_scores):
-
     # if multiple batches - use average of batch and fill areas between standard deviation
     if isinstance(train_scores, np.ndarray) and train_scores.ndim > 1:
         train_std = np.std(train_scores, axis=1)  # do before taking mean
@@ -222,7 +227,7 @@ def plot_ml_validation_curve(ax, param_name, param_range, train_scores, val_scor
             label='training accuracy')
 
     ax.plot(param_range, val_scores, color='green', linestyle='--', marker='s', markersize=5,
-             label='validation accuracy')
+            label='validation accuracy')
 
     ax.set_xlabel(f'Parameter: {param_name}')
     ax.set_ylabel('Accuracy')

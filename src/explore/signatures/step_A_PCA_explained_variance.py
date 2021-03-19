@@ -6,14 +6,14 @@ PCA and accompanying explained variance plots
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from src import phd_util
-from src.explore import plot_funcs
-from src.explore.theme_setup import data_path
-from src.explore.theme_setup import generate_theme
 from sklearn.decomposition import PCA
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import StandardScaler
 
+from src import phd_util
+from src.explore import plot_funcs
+from src.explore.theme_setup import data_path
+from src.explore.theme_setup import generate_theme
 
 # %% load from disk
 df_20 = pd.read_feather(data_path / 'df_20.feather')

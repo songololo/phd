@@ -1,8 +1,9 @@
 import numpy as np
 from cityseer.algos import data, checks
 from cityseer.metrics import networks
-from src.explore.MMM._blocks import generate_data_layer, plotter
 from numba import njit
+
+from src.explore.MMM._blocks import generate_data_layer, plotter
 
 
 # numba doesn't yet support summing by axis, though might be added soon per #1269

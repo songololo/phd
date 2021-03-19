@@ -3,16 +3,18 @@
 Example locations for plotting vis-a-vis cluttering / maps
 '''
 import pathlib
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from pyproj import Proj, transform
+from sklearn.preprocessing import StandardScaler
+
 from src import phd_util
 from src.explore import plot_funcs
 from src.explore.signatures import sig_models, sig_model_runners
 from src.explore.theme_setup import data_path, logs_path
 from src.explore.theme_setup import generate_theme
-from pyproj import Proj, transform
-from sklearn.preprocessing import StandardScaler
 
 #  %%
 locations = [

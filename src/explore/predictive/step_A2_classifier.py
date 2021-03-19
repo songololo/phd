@@ -7,11 +7,12 @@ Uses Step 1 OT vs NT designation as training targets from overall town boundary 
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
 import numpy as np
-from src import phd_util
-from src.explore import plot_funcs
-from src.explore.predictions import pred_tools
 from sklearn.metrics import classification_report
 from sklearn.preprocessing import StandardScaler
+from src.explore.predictions import pred_tools
+
+from src import phd_util
+from src.explore import plot_funcs
 
 #  %%
 # load boundaries

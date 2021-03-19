@@ -3,8 +3,9 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
-from src import phd_util
 from tqdm import tqdm
+
+from src import phd_util
 
 os.environ['CITYSEER_QUIET_MODE'] = '1'
 from cityseer.util import mock

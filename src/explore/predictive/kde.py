@@ -4,16 +4,14 @@ KDE LOCAL metrics plotted at 200, 400, 800, 1600m for all towns and cities
 '''
 import logging
 
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from scipy import stats
+
 from src import phd_util
 from src.explore.theme_setup import data_path
 from src.explore.theme_setup import generate_theme
-from scipy import stats
-
-
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

@@ -24,11 +24,12 @@ sample size for balanced: 10.32%
 '''
 import matplotlib.pyplot as plt
 import numpy as np
-from src import phd_util
-from src.explore import plot_funcs
-from src.explore.predictions import pred_tools
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from sklearn.preprocessing import StandardScaler
+from src.explore.predictions import pred_tools
+
+from src import phd_util
+from src.explore import plot_funcs
 
 #  %%
 # load boundaries

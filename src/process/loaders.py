@@ -1,7 +1,8 @@
 import logging
+
 import asyncpg
-import numpy as np
 import networkx as nx
+import numpy as np
 from shapely import wkb
 from tqdm import tqdm
 
@@ -88,7 +89,6 @@ async def postGIS_to_valuations_dict(db_config,
                                      city_pop_id,
                                      max_dist=1600,
                                      data_where=None):
-
     logger.info(f'Loading data from database for {data_table} city id: {city_pop_id}')
     db_con = await asyncpg.connect(**db_config)
     # load all vertices and corresponding neighbours and edges

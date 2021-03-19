@@ -10,19 +10,20 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
 import numpy as np
 import pandas as pd
-from src import phd_util
-from src.explore import plot_funcs
-from src.explore.predictions import pred_models
-from src.explore.theme_setup import data_path, logs_path, weights_path
-from src.explore.theme_setup import generate_theme
 from matplotlib.colors import LinearSegmentedColormap
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from sklearn.metrics import r2_score
 from sklearn.preprocessing import StandardScaler
+from src.explore.predictions import pred_models
 from tensorflow.keras import backend as K
 from tensorflow.keras import losses
 from tensorflow.keras.callbacks import TensorBoard, ReduceLROnPlateau, TerminateOnNaN, \
     ModelCheckpoint
+
+from src import phd_util
+from src.explore import plot_funcs
+from src.explore.theme_setup import data_path, logs_path, weights_path
+from src.explore.theme_setup import generate_theme
 
 #  %%
 # load data and prep
