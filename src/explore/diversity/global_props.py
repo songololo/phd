@@ -88,10 +88,7 @@ axes[1].vlines(x=count_dens, ymin=0, ymax=species_count, colors=dens_col, alpha=
 axes[1].set_xlabel('Persons per Point of Interest')
 axes[1].set_xlim(3, 60)
 
-path = f'./src/explore/C_landuses/plots/global_poi_count_pop.png'
-plt.savefig(path, dpi=300)
-
-path = f'../phd-admin/PhD_latex/1/images/diversity/global_poi_count_pop.png'
+path = f'../phd-admin/PhD/part_2/images/diversity/global_poi_count_pop.png'
 plt.savefig(path, dpi=300)
 
 plt.show()
@@ -163,10 +160,7 @@ axes[1].set_ylabel('Unique Points of Interest $linear$')
 axes[1].set_ylim(0, 840)
 axes[1].legend(loc=2)
 
-path = f'./src/explore/4_diversity/plots/global_poi_unique_pop.png'
-plt.savefig(path, dpi=300)
-
-path = f'../phd-admin/PhD_latex/1/images/diversity/global_poi_unique_pop.png'
+path = f'../phd-admin/PhD/part_2/images/diversity/global_poi_unique_pop.png'
 plt.savefig(path, dpi=300)
 
 plt.show()

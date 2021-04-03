@@ -12,7 +12,7 @@ from src.explore import plot_funcs
 # db connection params
 db_config = {
     'host': 'localhost',
-    'port': 5432,
+    'port': 5433,
     'user': 'gareth',
     'database': 'gareth',
     'password': ''
@@ -104,31 +104,31 @@ def get_band(df, dist, target, seg_beta_norm=False):
 
 #  %%
 # load data
-df_full = await util_funcs.load_data_as_pd_df(db_config,
-                                              columns,
-                                            'analysis.nodes_full',
-                                            'WHERE city_pop_id = 1 and within = true')
+df_full = util_funcs.load_data_as_pd_df(db_config,
+                                        columns,
+                                        'analysis.nodes_full',
+                                        'WHERE city_pop_id = 1 and within = true')
 df_full = df_full.set_index('id')
 df_full = util_funcs.clean_pd(df_full, drop_na='all', fill_inf=np.nan)
 
-df_100 = await util_funcs.load_data_as_pd_df(db_config,
-                                             columns,
-                                           'analysis.nodes_100',
-                                           'WHERE city_pop_id = 1 and within = true')
+df_100 = util_funcs.load_data_as_pd_df(db_config,
+                                       columns,
+                                       'analysis.nodes_100',
+                                       'WHERE city_pop_id = 1 and within = true')
 df_100 = df_100.set_index('id')
 df_100 = util_funcs.clean_pd(df_100, drop_na='all', fill_inf=np.nan)
 
-df_50 = await util_funcs.load_data_as_pd_df(db_config,
-                                            columns,
-                                          'analysis.nodes_50',
-                                          'WHERE city_pop_id = 1 and within = true')
+df_50 = util_funcs.load_data_as_pd_df(db_config,
+                                      columns,
+                                      'analysis.nodes_50',
+                                      'WHERE city_pop_id = 1 and within = true')
 df_50 = df_50.set_index('id')
 df_50 = util_funcs.clean_pd(df_50, drop_na='all', fill_inf=np.nan)
 
-df_20 = await util_funcs.load_data_as_pd_df(db_config,
-                                            columns,
-                                          'analysis.nodes_20',
-                                          'WHERE city_pop_id = 1 and within = true')
+df_20 = util_funcs.load_data_as_pd_df(db_config,
+                                      columns,
+                                      'analysis.nodes_20',
+                                      'WHERE city_pop_id = 1 and within = true')
 df_20 = df_20.set_index('id')
 df_20 = util_funcs.clean_pd(df_20, drop_na='all', fill_inf=np.nan)
 
@@ -169,11 +169,9 @@ for theme_set, theme_labels, t_meta, p_meta, weighted in zip(theme_sets, theme_l
             plot_funcs.plot_scatter(ax,
                                     df_20.x,
                                     df_20.y,
-                                    data,
-                                    constrain=True,
+                                    vals=data,
                                     x_extents=(-5000, 6000),
                                     y_extents=(-4500, 6500),
-                                    dark=False,
                                     s_exp=4)
             if not weighted:
                 l = label + 'd_{max}=' + str(dist) + 'm}$'
@@ -244,36 +242,37 @@ X_pca_20 = model_20.fit_transform(X_trans_20)
 '''
 plot PCA components
 '''
-# plot map of dim reduction
+# explained variance
+exp_var = model_20.explained_variance_
+exp_var_ratio = model_20.explained_variance_ratio_
 # eigenvector by eigenvalue - i.e. correlation to original
-loadings = model_20.components_.T * np.sqrt(model_20.explained_variance_)
+loadings = model_20.components_.T * np.sqrt(exp_var)
 loadings = loadings.T  # transform for slicing
-
-component_idx = [0, 1, 2, 3]
-exp_var = model_20.explained_variance_ratio_
-loadings = loadings
-
-plot_funcs.plot_components(component_idx,
+# plot
+exp_var_str = [f'{e_v:.1%}' for e_v in exp_var_ratio]
+X_pca_20_clipped = np.clip(X_pca_20, np.percentile(X_pca_20, 0.25), np.percentile(X_pca_20, 99.75))
+plot_funcs.plot_components(list(range(4)),
                            pca_columns_labels,
                            abbrev_dist,
                            X_trans_20,
-                           X_pca_20,
+                           X_pca_20_clipped,
                            df_20.x,
                            df_20.y,
-                           explained_variances=exp_var,
-                           label_all=True,
+                           tag_string='explained $\sigma^{2}$:',
+                           tag_values=exp_var_str,
                            loadings=loadings,
-                           dark=False,
-                           allow_inverse=False,
+                           label_all=False,
+                           s_min=0,
+                           s_max=1,
+                           c_exp=1,
                            s_exp=4,
-                           cbar=True)
-
-plt.suptitle(f'Feature extraction - first {len(component_idx)} PCA components derived from POI landuse accessibilities')
-
+                           cbar=False,
+                           figsize=(6, 7))
+plt.suptitle(f'Feature extraction - first 4 PCA components from POI landuse accessibilities')
 path = f'../phd-admin/PhD/part_2/images/diversity/PCA.png'
 plt.savefig(path, dpi=300)
 
-# %%
+  # %%
 '''
 scatter and distributions for selected examples contrasting hill vs. non hill typical behaviour
 '''
@@ -385,11 +384,10 @@ for pca_dim in range(2):
                                          corrs,
                                          row_labels=labels,
                                          col_labels=distances_bandwise,
-                                         set_labels=True,
-                                         dark=False,
-                                         constrain=(-1, 1),
+                                         set_row_labels=True,
+                                         set_col_labels=True,
                                          cbar=True,
-                                         text=True)
+                                         text=corrs.round(1))
             if bandwise and seg_norm:
                 ax_title = 'Correlations for bandwise and length-normalised mixed-uses'
             elif bandwise:
@@ -397,11 +395,11 @@ for pca_dim in range(2):
             elif seg_norm:
                 ax_title = 'Correlations for length-normalised mixed-uses'
             else:
-                ax_title = f'Correlations for mixed-uses to PCA {pca_dim}'
+                ax_title = f'Correlations for mixed-uses to PCA {pca_dim + 1}'
             ax.set_title(ax_title)
 
-    plt.suptitle(f'Correlations for mixed-use measures to PCA component {pca_dim}')
-    path = f'../phd-admin/PhD/part_2/images/diversity/mixed_use_measures_correlated_pca_{pca_dim}.png'
+    plt.suptitle(f'Correlations for mixed-use measures to PCA component {pca_dim + 1}')
+    path = f'../phd-admin/PhD/part_2/images/diversity/mixed_use_measures_correlated_pca_{pca_dim + 1}.png'
     plt.savefig(path, dpi=300)
 
 # %%

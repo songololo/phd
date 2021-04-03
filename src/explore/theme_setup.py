@@ -8,7 +8,7 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=DeprecationWarning)
 
 # data_path = Path('/Users/gareth/Documents/data/')
-data_path = Path('/Volumes/gareth 07783845654/data/')
+data_path = Path('/Users/gareth/databases/phd_data/')
 
 # plot_path = Path('../../phd-admin/PhD/part_3/images/signatures')
 plot_path = Path('./temp_images/')

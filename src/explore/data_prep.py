@@ -5,12 +5,13 @@ Loads the data from the database and saves as feather files - dramatically faste
 '''
 
 # %%
+from src import util_funcs
 from src.explore.theme_setup import data_path
 
 # db connection params 
 db_config = {
     'host': 'localhost',
-    'port': 5432,
+    'port': 5433,
     'user': 'gareth',
     'database': 'gareth',
     'password': ''
@@ -108,7 +109,7 @@ for col_interp in cens_columns_d:
 
 # load data for London only
 print('loading columns')
-df_full = phd_util.load_data_as_pd_df(
+df_full = util_funcs.load_data_as_pd_df(
     db_config,
     columns,
     'analysis.nodes_full',
@@ -116,7 +117,7 @@ df_full = phd_util.load_data_as_pd_df(
 df_full = df_full.reset_index()
 df_full.to_feather(data_path / 'df_full.feather')
 
-df_100 = phd_util.load_data_as_pd_df(
+df_100 = util_funcs.load_data_as_pd_df(
     db_config,
     columns,
     'analysis.nodes_100',
@@ -124,7 +125,7 @@ df_100 = phd_util.load_data_as_pd_df(
 df_100 = df_100.reset_index()
 df_100.to_feather(data_path / 'df_100.feather')
 
-df_50 = phd_util.load_data_as_pd_df(
+df_50 = util_funcs.load_data_as_pd_df(
     db_config,
     columns,
     'analysis.nodes_50',
@@ -132,7 +133,7 @@ df_50 = phd_util.load_data_as_pd_df(
 df_50 = df_50.reset_index()
 df_50.to_feather(data_path / 'df_50.feather')
 
-df_20 = phd_util.load_data_as_pd_df(
+df_20 = util_funcs.load_data_as_pd_df(
     db_config,
     columns,
     'analysis.nodes_20',
@@ -222,7 +223,7 @@ for col_interp in cens_columns_d:
 '''
 Fetch all towns for full network
 '''
-df_full = phd_util.load_data_as_pd_df(
+df_full = util_funcs.load_data_as_pd_df(
     db_config,
     columns,
     'analysis.nodes_full',
@@ -234,7 +235,7 @@ df_full.to_feather(data_path / 'df_full_all.feather')
 '''
 Fetch only new towns band for 20m else memory issues
 '''
-df_20 = phd_util.load_data_as_pd_df(
+df_20 = util_funcs.load_data_as_pd_df(
     db_config,
     columns,
     'analysis.nodes_20',

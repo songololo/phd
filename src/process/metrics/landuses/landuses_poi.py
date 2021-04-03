@@ -404,7 +404,9 @@ async def accessibility_calc(db_config,
         ''')
         col_strings.append(f'{measure_col} = ${counter}')
         counter += 1
-    await db_con.executemany(f'UPDATE {nodes_table} SET ' + ', '.join(col_strings) + ' WHERE id = $1;', bulk_data)
+    await db_con.executemany(f'UPDATE {nodes_table} SET ' 
+                             + ', '.join(col_strings)
+                             + ' WHERE id = $1;', bulk_data)
     await db_con.close()
 
 

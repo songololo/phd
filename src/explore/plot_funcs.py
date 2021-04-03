@@ -213,14 +213,18 @@ def plot_components(component_idxs,
                     s_max=0.6,
                     c_exp=1,
                     s_exp=1,
-                    cbar=False):
+                    cbar=False,
+                    figsize=None):
     n_rows = 2
     n_cols = len(component_idxs)
+
+    if figsize is None:
+        figsize = (n_cols * 1.5, 8)
 
     util_funcs.plt_setup(dark=dark)
     fig, axes = plt.subplots(n_rows,
                              n_cols,
-                             figsize=(n_cols * 1.5, 8),
+                             figsize=figsize,
                              gridspec_kw={
                                  'height_ratios': [1] * n_rows,
                                  'width_ratios': [1] * n_cols

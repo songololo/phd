@@ -28,7 +28,7 @@ for d_max in distances:
         distances_arr.append(d)
     distances_arr = np.array(distances_arr)
     y_falloff = np.exp(beta * distances_arr)
-    ax.plot(distances_arr, y_falloff, label=f'$\\beta={round(beta, 4)}$')
+    ax.plot(distances_arr, y_falloff, label=f'$\\beta={round(-beta, 4)}$')
 
 # add w_min
 plt.axhline(y=w_min, ls='--', lw=0.5, c='grey')
@@ -40,11 +40,9 @@ ax.set_xlim([0, 1600])
 ax.set_xlabel('Distance in Metres')
 ax.set_ylim([0, 1.0])
 ax.set_ylabel('Weighting')
-ax.legend(loc='upper right', title='$exp(\\beta \\cdot d[i,j])$')
+ax.legend(loc='upper right', title='$exp(-\\beta \\cdot d[i,j])$')
 
-plt.savefig('../phd-admin/PhD_latex/1/images/cityseer/gravity_decay.png', dpi=300)
-plt.savefig('./src/explore/2_cityseer/plots/betas.png', dpi=300)
-
+plt.savefig('../phd-admin/PhD/part_1/images/cityseer/gravity_decay.png', dpi=300)
 plt.show()
 
 # %%

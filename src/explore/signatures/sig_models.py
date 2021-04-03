@@ -342,7 +342,8 @@ class SplitVAE(VAE):
             raise ValueError('Merged model currently based on three splits.')
         if sum(split_input_dims) != raw_dim:
             raise ValueError('Split input dimensions should sum to raw_dim')
-        if split_input_dims is None or split_latent_dims is None or split_hidden_layer_dims is None:
+        if split_input_dims is None or split_latent_dims is None \
+                or split_hidden_layer_dims is None:
             raise ValueError(
                 'Split input dims, split latent dims, and split hidden layer dims are required')
         super().__init__(raw_dim,
