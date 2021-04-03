@@ -398,7 +398,7 @@ for pca_dim in range(2):
             im = plot_funcs.plot_heatmap(ax,
                                          corrs,
                                          row_labels=labels,
-                                         col_labels=distances_bandwise[1:],
+                                         col_labels=distances_bandwise,
                                          set_row_labels=True,
                                          set_col_labels=True,
                                          cbar=True,
