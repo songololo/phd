@@ -2,6 +2,7 @@
 import asyncpg
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from scipy.stats import spearmanr
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
@@ -93,7 +94,7 @@ def get_band(df, dist, target, seg_beta_norm=False):
         s_cur = df[f'c_segment_beta_{dist}']
         s_lag = df[f'c_segment_beta_{lag_dist}']
         s = s_cur - s_lag
-    # whether or not to normalise by segments at equivalent betas
+    # whether or not to normalise values by edge lengths at equivalent betas
     if not seg_beta_norm:
         return t
     else:
@@ -184,6 +185,7 @@ for theme_set, theme_labels, t_meta, p_meta, weighted in zip(theme_sets, theme_l
     path = f'../phd-admin/PhD/part_2/images/diversity/diversity_comparisons_{p_meta}.png'
     plt.savefig(path, dpi=300)
 
+
 # %% prepare PCA
 # use of bands gives slightly more defined delineations for latent dimensions
 pca_columns_dist = [
@@ -226,22 +228,34 @@ for c in pca_columns_dist:
     lb = lb.replace('sports', 'sport')
     pca_columns_labels.append(lb)
 
-pca_columns = []
-abbrev_dist = [50, 100, 200, 300, 400, 600, 800, 1200, 1600]
-for c in pca_columns_dist:
-    for d in abbrev_dist:
-        pca_columns.append(c.format(dist=d))
+X_raw = []
+pca_models = []
+pca_transformed = []
+for table in [df_full, df_100, df_50, df_20]:
+    X_pca = {}
+    abbrev_dist = [100, 200, 300, 400, 600, 800, 1200, 1600]
+    for c in pca_columns_dist:
+        for d in abbrev_dist:
+            # bandwise and normalised gives cleanest principal components
+            X_pca[c.format(dist=d)] = np.array(get_band(table, d, c, seg_beta_norm=True))
+    # create dataframe
+    X_df = pd.DataFrame.from_dict(data=X_pca)
+    X_raw.append(X_df)
+    # transform
+    X_df_trans = StandardScaler().fit_transform(X_df)
+    # create model and fit
+    model = PCA(n_components=4, whiten=False)
+    model.fit(X_df_trans)
+    pca_models.append(model)
+    pca_transformed.append(model.transform(X_df_trans))
 
-model_20 = PCA(n_components=20, whiten=False)
-X_raw_20 = df_20[pca_columns]
-# have to scale otherwise not really a 'mix' of uses: strongest preponderances would prevail
-X_trans_20 = StandardScaler().fit_transform(X_raw_20)
-X_pca_20 = model_20.fit_transform(X_trans_20)
 
 # %%
 '''
 plot PCA components
 '''
+model_20 = pca_models[-1]
+X_pca_20 = pca_transformed[-1]
 # explained variance
 exp_var = model_20.explained_variance_
 exp_var_ratio = model_20.explained_variance_ratio_
@@ -255,7 +269,7 @@ X_pca_20_clipped = np.clip(X_pca_20, np.percentile(X_pca_20, 2.5), np.percentile
 plot_funcs.plot_components(list(range(4)),
                            pca_columns_labels,
                            abbrev_dist,
-                           X_trans_20,
+                           None,  # X ignored if loadings is not None
                            X_pca_20_clipped,
                            df_20.x,
                            df_20.y,
@@ -273,7 +287,8 @@ plt.suptitle(f'Feature extraction - first 4 PCA components from POI landuse acce
 path = f'../phd-admin/PhD/part_2/images/diversity/PCA.png'
 plt.savefig(path, dpi=300)
 
-  # %%
+
+# %%
 '''
 scatter and distributions for selected examples contrasting hill vs. non hill typical behaviour
 '''
@@ -290,9 +305,7 @@ for ax_row, divs, div_labels in zip(
          (f'mu_hill_dispar_wt_2_{dist}', f'mu_raos_{dist}')],
         [(r'Hill $_{q=1\ d_{max}=800m}$', r'Shannon Information $_{d_{max}=800m}$'),
          (r'Hill $_{q=2\ d_{max}=800m}$', r'Gini-Simpson $_{d_{max}=800m}$'),
-         (
-                 r'Hill class disparity wt. $_{q=2\ d_{max}=800m}$',
-                 r'Rao / Stirling class disparity wt. $_{d_{max}=800m}$')]):
+         (r'Hill class disparity wt. $_{q=2\ d_{max}=800m}$', r'Rao / Stirling class disparity wt. $_{d_{max}=800m}$')]):
 
     for ax_col in [0, 1]:
         div_theme = divs[ax_col]
@@ -312,6 +325,7 @@ plt.suptitle(f'A comparison of mixed-use measure distributions')
 
 path = f'../phd-admin/PhD/part_2/images/diversity/mixed_uses_example_distributions.png'
 plt.savefig(path, dpi=300)
+
 
 # %%
 '''
@@ -384,7 +398,7 @@ for pca_dim in range(2):
             im = plot_funcs.plot_heatmap(ax,
                                          corrs,
                                          row_labels=labels,
-                                         col_labels=distances_bandwise,
+                                         col_labels=distances_bandwise[1:],
                                          set_row_labels=True,
                                          set_col_labels=True,
                                          cbar=True,
@@ -403,74 +417,51 @@ for pca_dim in range(2):
     path = f'../phd-admin/PhD/part_2/images/diversity/mixed_use_measures_correlated_pca_{pca_dim + 1}.png'
     plt.savefig(path, dpi=300)
 
+
 # %%
 '''
 decomposition set against full, 100m, 50m, 20m tables
 '''
-
-themes = ['mu_hill_0_{dist}',
-          'mu_hill_branch_wt_0_{dist}',
-          'mu_hill_pairwise_wt_0_{dist}',
-          'mu_hill_dispar_wt_0_{dist}']
-
-labels = ['Hill $_{q=0}$',
-          'Hill branch distance wt. $_{q=0}$',
-          'Hill pairwise distance wt. $_{q=0}$',
-          'Hill class disparity wt. $_{q=0}$']
-
-theme_wt = [False, True, True, False]
-
-pca_models = []
-
-for table in [df_full, df_100, df_50, df_20]:
-    X_raw = table[pca_columns]
-    X_trans = StandardScaler().fit_transform(X_raw)
-    pca_models.append(PCA(n_components=10, whiten=False).fit_transform(X_trans))
-
+# plot
 util_funcs.plt_setup()
-fig, axes = plt.subplots(4, 1, figsize=(8, 12))
-# theme per ax
-for t_idx, (ax, theme, label, weighted) in enumerate(zip(axes, themes, labels, theme_wt)):
-    print(f'calculating for theme: {theme}')
-    # each ax plots both PCA 0 and PCA 1
-    for pca_dim, lt, mt in zip([0, 1], ['-', '--'], ['x', '.']):
-        corrs_full = []
-        corrs_100 = []
-        corrs_50 = []
-        corrs_20 = []
-        for d_idx, dist in enumerate(distances_bandwise):
-            # x_theme = theme.format(dist=dist)
-            # full graph
-            v = get_band(df_full, dist, theme, seg_beta_norm=True)
-            corrs_full.append(spearmanr(v, pca_models[0][:, pca_dim])[0])
-            # 100 graph
-            v = get_band(df_100, dist, theme, seg_beta_norm=True)
-            corrs_100.append(spearmanr(v, pca_models[1][:, pca_dim])[0])
-            # 50 graph
-            v = get_band(df_50, dist, theme, seg_beta_norm=True)
-            corrs_50.append(spearmanr(v, pca_models[2][:, pca_dim])[0])
-            # 20 graph
-            v = get_band(df_20, dist, theme, seg_beta_norm=True)
-            corrs_20.append(spearmanr(v, pca_models[3][:, pca_dim])[0])
+fig, axes = plt.subplots(2, 1, figsize=(8, 6))
+theme = 'mu_hill_branch_wt_0_{dist}'
+label = 'Hill branch weighted $_{q=0}$'
+theme_wt = True
+for ax, pca_dim in zip(axes, list(range(2))):
+    print(f'plotting for dim: {pca_dim + 1}')
+    corrs_full = []
+    corrs_100 = []
+    corrs_50 = []
+    corrs_20 = []
+    for d_idx, dist in enumerate(distances_bandwise):
+        # x_theme = theme.format(dist=dist)
+        # full graph
+        v = get_band(df_full, dist, theme, seg_beta_norm=True)
+        corrs_full.append(spearmanr(v, pca_transformed[0][:, pca_dim])[0])
+        # 100 graph
+        v = get_band(df_100, dist, theme, seg_beta_norm=True)
+        corrs_100.append(spearmanr(v, pca_transformed[1][:, pca_dim])[0])
+        # 50 graph
+        v = get_band(df_50, dist, theme, seg_beta_norm=True)
+        corrs_50.append(spearmanr(v, pca_transformed[2][:, pca_dim])[0])
+        # 20 graph
+        v = get_band(df_20, dist, theme, seg_beta_norm=True)
+        corrs_20.append(spearmanr(v, pca_transformed[3][:, pca_dim])[0])
 
-        a = 1
-        lw = 1
-        c_0 = 'C0'
-        c_1 = 'C1'
-        c_2 = 'C2'
-        c_3 = 'C3'
-        ax.plot(distances_bandwise, corrs_full, lw=lw, alpha=a, linestyle=lt, color=c_0, marker=mt,
-                label=f'full - PCA {pca_dim + 1}')
-        ax.plot(distances_bandwise, corrs_100, lw=lw, alpha=a, linestyle=lt, color=c_1, marker=mt,
-                label=f'100m - PCA {pca_dim + 1}')
-        ax.plot(distances_bandwise, corrs_50, lw=lw, alpha=a, linestyle=lt, color=c_2, marker=mt,
-                label=f'50m - PCA {pca_dim + 1}')
-        ax.plot(distances_bandwise, corrs_20, lw=lw, alpha=a, linestyle=lt, color=c_3, marker=mt,
-                label=f'20m - PCA {pca_dim + 1}')
-
+    a = 1
+    lw = 1
+    ls = '-'
+    ms = 'x'
+    #
+    ax.plot(distances_bandwise, corrs_full, lw=lw, alpha=a, linestyle=ls, color='C0', marker=ms, label=f'full')
+    ax.plot(distances_bandwise, corrs_100, lw=lw, alpha=a, linestyle=ls, color='C1', marker=ms, label=f'100m')
+    ax.plot(distances_bandwise, corrs_50, lw=lw, alpha=a, linestyle=ls, color='C2', marker=ms, label=f'50m')
+    ax.plot(distances_bandwise, corrs_20, lw=lw, alpha=a, linestyle=ls, color='C3', marker=ms, label=f'20m')
+    #
     ax.set_xlim([100, 1600])
     ax.set_xticks(distances_bandwise)
-    ax.set_xlabel(f'Bandwise & length-normalised correlation coefficients for {label} to PCA')
+    ax.set_xlabel(f'Bandwise & length-normalised correlation coefficients for {label} to PCA dim {pca_dim + 1}')
     ax.set_ylim([0, 1])
     ax.set_ylabel(r"spearman $\rho$")
 
@@ -481,7 +472,10 @@ plt.suptitle(r'Correlations for variants of Hill mixed-use measures to PCA at in
 path = f'../phd-admin/PhD/part_2/images/diversity/mixed_use_measures_corr_pca_decompositions.png'
 plt.savefig(path, dpi=300)
 
+
 # %%
+"""
+DEPRECATED
 '''
 selected measures compared to PCA
 '''
@@ -549,8 +543,12 @@ plt.suptitle('Correlations for weighted / unweighted mixed-use measures to PCA c
 
 path = f'../phd-admin/PhD/part_2/images/diversity/mixed_use_measures_corr_pca_themes.png'
 plt.savefig(path, dpi=300)
+"""
+
 
 # %%
+"""
+DEPRECATED
 '''
 Comparisons between mixed-use measures and land use accessibilities on 20m network
 '''
@@ -613,8 +611,11 @@ plt.suptitle('Correlations for landuse accessibilities to PCA components & mixed
 
 path = f'../phd-admin/PhD/part_2/images/diversity/landuse_accessibilities.png'
 plt.savefig(path, dpi=300)
+"""
+
 
 # %%
+# RANDOM REMOVAL PLOTS
 '''
 6A
 Choose the highest cardinality node and randomly remove species, compute each of the measures, plot

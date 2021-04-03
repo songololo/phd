@@ -242,7 +242,9 @@ def plot_components(component_idxs,
             l = loadings[comp_idx]
             heatmap_corr = l.reshape(len(feature_labels), len(distances))
         else:
-            heatmap_corr = correlate_heatmap(len(feature_labels), len(distances), X,
+            heatmap_corr = correlate_heatmap(len(feature_labels),
+                                             len(distances),
+                                             X,
                                              X_latent[:, comp_idx])
 
         plot_heatmap(heatmap_ax,
