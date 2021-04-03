@@ -250,7 +250,8 @@ loadings = model_20.components_.T * np.sqrt(exp_var)
 loadings = loadings.T  # transform for slicing
 # plot
 exp_var_str = [f'{e_v:.1%}' for e_v in exp_var_ratio]
-X_pca_20_clipped = np.clip(X_pca_20, np.percentile(X_pca_20, 0.25), np.percentile(X_pca_20, 99.75))
+# clip out lower outliers to clean up plot
+X_pca_20_clipped = np.clip(X_pca_20, np.percentile(X_pca_20, 2.5), np.percentile(X_pca_20, 100))
 plot_funcs.plot_components(list(range(4)),
                            pca_columns_labels,
                            abbrev_dist,
@@ -265,7 +266,7 @@ plot_funcs.plot_components(list(range(4)),
                            s_min=0,
                            s_max=1,
                            c_exp=1,
-                           s_exp=4,
+                           s_exp=2,
                            cbar=False,
                            figsize=(6, 7))
 plt.suptitle(f'Feature extraction - first 4 PCA components from POI landuse accessibilities')
