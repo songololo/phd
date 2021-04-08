@@ -196,10 +196,10 @@ lu_themes = [
 ]
 
 lu_labels = [
-    r'Hill wt. $_{q=0\ \beta=-0.02\ d_{max}=200m}$',
-    r'Food Retail $_{\beta=-0.02\ d_{max}=200m}$',
-    r'Hill wt. $_{q=0\ \beta=-0.005\ d_{max}=800m}$',
-    r'Commercial $_{\beta=-0.005\ d_{max}=800m}$'
+    r'Hill wt. $_{q=0\ \beta=0.02\ d_{max}=200m}$',
+    r'Food Retail $_{\beta=0.02\ d_{max}=200m}$',
+    r'Hill wt. $_{q=0\ \beta=0.005\ d_{max}=800m}$',
+    r'Commercial $_{\beta=0.005\ d_{max}=800m}$'
 ]
 
 slim_distances = [50, 100, 200, 300, 400, 600, 800, 1000, 1200, 1600, 3200, 4800, 6400, 8000]
@@ -353,19 +353,19 @@ lw = preprocessing.minmax_scale(y, (0.05, 0.2))
 axes[0][0].scatter(x1, y, marker='.', s=s, c='#0064b7', alpha=0.5, linewidths=lw, edgecolors='white')
 # histogram
 axes[1][0].hist(x1, 150, edgecolor='white', linewidth=0.3, log=False, color='#0064b7')
-axes[1][0].set_xlabel(r'segment $\beta$ weighted closeness $_{\beta=-0.005\ d_{max}=800m}$')
+axes[1][0].set_xlabel(r'segment $\beta$ weighted closeness $_{\beta=0.005\ d_{max}=800m}$')
 axes[1][0].set_xlim(left=0, right=4000)
 # right panel - scatter
 axes[0][1].scatter(x2, y, marker='.', s=s, c='#0064b7', alpha=0.5, linewidths=lw, edgecolors='white')
 # histogram
 b_w = np.logspace(np.log10(100), np.log10(60000), 150)
 axes[1][1].hist(x2, b_w, edgecolor='white', linewidth=0.3, log=False, color='#0064b7')
-axes[1][1].set_xlabel(r'$\log$ segment $\beta$ weighted betweenness $_{\beta=-0.005\ d_{max}=800m}$')
+axes[1][1].set_xlabel(r'$\log$ segment $\beta$ weighted betweenness $_{\beta=0.005\ d_{max}=800m}$')
 axes[1][1].set_xscale('log')
 axes[1][1].set_xlim(left=100, right=40000)
 # shared
 axes[0][0].set_ylim(bottom=0, top=140)
-axes[0][0].set_ylabel(r'mixed-use richness $H_{0\ \beta=-0.005\ d_{max}=800m}$')
+axes[0][0].set_ylabel(r'mixed-use richness $H_{0\ \beta=0.005\ d_{max}=800m}$')
 
 plt.suptitle(
     'Comparative distributions and scatterplots for network centrality measures compared to mixed-use richness')
@@ -404,17 +404,19 @@ cbar_max = round(c.values.max())
 cbar = plt.colorbar(sp, cax=cax, ticks=[0, cbar_max])
 cbar.ax.set_yticklabels([0, cbar_max])
 
-ax.set_xlabel(r'segment $\beta$ weighted closeness $_{\beta=-0.005\ d_{max}=800m}$')
+ax.set_xlabel(r'segment $\beta$ weighted closeness $_{\beta=0.005\ d_{max}=800m}$')
 ax.set_xlim(left=0, right=4400)
 ax.set_yscale('log')
 ax.set_ylim(bottom=10, top=8000)
-ax.set_ylabel(r'segment $\beta$ weighted betweenness $_{\beta=-0.005\ d_{max}=800m}$')
-ax.title.set_text(r'Intensity of mixed-uses $H_{0\ \beta=-0.005\ d_{max}=800m}$')
+ax.set_ylabel(r'segment $\beta$ weighted betweenness $_{\beta=0.005\ d_{max}=800m}$')
+ax.title.set_text(r'Intensity of mixed-uses $H_{0\ \beta=0.005\ d_{max}=800m}$')
 
 plt.suptitle('Scatterplot of closeness, betweenness & mixed-uses')
 path = f'../phd-admin/PhD/part_2/images/centrality/primal_gravity_betweenness_mixed_scatter.png'
 plt.savefig(path, dpi=300)
 
+"""
+DEPRECATED
 #  %%
 '''
 compare different variants of closeness
@@ -428,10 +430,10 @@ y_themes = [
     'ac_commercial_800'
 ]
 y_labels = [
-    r'Hill wt. $_{q=0\ \beta=-0.02\ d_{max}=200m}$',
-    r'Food Retail $_{\beta=-0.02\ d_{max}=200m}$',
-    r'Hill wt. $_{q=0\ \beta=-0.005\ d_{max}=800m}$',
-    r'Commercial $_{\beta=-0.005\ d_{max}=800m}$'
+    r'Hill wt. $_{q=0\ \beta=0.02\ d_{max}=200m}$',
+    r'Food Retail $_{\beta=0.02\ d_{max}=200m}$',
+    r'Hill wt. $_{q=0\ \beta=0.005\ d_{max}=800m}$',
+    r'Commercial $_{\beta=0.005\ d_{max}=800m}$'
 ]
 themes = [
     'c_node_density_{dist}',
@@ -497,10 +499,10 @@ y_themes = [
     'ac_commercial_800'
 ]
 y_labels = [
-    r'Hill wt. $_{q=0\ \beta=-0.02\ d_{max}=200m}$',
-    r'Food Retail $_{\beta=-0.02\ d_{max}=200m}$',
-    r'Hill wt. $_{q=0\ \beta=-0.005\ d_{max}=800m}$',
-    r'Commercial $_{\beta=-0.005\ d_{max}=800m}$'
+    r'Hill wt. $_{q=0\ \beta=0.02\ d_{max}=200m}$',
+    r'Food Retail $_{\beta=0.02\ d_{max}=200m}$',
+    r'Hill wt. $_{q=0\ \beta=0.005\ d_{max}=800m}$',
+    r'Commercial $_{\beta=0.005\ d_{max}=800m}$'
 ]
 themes = [
     'c_node_betweenness_{dist}',
@@ -546,6 +548,7 @@ plt.suptitle('Correlations for betweenness measures to length-normalised mixed-u
 
 path = f'../phd-admin/PhD/part_2/images/centrality/primal_correlations_betweenness.png'
 plt.savefig(path, dpi=300)
+"""
 
 #  %%
 '''
@@ -581,7 +584,7 @@ outer_labels = [
 ]
 
 inner_themes = ['mu_hill_branch_wt_0_200', 'mu_hill_branch_wt_0_800']
-inner_labels = [r'Hill wt. $_{\beta=-0.02}$', r'Hill wt. $_{\beta=-0.005}$']
+inner_labels = [r'Hill wt. $_{\beta=0.02}$', r'Hill wt. $_{\beta=0.005}$']
 
 for angular in [False, True]:
     if angular:

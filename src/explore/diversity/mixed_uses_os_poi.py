@@ -402,7 +402,7 @@ for pca_dim in range(2):
                                          set_row_labels=True,
                                          set_col_labels=True,
                                          cbar=True,
-                                         text=corrs.round(1))
+                                         text=corrs.round(2))
             if bandwise and seg_norm:
                 ax_title = 'Correlations for bandwise and length-normalised mixed-uses'
             elif bandwise:
