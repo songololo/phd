@@ -305,7 +305,7 @@ for n, (theme_set, theme_labels, theme_meta, theme_wt) in enumerate(
     util_funcs.plt_setup()
     fig, axes = plt.subplots(3, 2, figsize=(8, 12))
     for t_idx, (t, label) in enumerate(zip(theme_set, theme_labels)):
-        for d_idx, (dist, beta) in enumerate(zip([400, 1200], [r'-0.01', r'-0.00\overline{3}'])):
+        for d_idx, (dist, beta) in enumerate(zip([400, 1200], [r'0.01', r'0.00\overline{3}'])):
             ax = axes[t_idx][d_idx]
             theme = t.format(dist=dist)
             data = df_20[theme]
@@ -327,7 +327,7 @@ for n, (theme_set, theme_labels, theme_meta, theme_wt) in enumerate(
     path = f'../phd-admin/PhD/part_2/images/centrality/primal_centrality_comparisons_{theme_meta}.png'
     plt.savefig(path, dpi=300)
 
-#  %%
+# %%
 '''
 demonstrate the typical distributions
 the contention is that low values preclude mixed-uses but high values don't guarantee them
@@ -686,7 +686,6 @@ for target, label, meta in zip(targets, labels, metas):
                                            edgecolor='white',
                                            linewidth=0.3)
             axes[t_idx][d_idx].set_xlabel(f'decomp: {table_label} - ' + r'$d_{max}=' + str(dist) + r'm$')
-
             axes[t_idx][d_idx].set_xlim(left=0, right=np.nanmax(x))
             tr = axes[t_idx][d_idx].transAxes
             mu = round(np.nanmean(x), 2)
