@@ -9,7 +9,7 @@ from src.explore import plot_funcs
 # db connection params 
 db_config = {
     'host': 'localhost',
-    'port': 5432,
+    'port': 5433,
     'user': 'gareth',
     'database': 'gareth',
     'password': ''
@@ -57,7 +57,7 @@ df_full = util_funcs.load_data_as_pd_df(
 df_full = df_full.set_index('id')
 df_full = util_funcs.clean_pd(df_full, drop_na='all', fill_inf=np.nan)
 
-#  %%
+# %%
 '''
 correlation matrix plot
 '''
@@ -73,11 +73,11 @@ themes = [
 
 labels = ['Node Density',
           'Node Harmonic',
-          'Node Beta',
-          r'Node Harmonic Angular',
-          r'Node Betweenness',
-          r'Node Betweenness $\beta$',
-          r'Node Betweenness Angular']
+          r'Node $\beta$',
+          r'Nd. Harmonic Angular',
+          r'Node Betw.',
+          r'Node Betw. $\beta$',
+          r'Node Betw. Angular']
 
 y_themes = [
     'mu_hill_branch_wt_0_100',
@@ -94,7 +94,7 @@ y_labels = [
 ]
 
 util_funcs.plt_setup()
-fig, axes = plt.subplots(2, 2, figsize=(10, 6))
+fig, axes = plt.subplots(2, 2, figsize=(10, 4.75))
 theme_dim = 0
 for ax_row in range(2):
     for ax_col in range(2):
@@ -112,15 +112,28 @@ for ax_row in range(2):
                 y_val = df_full[y_theme]
                 # deduce correlation
                 corrs[t_idx][d_idx] = spearmanr(x_val, y_val)[0]
+        if ax_col == 0:
+            display_row_labels = True
+            cbar = False
+        else:
+            display_row_labels = False
+            cbar = True
+        if ax_row > 0:
+            display_col_labels = True
+        else:
+            display_col_labels = False
         # plot
         im = plot_funcs.plot_heatmap(ax,
                                      heatmap=corrs,
                                      row_labels=labels,
                                      col_labels=distances_bandwise,
-                                     cbar=True,
-                                     text=corrs)
+                                     set_col_labels=display_col_labels,
+                                     set_row_labels=display_row_labels,
+                                     cbar=cbar,
+                                     text=corrs,
+                                     fontsize=6)
         ax.set_title(y_label)
         theme_dim += 1
-plt.suptitle('Correlation matrices for centrality measures to mixed-use & landuse themes')
+plt.suptitle('Correlation matrices for centrality measures to mixed-use & landuse themes on the dual graph')
 path = f'../phd-admin/PhD/part_2/images/centrality/dual_centralities_corr_grid.png'
 plt.savefig(path, dpi=300)

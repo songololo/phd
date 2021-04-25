@@ -97,6 +97,8 @@ for d in all_distances:
     df_full[f'conv_close_{d}'] = 1 / df_full[f'c_node_farness_{d}']
     df_full[f'conv_close_norm_{d}'] = df_full[f'c_node_density_{d}'] / df_full[f'c_node_farness_{d}']
 df_full[np.isnan(df_full)] = 0
+
+#  %%
 distances = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600]
 
 columns = [c for c in columns_base]
@@ -142,7 +144,6 @@ for d in distances:
     df_50[f'conv_close_norm_{d}'] = df_50[f'c_node_density_{d}'] / df_50[f'c_node_farness_{d}']
     df_20[f'conv_close_norm_{d}'] = df_20[f'c_node_density_{d}'] / df_20[f'c_node_farness_{d}']
 
-distances_bandwise = distances[1:17]
 
 # %%
 '''
@@ -176,17 +177,17 @@ labels = ['Node Density',
           r'Node Harmonic Angular',
           r'Node $\beta$',
           'Node Improved',
-          'Local "Global" Closeness',
-          'Local "Global" C. Norm.',
+          'Local "Global" Closen.',
+          'Local "Global" Cl. Norm.',
           'Segment Density',
           'Segment Harmonic',
-          'Segment Harmonic Hybrid',
+          'Segm. Harmonic Hybrid',
           r'Segment $\beta$',
-          r'Node Betweenness',
-          r'Node Betweenness Angular',
-          r'Node Betweenness $\beta$',
-          r'Segment Betweenness $\beta$',
-          'Segment Betweenness Hybrid']
+          r'Node Betw.',
+          r'Node Betw. Angular',
+          r'Node Betw. $\beta$',
+          r'Segment Betw. $\beta$',
+          'Segment Betw. Hybrid']
 
 lu_themes = [
     'mu_hill_branch_wt_0_200',
@@ -196,22 +197,22 @@ lu_themes = [
 ]
 
 lu_labels = [
-    r'Hill wt. $_{q=0\ \beta=0.02\ d_{max}=200m}$',
-    r'Food Retail $_{\beta=0.02\ d_{max}=200m}$',
-    r'Hill wt. $_{q=0\ \beta=0.005\ d_{max}=800m}$',
-    r'Commercial $_{\beta=0.005\ d_{max}=800m}$'
+    r'weighted mixed-use richness $_{q=0\ \beta=0.02\ d_{max}=200m}$',
+    r'food retail $_{\beta=0.02\ d_{max}=200m}$',
+    r'weighted mixed-use richness $_{q=0\ \beta=0.005\ d_{max}=800m}$',
+    r'commercial $_{\beta=0.005\ d_{max}=800m}$'
 ]
 
 slim_distances = [50, 100, 200, 300, 400, 600, 800, 1000, 1200, 1600, 3200, 4800, 6400, 8000]
 
 # each plot theme plots to a new page
-for lu_theme_base, lu_label in zip(lu_themes, lu_labels):
-    print(f'Processing landuse theme {lu_theme_base}')
-    # setup the plot
-    util_funcs.plt_setup()
-    fig, axes = plt.subplots(2, 2, figsize=(10, 12))
-    # iterate the permutations
-    for ax_row, rdm in enumerate([False, True]):
+for rdm in [False, True]:
+    for lu_theme_base, lu_label in zip(lu_themes, lu_labels):
+        print(f'Processing landuse theme {lu_theme_base}')
+        # setup the plot
+        util_funcs.plt_setup()
+        fig, axes = plt.subplots(1, 2, figsize=(10, 6))
+        # iterate the permutations
         for ax_col, seg_norm in enumerate([False, True]):
             # create an empty numpy array
             corrs = np.full((len(themes), len(slim_distances)), np.nan)
@@ -229,7 +230,8 @@ for lu_theme_base, lu_label in zip(lu_themes, lu_labels):
                     lu_val = df_full[lu_theme] / df_full['c_segment_density_800']
                 else:
                     raise ValueError('Distance not contained in theme description?')
-            ax = axes[ax_row][ax_col]
+            # ax = axes[ax_row][ax_col]
+            ax = axes[ax_col]
             # calculate the correlations for each type and respective distance of mixed-use measure
             for t_idx, (theme, label) in enumerate(zip(themes, labels)):
                 for d_idx, dist in enumerate(slim_distances):
@@ -238,28 +240,41 @@ for lu_theme_base, lu_label in zip(lu_themes, lu_labels):
                     # deduce correlation
                     corrs[t_idx][d_idx] = spearmanr(x_val, lu_val)[0]
             # plot
+            if ax_col == 0:
+                display_row_labels = True
+                cbar = False
+            else:
+                display_row_labels = False
+                cbar = True
             im = plot_funcs.plot_heatmap(ax,
                                          heatmap=corrs,
                                          row_labels=labels,
                                          col_labels=slim_distances,
-                                         cbar=True,
-                                         text=corrs)
+                                         set_col_labels=True,
+                                         set_row_labels=display_row_labels,
+                                         cbar=cbar,
+                                         text=corrs.round(2),
+                                         fontsize=6)
             if rdm and seg_norm:
-                ax_title = f'Correlations to rdm. & length-norm. {lu_label}'
+                ax_title = f'Rand. & length-norm. {lu_label}'
             elif rdm:
-                ax_title = f'Correlations to randomised {lu_label}'
+                ax_title = f'Randomised {lu_label}'
             elif seg_norm:
-                ax_title = f'Correlations to length-norm. {lu_label}'
+                ax_title = f'Length-normalised'
             else:
-                ax_title = f'Correlations for centralities to {lu_label}'
+                ax_title = f'Centralities to {lu_label}'
             ax.set_title(ax_title)
+        if rdm:
+            app_title = r'randomised '
+            app_path = '_rdm'
+        else:
+            app_title = ''
+            app_path = ''
+        plt.suptitle(f'Correlations for centrality measures to {app_title}{lu_label}')
+        path = f'../phd-admin/PhD/part_2/images/centrality/primal_centralities_corr_grid_{lu_theme_base}{app_path}.png'
+        plt.savefig(path, dpi=300)
 
-    plt.suptitle(f'Correlations for centrality measures to {lu_label}')
-    lu_theme_base = lu_theme_base.replace('_rdm', '')
-    path = f'../phd-admin/PhD/part_2/images/centrality/primal_centralities_corr_grid_{lu_theme_base}.png'
-    plt.savefig(path, dpi=300)
-
-# %%
+#  %%
 '''
 plot the maps showing the mapped centrality measures
 '''
@@ -327,7 +342,7 @@ for n, (theme_set, theme_labels, theme_meta, theme_wt) in enumerate(
     path = f'../phd-admin/PhD/part_2/images/centrality/primal_centrality_comparisons_{theme_meta}.png'
     plt.savefig(path, dpi=300)
 
-# %%
+#  %%
 '''
 demonstrate the typical distributions
 the contention is that low values preclude mixed-uses but high values don't guarantee them
@@ -408,10 +423,10 @@ ax.set_xlabel(r'segment $\beta$ weighted closeness $_{\beta=0.005\ d_{max}=800m}
 ax.set_xlim(left=0, right=4400)
 ax.set_yscale('log')
 ax.set_ylim(bottom=10, top=8000)
-ax.set_ylabel(r'segment $\beta$ weighted betweenness $_{\beta=0.005\ d_{max}=800m}$')
-ax.title.set_text(r'Intensity of mixed-uses $H_{0\ \beta=0.005\ d_{max}=800m}$')
+ax.set_ylabel(r'$\log$ segment $\beta$ weighted betweenness $_{\beta=0.005\ d_{max}=800m}$')
+ax.title.set_text(r'Intensity of mixed-use richness $H_{0\ \beta=0.005\ d_{max}=800m}$')
 
-plt.suptitle('Scatterplot of closeness, betweenness & mixed-uses')
+plt.suptitle('Scatterplot of closeness, betweenness & mixed-use richness')
 path = f'../phd-admin/PhD/part_2/images/centrality/primal_gravity_betweenness_mixed_scatter.png'
 plt.savefig(path, dpi=300)
 
@@ -430,10 +445,10 @@ y_themes = [
     'ac_commercial_800'
 ]
 y_labels = [
-    r'Hill wt. $_{q=0\ \beta=0.02\ d_{max}=200m}$',
-    r'Food Retail $_{\beta=0.02\ d_{max}=200m}$',
-    r'Hill wt. $_{q=0\ \beta=0.005\ d_{max}=800m}$',
-    r'Commercial $_{\beta=0.005\ d_{max}=800m}$'
+    r'weighted mixed-use richness $_{q=0\ \beta=0.02\ d_{max}=200m}$',
+    r'food retail $_{\beta=0.02\ d_{max}=200m}$',
+    r'weighted mixed-use richness $_{q=0\ \beta=0.005\ d_{max}=800m}$',
+    r'commercial $_{\beta=0.005\ d_{max}=800m}$'
 ]
 themes = [
     'c_node_density_{dist}',
@@ -499,10 +514,10 @@ y_themes = [
     'ac_commercial_800'
 ]
 y_labels = [
-    r'Hill wt. $_{q=0\ \beta=0.02\ d_{max}=200m}$',
-    r'Food Retail $_{\beta=0.02\ d_{max}=200m}$',
-    r'Hill wt. $_{q=0\ \beta=0.005\ d_{max}=800m}$',
-    r'Commercial $_{\beta=0.005\ d_{max}=800m}$'
+    r'weighted mixed-use richness $_{q=0\ \beta=0.02\ d_{max}=200m}$',
+    r'food retail $_{\beta=0.02\ d_{max}=200m}$',
+    r'weighted mixed-use richness $_{q=0\ \beta=0.005\ d_{max}=800m}$',
+    r'commercial $_{\beta=0.005\ d_{max}=800m}$'
 ]
 themes = [
     'c_node_betweenness_{dist}',
@@ -557,36 +572,36 @@ decomposition set against full, 100m, 50m, 20m tables
 
 outer_themes_angular = [
     'c_node_harmonic_angular_{dist}',
-    'c_segment_harmonic_hybrid_{dist}',
+    # 'c_segment_harmonic_hybrid_{dist}',
     'c_node_betweenness_angular_{dist}',
-    'c_segment_betweeness_hybrid_{dist}'
+    # 'c_segment_betweeness_hybrid_{dist}'
 ]
 
 outer_labels_angular = [
     'Node Harmonic Angular',
-    'Segment Harmonic Hybrid',
+    # 'Segment Harmonic Hybrid',
     'Node Betweenness Angular',
-    'Segment Betweenness Hybrid'
+    # 'Segment Betweenness Hybrid'
 ]
 
 outer_themes = [
     'c_node_beta_{dist}',
-    'c_segment_density_{dist}',
+    # 'c_segment_density_{dist}',
     'c_node_betweenness_beta_{dist}',
-    'c_segment_betweenness_{dist}'
+    # 'c_segment_betweenness_{dist}'
 ]
 
 outer_labels = [
     r'Node $\beta$',
-    r'Segment $\beta$',
+    # r'Segment $\beta$',
     r'Node Betweenness $\beta$',
-    r'Segment Betweenness $\beta$'
+    # r'Segment Betweenness $\beta$'
 ]
 
 inner_themes = ['mu_hill_branch_wt_0_200', 'mu_hill_branch_wt_0_800']
-inner_labels = [r'Hill wt. $_{\beta=0.02}$', r'Hill wt. $_{\beta=0.005}$']
+inner_labels = [r'weighted mixed-use richness $_{\beta=0.02}$', r'weighted mixed-use richness $_{\beta=0.005}$']
 
-for angular in [False, True]:
+for angular in [False]:  # , True
     if angular:
         outer_th = outer_themes_angular
         outer_lb = outer_labels_angular
@@ -594,7 +609,7 @@ for angular in [False, True]:
         outer_th = outer_themes
         outer_lb = outer_labels
     util_funcs.plt_setup()
-    fig, axes = plt.subplots(4, 1, figsize=(8, 12))
+    fig, axes = plt.subplots(2, 1, figsize=(8, 5))
     for ax, outer_theme, outer_label in zip(axes, outer_th, outer_lb):
         print(f'calculating for theme: {outer_label}')
         for inner_theme, inner_label, lt, mt in zip(inner_themes, inner_labels, ['-', '--'], ['x', '.']):
@@ -641,7 +656,7 @@ for angular in [False, True]:
 
         ax.set_xlim([50, 1600])
         ax.set_xticks(distances)
-        ax.set_xlabel(f'Correlations for length-normalised mixed-uses to bandwise {outer_label} centrality')
+        ax.set_xlabel(f'Correlations for length-normalised mixed-use richness to {outer_label} centrality')
         ax.set_ylim([0, 0.5])
         ax.set_ylabel(r"spearman $\rho$")
 
@@ -649,11 +664,11 @@ for angular in [False, True]:
 
     if angular:
         plt.suptitle(
-            r'Correlations for angular network centrality measures to length normalised mixed-uses at varying decompositions')
+            r'Correlations for angular network centrality measures to length normalised mixed-use richness at varying decompositions')
         path = f'../phd-admin/PhD/part_2/images/centrality/primal_decompositions_angular.png'
     else:
         plt.suptitle(
-            r'Correlations for network centrality measures to length-normalised mixed-uses at varying decompositions')
+            r'Correlations for network centrality measures to length-normalised mixed-use richness at varying decompositions')
         path = f'../phd-admin/PhD/part_2/images/centrality/primal_decompositions.png'
 
     plt.savefig(path, dpi=300)
@@ -663,22 +678,20 @@ for angular in [False, True]:
 plots fragmentation of distributions at smaller thresholds
 '''
 
-tables = [df_full, df_100, df_50, df_20]
-table_labels = ['$full$', '$100m$', '$50m$', '$20m$']
+tables = [df_full, df_50, df_20]  # , df_100
+table_labels = ['$full$', '$50m$', '$20m$']  # , '$100m$'
 
 targets = ['c_node_harmonic_{dist}', 'c_segment_harmonic_{dist}']
-labels = ['Node Harmonic', 'Segment Harmonic']
+labels = ['Node harmonic closeness', 'Segment harmonic closeness']
 metas = ['node_harm', 'seg_harm']
 
 # prepare font dict
 font = {'size': 5}
 for target, label, meta in zip(targets, labels, metas):
-
     util_funcs.plt_setup()
-    fig, axes = plt.subplots(4, 5, figsize=(12, 8))
-
+    fig, axes = plt.subplots(3, 4, figsize=(12, 8))
     for t_idx, (table, table_label) in enumerate(zip(tables, table_labels)):
-        for d_idx, dist in enumerate([50, 100, 200, 300, 400]):
+        for d_idx, dist in enumerate([50, 100, 200, 400]):  # , 300
             x = table[target.format(dist=dist)]
             x = x[x < np.percentile(x, 99.9)]
             bins = axes[t_idx][d_idx].hist(x,
@@ -690,6 +703,10 @@ for target, label, meta in zip(targets, labels, metas):
             tr = axes[t_idx][d_idx].transAxes
             mu = round(np.nanmean(x), 2)
             var = round(np.nanvar(x), 2)
+            if t_idx < 3:
+                axes[t_idx][d_idx].get_xaxis().set_ticklabels([])
+            if d_idx > 0:
+                axes[t_idx][d_idx].get_yaxis().set_ticklabels([])
             axes[t_idx][d_idx].text(1, 1, f'$\mu={mu}$', ha='right', va='top', fontdict=font, transform=tr)
             axes[t_idx][d_idx].text(1, 0.94, f'$\sigma^2={var}$', ha='right', va='top', fontdict=font, transform=tr)
 

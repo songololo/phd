@@ -163,7 +163,7 @@ for theme_set, theme_labels, t_meta, p_meta, weighted in zip(theme_sets, theme_l
     util_funcs.plt_setup()
     fig, axes = plt.subplots(3, 2, figsize=(8, 12))
     for t_idx, (t, label) in enumerate(zip(theme_set, theme_labels)):
-        for d_idx, (dist, beta) in enumerate(zip([100, 800], [r'-0.04', r'-0.005'])):
+        for d_idx, (dist, beta) in enumerate(zip([200, 800], [r'-0.02', r'-0.005'])):
             ax = axes[t_idx][d_idx]
             theme = t.format(dist=dist)
             data = df_20[theme]
@@ -184,7 +184,6 @@ for theme_set, theme_labels, t_meta, p_meta, weighted in zip(theme_sets, theme_l
 
     path = f'../phd-admin/PhD/part_2/images/diversity/diversity_comparisons_{p_meta}.png'
     plt.savefig(path, dpi=300)
-
 
 # %% prepare PCA
 # use of bands gives slightly more defined delineations for latent dimensions
@@ -249,7 +248,6 @@ for table in [df_full, df_100, df_50, df_20]:
     pca_models.append(model)
     pca_transformed.append(model.transform(X_df_trans))
 
-
 # %%
 '''
 plot PCA components
@@ -287,7 +285,6 @@ plt.suptitle(f'Feature extraction - first 4 PCA components from POI landuse acce
 path = f'../phd-admin/PhD/part_2/images/diversity/PCA.png'
 plt.savefig(path, dpi=300)
 
-
 # %%
 '''
 scatter and distributions for selected examples contrasting hill vs. non hill typical behaviour
@@ -300,12 +297,18 @@ y_label = r'PCA component $1$'
 
 for ax_row, divs, div_labels in zip(
         [0, 2, 4],
-        [(f'mu_hill_1_{dist}', f'mu_shannon_{dist}'),
-         (f'mu_hill_2_{dist}', f'mu_gini_{dist}'),
-         (f'mu_hill_dispar_wt_2_{dist}', f'mu_raos_{dist}')],
-        [(r'Hill $_{q=1\ d_{max}=800m}$', r'Shannon Information $_{d_{max}=800m}$'),
-         (r'Hill $_{q=2\ d_{max}=800m}$', r'Gini-Simpson $_{d_{max}=800m}$'),
-         (r'Hill class disparity wt. $_{q=2\ d_{max}=800m}$', r'Rao / Stirling class disparity wt. $_{d_{max}=800m}$')]):
+        [(f'mu_hill_1_{dist}',
+          f'mu_shannon_{dist}'),
+         (f'mu_hill_2_{dist}',
+          f'mu_gini_{dist}'),
+         (f'mu_hill_dispar_wt_2_{dist}',
+          f'mu_raos_{dist}')],
+        [(r'Hill $_{q=1\ d_{max}=800m}$',
+          r'Shannon Information $_{d_{max}=800m}$'),
+         (r'Hill $_{q=2\ d_{max}=800m}$',
+          r'Gini-Simpson $_{d_{max}=800m}$'),
+         (r'Hill class disparity wt. $_{q=2\ d_{max}=800m}$',
+          r'Rao / Stirling class disparity wt. $_{d_{max}=800m}$')]):
 
     for ax_col in [0, 1]:
         div_theme = divs[ax_col]
@@ -325,7 +328,6 @@ plt.suptitle(f'A comparison of mixed-use measure distributions')
 
 path = f'../phd-admin/PhD/part_2/images/diversity/mixed_uses_example_distributions.png'
 plt.savefig(path, dpi=300)
-
 
 # %%
 '''
@@ -371,12 +373,12 @@ for pca_dim in range(2):
     print(f'Processing dimension {pca_dim + 1}')
     # setup the plot
     util_funcs.plt_setup()
-    fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+    fig, axes = plt.subplots(2, 2, figsize=(11.25, 10))
     # fetch the slice
     pca_slice = X_pca_20[:, pca_dim]
     # iterate the ax rows and ax cols
-    for ax_row, bandwise in zip(axes, [False, True]):
-        for ax, seg_norm in zip(ax_row, [False, True]):
+    for ax_row_n, (ax_row, bandwise) in enumerate(zip(axes, [False, True])):
+        for ax_col_n, (ax, seg_norm) in enumerate(zip(ax_row, [False, True])):
             # create an empty numpy array for containing the correlations
             corrs = np.full((len(themes), len(distances_bandwise)), np.nan)
             # calculate the correlations for each type and respective distance of mixed-use measure
@@ -394,15 +396,26 @@ for pca_dim in range(2):
                             # 14 locations with 0 segment beta weight
                             v[np.isnan(v)] = 0
                     corrs[t_idx][d_idx] = spearmanr(v, pca_slice)[0]
+            if ax_col_n == 0:
+                display_row_labels = True
+                cbar = False
+            else:
+                display_row_labels = False
+                cbar = True
+            if ax_row_n > 0:
+                display_col_labels = True
+            else:
+                display_col_labels = False
             # plot
             im = plot_funcs.plot_heatmap(ax,
                                          corrs,
                                          row_labels=labels,
                                          col_labels=distances_bandwise,
-                                         set_row_labels=True,
-                                         set_col_labels=True,
-                                         cbar=True,
-                                         text=corrs.round(2))
+                                         set_col_labels=display_col_labels,
+                                         set_row_labels=display_row_labels,
+                                         cbar=cbar,
+                                         text=corrs.round(2),
+                                         fontsize=6)
             if bandwise and seg_norm:
                 ax_title = 'Correlations for bandwise and length-normalised mixed-uses'
             elif bandwise:
@@ -471,7 +484,6 @@ plt.suptitle(r'Correlations for variants of Hill mixed-use measures to PCA at in
 
 path = f'../phd-admin/PhD/part_2/images/diversity/mixed_use_measures_corr_pca_decompositions.png'
 plt.savefig(path, dpi=300)
-
 
 # %%
 """
@@ -545,7 +557,6 @@ path = f'../phd-admin/PhD/part_2/images/diversity/mixed_use_measures_corr_pca_th
 plt.savefig(path, dpi=300)
 """
 
-
 # %%
 """
 DEPRECATED
@@ -612,7 +623,6 @@ plt.suptitle('Correlations for landuse accessibilities to PCA components & mixed
 path = f'../phd-admin/PhD/part_2/images/diversity/landuse_accessibilities.png'
 plt.savefig(path, dpi=300)
 """
-
 
 # %%
 # RANDOM REMOVAL PLOTS

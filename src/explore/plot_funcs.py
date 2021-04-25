@@ -132,7 +132,8 @@ def plot_heatmap(heatmap_ax,
                  constrain: tuple = (-1, 1),
                  cbar: bool = False,
                  text: np.ndarray = None,
-                 cmap=None):
+                 cmap=None,
+                 fontsize=5):
     '''
     Modified to permit text only plots
     '''
@@ -164,13 +165,13 @@ def plot_heatmap(heatmap_ax,
 
     if row_labels is not None and set_row_labels:
         y_labels = [str(l) for l in row_labels]
-        heatmap_ax.set_yticklabels(y_labels, rotation='horizontal')
+        heatmap_ax.set_yticklabels(y_labels, rotation='horizontal', fontsize=fontsize)
     else:
         heatmap_ax.set_yticklabels([])
 
     if col_labels is not None and set_col_labels:
         x_labels = [str(l) for l in col_labels]
-        heatmap_ax.set_xticklabels(x_labels, rotation='vertical')
+        heatmap_ax.set_xticklabels(x_labels, rotation='vertical', fontsize=fontsize)
     else:
         heatmap_ax.set_xticklabels([])
 
@@ -192,8 +193,7 @@ def plot_heatmap(heatmap_ax,
                     # use white colour on darker backgrounds
                     if abs(v) > 0.5:
                         c = 'w'
-                heatmap_ax.text(col_idx, row_idx, t, ha='center', va='center', color=c,
-                                fontsize=5)
+                heatmap_ax.text(col_idx, row_idx, t, ha='center', va='center', color=c, fontsize=fontsize)
 
 
 # %%
