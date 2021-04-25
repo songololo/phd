@@ -426,7 +426,7 @@ for pca_dim in range(2):
                 ax_title = f'Correlations for mixed-uses to PCA {pca_dim + 1}'
             ax.set_title(ax_title)
 
-    plt.suptitle(f'Correlations for mixed-use measures to PCA component {pca_dim + 1}')
+    plt.suptitle(r'Spearman $\rho$ ' + f'correlations for mixed-use measures to PCA component {pca_dim + 1}')
     path = f'../phd-admin/PhD/part_2/images/diversity/mixed_use_measures_correlated_pca_{pca_dim + 1}.png'
     plt.savefig(path, dpi=300)
 

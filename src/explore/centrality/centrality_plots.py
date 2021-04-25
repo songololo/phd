@@ -23,17 +23,17 @@ columns_base = [
     'city_pop_id',
     'ST_X(geom) as x',
     'ST_Y(geom) as y',
-    'mu_hill_branch_wt_0[2] as mu_hill_branch_wt_0_200',
-    'ac_retail_food[2] as ac_retail_food_200',
-    'mu_hill_branch_wt_0[8] as mu_hill_branch_wt_0_800',
-    'ac_commercial[8] as ac_commercial_800'
+    'mu_hill_branch_wt_0[3] as mu_hill_branch_wt_0_300',
+    'ac_retail_food[3] as ac_retail_food_300',
+    'mu_hill_branch_wt_0[10] as mu_hill_branch_wt_0_1000',
+    'ac_commercial[10] as ac_commercial_1000'
 ]
 
 columns_rdm = [
-    'mu_hill_branch_wt_0_rdm[2] as mu_hill_branch_wt_0_200_rdm',
-    'ac_retail_food_rdm[2] as ac_retail_food_200_rdm',
-    'mu_hill_branch_wt_0_rdm[8] as mu_hill_branch_wt_0_800_rdm',
-    'ac_commercial_rdm[8] as ac_commercial_800_rdm'
+    'mu_hill_branch_wt_0_rdm[3] as mu_hill_branch_wt_0_300_rdm',
+    'ac_retail_food_rdm[3] as ac_retail_food_300_rdm',
+    'mu_hill_branch_wt_0_rdm[10] as mu_hill_branch_wt_0_1000_rdm',
+    'ac_commercial_rdm[10] as ac_commercial_1000_rdm'
 ]
 
 columns_interp = [
@@ -73,7 +73,7 @@ def get_band(df, dist, target, all_distances):
     # subsequent bands subtract the prior band
 '''
 
-# %% load nodes data
+#  %% load nodes data
 col_template = '{col}[{i}] as {col}_{dist}'
 all_distances = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 3200, 4800,
                  6400, 8000]
@@ -98,9 +98,9 @@ for d in all_distances:
     df_full[f'conv_close_norm_{d}'] = df_full[f'c_node_density_{d}'] / df_full[f'c_node_farness_{d}']
 df_full[np.isnan(df_full)] = 0
 
-#  %%
 distances = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600]
 
+#  %%
 columns = [c for c in columns_base]
 for col in columns_interp:
     for i, d in enumerate(distances):
@@ -145,7 +145,7 @@ for d in distances:
     df_20[f'conv_close_norm_{d}'] = df_20[f'c_node_density_{d}'] / df_20[f'c_node_farness_{d}']
 
 
-# %%
+#  %%
 '''
 correlation matrix plot
 '''
@@ -190,17 +190,17 @@ labels = ['Node Density',
           'Segment Betw. Hybrid']
 
 lu_themes = [
-    'mu_hill_branch_wt_0_200',
-    'ac_retail_food_200',
-    'mu_hill_branch_wt_0_800',
-    'ac_commercial_800'
+    'mu_hill_branch_wt_0_300',
+    'ac_retail_food_300',
+    'mu_hill_branch_wt_0_1000',
+    'ac_commercial_1000'
 ]
 
 lu_labels = [
-    r'weighted mixed-use richness $_{q=0\ \beta=0.02\ d_{max}=200m}$',
-    r'food retail $_{\beta=0.02\ d_{max}=200m}$',
-    r'weighted mixed-use richness $_{q=0\ \beta=0.005\ d_{max}=800m}$',
-    r'commercial $_{\beta=0.005\ d_{max}=800m}$'
+    r'weighted mixed-use richness $_{q=0\ \beta=0.01\bar{3}\ d_{max}=300m}$',
+    r'food retail $_{\beta=0.01\bar{3}\ d_{max}=300m}$',
+    r'weighted mixed-use richness $_{q=0\ \beta=0.004\ d_{max}=1000m}$',
+    r'commercial $_{\beta=0.004\ d_{max}=1000m}$'
 ]
 
 slim_distances = [50, 100, 200, 300, 400, 600, 800, 1000, 1200, 1600, 3200, 4800, 6400, 8000]
@@ -224,10 +224,10 @@ for rdm in [False, True]:
             lu_val = df_full[lu_theme]
             # normalise by segment lengths
             if seg_norm:
-                if '200' in lu_theme:
-                    lu_val = df_full[lu_theme] / df_full['c_segment_density_200']
-                elif '800' in lu_theme:
-                    lu_val = df_full[lu_theme] / df_full['c_segment_density_800']
+                if '300' in lu_theme:
+                    lu_val = df_full[lu_theme] / df_full['c_segment_density_300']
+                elif '1000' in lu_theme:
+                    lu_val = df_full[lu_theme] / df_full['c_segment_density_1000']
                 else:
                     raise ValueError('Distance not contained in theme description?')
             # ax = axes[ax_row][ax_col]
@@ -270,7 +270,7 @@ for rdm in [False, True]:
         else:
             app_title = ''
             app_path = ''
-        plt.suptitle(f'Correlations for centrality measures to {app_title}{lu_label}')
+        plt.suptitle(r'Spearman $\rho$ ' + f'correlations for centrality measures to {app_title}{lu_label}')
         path = f'../phd-admin/PhD/part_2/images/centrality/primal_centralities_corr_grid_{lu_theme_base}{app_path}.png'
         plt.savefig(path, dpi=300)
 
@@ -359,28 +359,28 @@ fig, axes = plt.subplots(2, 2,
                          gridspec_kw={'height_ratios': [4, 1]})
 
 # left panel - gravity index
-x1 = df_full['c_segment_beta_800']
-x2 = df_full['c_segment_betweenness_800']
-y = df_full['mu_hill_branch_wt_0_800']
+x1 = df_full['c_segment_beta_1000']
+x2 = df_full['c_segment_betweenness_1000']
+y = df_full['mu_hill_branch_wt_0_1000']
 s = preprocessing.minmax_scale(y, (0.1, 50))
 lw = preprocessing.minmax_scale(y, (0.05, 0.2))
 # scatter
 axes[0][0].scatter(x1, y, marker='.', s=s, c='#0064b7', alpha=0.5, linewidths=lw, edgecolors='white')
 # histogram
 axes[1][0].hist(x1, 150, edgecolor='white', linewidth=0.3, log=False, color='#0064b7')
-axes[1][0].set_xlabel(r'segment $\beta$ weighted closeness $_{\beta=0.005\ d_{max}=800m}$')
-axes[1][0].set_xlim(left=0, right=4000)
+axes[1][0].set_xlabel(r'segment $\beta$ weighted closeness $_{\beta=0.004\ d_{max}=1000m}$')
+axes[1][0].set_xlim(left=0, right=7000)
 # right panel - scatter
 axes[0][1].scatter(x2, y, marker='.', s=s, c='#0064b7', alpha=0.5, linewidths=lw, edgecolors='white')
 # histogram
-b_w = np.logspace(np.log10(100), np.log10(60000), 150)
+b_w = np.logspace(np.log10(100), np.log10(100000), 150)
 axes[1][1].hist(x2, b_w, edgecolor='white', linewidth=0.3, log=False, color='#0064b7')
-axes[1][1].set_xlabel(r'$\log$ segment $\beta$ weighted betweenness $_{\beta=0.005\ d_{max}=800m}$')
+axes[1][1].set_xlabel(r'$\log$ segment $\beta$ weighted betweenness $_{\beta=0.004\ d_{max}=1000m}$')
 axes[1][1].set_xscale('log')
-axes[1][1].set_xlim(left=100, right=40000)
+axes[1][1].set_xlim(left=100, right=100000)
 # shared
 axes[0][0].set_ylim(bottom=0, top=140)
-axes[0][0].set_ylabel(r'mixed-use richness $H_{0\ \beta=0.005\ d_{max}=800m}$')
+axes[0][0].set_ylabel(r'mixed-use richness $H_{0\ \beta=0.004\ d_{max}=1000m}$')
 
 plt.suptitle(
     'Comparative distributions and scatterplots for network centrality measures compared to mixed-use richness')
@@ -398,11 +398,11 @@ fig, ax = plt.subplots(1, 1, figsize=(5, 5))
 
 # sort by mixed uses for print order
 df_temp = df_full.copy(deep=True)
-df_temp = df_temp.sort_values(by='mu_hill_branch_wt_0_800')
+df_temp = df_temp.sort_values(by='mu_hill_branch_wt_0_1000')
 
-x = df_temp['c_segment_beta_800']
-y = df_temp['c_node_betweenness_800']
-c = df_temp[['mu_hill_branch_wt_0_800']]
+x = df_temp['c_segment_beta_1000']
+y = df_temp['c_segment_betweenness_1000']
+c = df_temp[['mu_hill_branch_wt_0_1000']]
 
 c_shape = preprocessing.power_transform(c, method='yeo-johnson', standardize=False)
 c_shape = c_shape.T[0] ** 6
@@ -419,12 +419,12 @@ cbar_max = round(c.values.max())
 cbar = plt.colorbar(sp, cax=cax, ticks=[0, cbar_max])
 cbar.ax.set_yticklabels([0, cbar_max])
 
-ax.set_xlabel(r'segment $\beta$ weighted closeness $_{\beta=0.005\ d_{max}=800m}$')
-ax.set_xlim(left=0, right=4400)
+ax.set_xlabel(r'segment $\beta$ weighted closeness $_{\beta=0.004\ d_{max}=1000m}$')
+ax.set_xlim(left=0, right=7000)
 ax.set_yscale('log')
-ax.set_ylim(bottom=10, top=8000)
-ax.set_ylabel(r'$\log$ segment $\beta$ weighted betweenness $_{\beta=0.005\ d_{max}=800m}$')
-ax.title.set_text(r'Intensity of mixed-use richness $H_{0\ \beta=0.005\ d_{max}=800m}$')
+ax.set_ylim(bottom=10, top=100000)
+ax.set_ylabel(r'$\log$ segment $\beta$ weighted betweenness $_{\beta=0.004\ d_{max}=1000m}$')
+ax.title.set_text(r'Intensity of mixed-use richness $H_{0\ \beta=0.004\ d_{max}=1000m}$')
 
 plt.suptitle('Scatterplot of closeness, betweenness & mixed-use richness')
 path = f'../phd-admin/PhD/part_2/images/centrality/primal_gravity_betweenness_mixed_scatter.png'
@@ -439,16 +439,16 @@ compare different variants of closeness
 util_funcs.plt_setup()
 fig, axes = plt.subplots(4, 1, figsize=(8, 12))
 y_themes = [
-    'mu_hill_branch_wt_0_200',
-    'ac_retail_food_200',
-    'mu_hill_branch_wt_0_800',
-    'ac_commercial_800'
+    'mu_hill_branch_wt_0_300',
+    'ac_retail_food_300',
+    'mu_hill_branch_wt_0_1000',
+    'ac_commercial_1000'
 ]
 y_labels = [
-    r'weighted mixed-use richness $_{q=0\ \beta=0.02\ d_{max}=200m}$',
-    r'food retail $_{\beta=0.02\ d_{max}=200m}$',
-    r'weighted mixed-use richness $_{q=0\ \beta=0.005\ d_{max}=800m}$',
-    r'commercial $_{\beta=0.005\ d_{max}=800m}$'
+    r'weighted mixed-use richness $_{q=0\ \beta=0.01\bar{3}\ d_{max}=300m}$',
+    r'food retail $_{\beta=0.01\bar{3}\ d_{max}=300m}$',
+    r'weighted mixed-use richness $_{q=0\ \beta=0.004\ d_{max}=1000m}$',
+    r'commercial $_{\beta=0.004\ d_{max}=1000m}$'
 ]
 themes = [
     'c_node_density_{dist}',
@@ -476,10 +476,10 @@ widths = [1, 1, 1, 1, 2, 2, 2, 2]
 colours = ['C0', 'C1', 'C2', 'C3', 'C0', 'C1', 'C2', 'C3']
 alphas = [1, 1, 1, 1, 0.5, 0.5, 0.5, 0.5]
 for ax, y_theme, y_label in zip(axes, y_themes, y_labels):
-    if '200' in y_label:
-        y_val = df_full[y_theme] / df_full['c_segment_density_200']
-    elif '800' in y_label:
-        y_val = df_full[y_theme] / df_full['c_segment_density_800']
+    if '300' in y_label:
+        y_val = df_full[y_theme] / df_full['c_segment_density_300']
+    elif '1000' in y_label:
+        y_val = df_full[y_theme] / df_full['c_segment_density_1000']
     else:
         raise ValueError('Distance not contained in theme description?')
     for x_theme, x_label, mk, ls, lw, lc, la in zip(themes, labels, markers, styles, widths, colours, alphas):
@@ -508,16 +508,16 @@ plt.savefig(path, dpi=300)
 util_funcs.plt_setup()
 fig, axes = plt.subplots(4, 1, figsize=(8, 12))
 y_themes = [
-    'mu_hill_branch_wt_0_200',
-    'ac_retail_food_200',
-    'mu_hill_branch_wt_0_800',
-    'ac_commercial_800'
+    'mu_hill_branch_wt_0_300',
+    'ac_retail_food_300',
+    'mu_hill_branch_wt_0_1000',
+    'ac_commercial_1000'
 ]
 y_labels = [
-    r'weighted mixed-use richness $_{q=0\ \beta=0.02\ d_{max}=200m}$',
-    r'food retail $_{\beta=0.02\ d_{max}=200m}$',
-    r'weighted mixed-use richness $_{q=0\ \beta=0.005\ d_{max}=800m}$',
-    r'commercial $_{\beta=0.005\ d_{max}=800m}$'
+    r'weighted mixed-use richness $_{q=0\ \beta=0.01\bar{3}\ d_{max}=300m}$',
+    r'food retail $_{\beta=0.01\bar{3}\ d_{max}=300m}$',
+    r'weighted mixed-use richness $_{q=0\ \beta=0.004\ d_{max}=1000m}$',
+    r'commercial $_{\beta=0.004\ d_{max}=1000m}$'
 ]
 themes = [
     'c_node_betweenness_{dist}',
@@ -538,10 +538,10 @@ styles = ['-.', '-.', '-.', '-', '-']
 widths = [1, 1, 1, 2, 2]
 alphas = [1, 1, 1, 0.5, 0.5]
 for ax, y_theme, y_label in zip(axes, y_themes, y_labels):
-    if '200' in y_label:
-        y_val = df_full[y_theme] / df_full['c_segment_density_200']
-    elif '800' in y_label:
-        y_val = df_full[y_theme] / df_full['c_segment_density_800']
+    if '300' in y_label:
+        y_val = df_full[y_theme] / df_full['c_segment_density_300']
+    elif '1000' in y_label:
+        y_val = df_full[y_theme] / df_full['c_segment_density_1000']
     else:
         raise ValueError('Distance not contained in theme description?')
     for x_theme, x_label, mk, ls, lw, lc, la in zip(themes, labels, markers, styles, widths, colours, alphas):
@@ -598,8 +598,10 @@ outer_labels = [
     # r'Segment Betweenness $\beta$'
 ]
 
-inner_themes = ['mu_hill_branch_wt_0_200', 'mu_hill_branch_wt_0_800']
-inner_labels = [r'weighted mixed-use richness $_{\beta=0.02}$', r'weighted mixed-use richness $_{\beta=0.005}$']
+inner_themes = ['mu_hill_branch_wt_0_300',
+                'mu_hill_branch_wt_0_1000']
+inner_labels = [r'weighted mixed-use richness $_{\beta=0.01\bar{3}}$',
+                r'weighted mixed-use richness $_{\beta=0.004}$']
 
 for angular in [False]:  # , True
     if angular:
@@ -617,10 +619,10 @@ for angular in [False]:  # , True
             corrs_100 = []
             corrs_50 = []
             corrs_20 = []
-            if '200' in inner_theme:
-                inner_seg_key = 'c_segment_density_200'
+            if '300' in inner_theme:
+                inner_seg_key = 'c_segment_density_300'
             else:
-                inner_seg_key = 'c_segment_density_800'
+                inner_seg_key = 'c_segment_density_1000'
             for d_idx, dist in enumerate(distances):
                 x_theme = outer_theme.format(dist=dist)
                 # full
@@ -673,7 +675,7 @@ for angular in [False]:  # , True
 
     plt.savefig(path, dpi=300)
 
-#  %%
+# %%
 '''
 plots fragmentation of distributions at smaller thresholds
 '''

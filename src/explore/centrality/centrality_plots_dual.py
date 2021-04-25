@@ -21,14 +21,10 @@ columns = [
     'city_pop_id',
     'ST_X(geom) as x',
     'ST_Y(geom) as y',
-    'mu_hill_branch_wt_0[1] as mu_hill_branch_wt_0_100',
-    'mu_hill_branch_wt_0[2] as mu_hill_branch_wt_0_200',
-    'ac_retail_food[1] as ac_retail_food_100',
-    'ac_retail_food[2] as ac_retail_food_200',
-    'mu_hill_branch_wt_0[6] as mu_hill_branch_wt_0_600',
-    'mu_hill_branch_wt_0[8] as mu_hill_branch_wt_0_800',
-    'ac_commercial[6] as ac_commercial_600',
-    'ac_commercial[8] as ac_commercial_800'
+    'mu_hill_branch_wt_0[3] as mu_hill_branch_wt_0_300',
+    'ac_retail_food[3] as ac_retail_food_300',
+    'mu_hill_branch_wt_0[10] as mu_hill_branch_wt_0_1000',
+    'ac_commercial[10] as ac_commercial_1000'
 ]
 
 columns_base = [
@@ -57,7 +53,7 @@ df_full = util_funcs.load_data_as_pd_df(
 df_full = df_full.set_index('id')
 df_full = util_funcs.clean_pd(df_full, drop_na='all', fill_inf=np.nan)
 
-# %%
+#  %%
 '''
 correlation matrix plot
 '''
@@ -80,21 +76,21 @@ labels = ['Node Density',
           r'Node Betw. Angular']
 
 y_themes = [
-    'mu_hill_branch_wt_0_100',
-    'ac_retail_food_100',
-    'mu_hill_branch_wt_0_800',
-    'ac_commercial_800'
+    'mu_hill_branch_wt_0_300',
+    'ac_retail_food_300',
+    'mu_hill_branch_wt_0_1000',
+    'ac_commercial_1000'
 ]
 
 y_labels = [
-    r'Hill wt. $_{q=0\ \beta=-0.04\ d_{max}=100m}$',
-    r'Food Retail $_{\beta=-0.04\ d_{max}=100m}$',
-    r'Hill wt. $_{q=0\ \beta=-0.005\ d_{max}=800m}$',
-    r'Commercial $_{\beta=-0.005\ d_{max}=800m}$'
+    r'weighted mixed-use richness $_{q=0\ \beta=0.01\bar{3}\ d_{max}=300m}$',
+    r'food retail $_{\beta=0.01\bar{3}\ d_{max}=300m}$',
+    r'weighted mixed-use richness $_{q=0\ \beta=0.004\ d_{max}=1000m}$',
+    r'commercial $_{\beta=0.004\ d_{max}=1000m}$'
 ]
 
 util_funcs.plt_setup()
-fig, axes = plt.subplots(2, 2, figsize=(10, 4.75))
+fig, axes = plt.subplots(2, 2, figsize=(10, 4.6))
 theme_dim = 0
 for ax_row in range(2):
     for ax_col in range(2):
@@ -134,6 +130,6 @@ for ax_row in range(2):
                                      fontsize=6)
         ax.set_title(y_label)
         theme_dim += 1
-plt.suptitle('Correlation matrices for centrality measures to mixed-use & landuse themes on the dual graph')
+plt.suptitle(r'Spearman $\rho$ ' + f'correlations for centralities to mixed-uses & landuses on the dual graph')
 path = f'../phd-admin/PhD/part_2/images/centrality/dual_centralities_corr_grid.png'
 plt.savefig(path, dpi=300)
