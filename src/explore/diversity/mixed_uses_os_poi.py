@@ -146,9 +146,9 @@ theme_label_sets = [
     ('Hill $_{q=0\ ',
      'Hill $_{q=1\ ',
      'Hill $_{q=2\ '),
-    ('Hill br. dist. wt. $_{q=0\ ',
-     'Hill br. dist. wt. $_{q=1\ ',
-     'Hill br. dist. wt. $_{q=2\ '),
+    ('Hill branch distance weighted $_{q=0\ ',
+     'Hill branch distance weighted $_{q=1\ ',
+     'Hill branch distance weighted $_{q=2\ '),
     ('Gini-Simpson $_{',
      'Shannon $_{',
      'Raos Quadratic $_{')
@@ -163,7 +163,7 @@ for theme_set, theme_labels, t_meta, p_meta, weighted in zip(theme_sets, theme_l
     util_funcs.plt_setup()
     fig, axes = plt.subplots(3, 2, figsize=(8, 12))
     for t_idx, (t, label) in enumerate(zip(theme_set, theme_labels)):
-        for d_idx, (dist, beta) in enumerate(zip([200, 800], [r'-0.02', r'-0.005'])):
+        for d_idx, (dist, beta) in enumerate(zip([300, 1000], [r'-0.01\bar{3}', r'-0.004'])):
             ax = axes[t_idx][d_idx]
             theme = t.format(dist=dist)
             data = df_20[theme]

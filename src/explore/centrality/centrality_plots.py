@@ -320,7 +320,7 @@ for n, (theme_set, theme_labels, theme_meta, theme_wt) in enumerate(
     util_funcs.plt_setup()
     fig, axes = plt.subplots(3, 2, figsize=(8, 12))
     for t_idx, (t, label) in enumerate(zip(theme_set, theme_labels)):
-        for d_idx, (dist, beta) in enumerate(zip([400, 1200], [r'0.01', r'0.00\overline{3}'])):
+        for d_idx, (dist, beta) in enumerate(zip([400, 1600], [r'0.01', r'0.0025'])):
             ax = axes[t_idx][d_idx]
             theme = t.format(dist=dist)
             data = df_20[theme]
