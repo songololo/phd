@@ -25,19 +25,19 @@ def process_latents_vae():
     Processes and saves latents
     '''
     table = df_20
-    seeds = list(range(1, 11))
-    latent_dims = [8]
-    X_raw, distances, labels = generate_theme(table, 'all', bandwise=True)
+    seeds = list(range(10))
+    latent_dims = [6]
+    X_raw, distances, labels = generate_theme(table, 'all_towns', bandwise=True, max_dist=800)
     X_trans = StandardScaler().fit_transform(X_raw)
     # prepare the splits
     n_d = len(distances)
-    epochs = 10
+    epochs = 5
     batch = 256
-    split_input_dims = (int(5 * n_d), int(18 * n_d), int(4 * n_d))
-    split_latent_dims = (6, 8, 2)
-    split_hidden_layer_dims = ([128, 128, 128],
-                               [256, 256, 256],
-                               [64, 64, 64])
+    split_input_dims = (int(2 * n_d), int(9 * n_d), int(2 * n_d))
+    split_latent_dims = (4, 6, 2)
+    split_hidden_layer_dims = ([24, 24, 24],
+                               [32, 32, 32],
+                               [8, 8, 8])
     betas = [0, 1, 2, 4, 8, 16, 32, 64]
     theme_base = f'VAE_e{epochs}'
     # iterate
@@ -69,7 +69,7 @@ def process_latents_vae():
                     # save the latents
                     Z_mu, Z_log_var, Z = vae.encode(X_trans, training=False)
                     # paths
-                    p = str(weights_path / f'data/model_{vae.theme}')
+                    p = str(weights_path / f'signatures_weights/data/model_{vae.theme}')
                     np.save(p + '_latent', Z)
                     np.save(p + '_z_mu', Z_mu)
                     np.save(p + '_z_log_var', Z_log_var)
@@ -83,8 +83,6 @@ if __name__ == '__main__':
 '''
 Calculate UDR and set in ndarray
 '''
-
-
 def generate_udr_grid(latent_dim,
                       epochs,
                       seeds,
@@ -104,7 +102,7 @@ def generate_udr_grid(latent_dim,
             for seed in seeds:
                 key = f'model_VAE_e{epochs}_d{latent_dim}_b{beta}_c{cap}_s{seed}'
                 print(f'...loading data for {key}')
-                Z = np.load(weights_path / f'data/{key}_latent.npy')
+                Z = np.load(weights_path / f'signatures_weights/data/{key}_latent.npy')
                 inferred_model_reps.append(Z)
                 '''
                 getting average kl divergence per individual latent:
@@ -117,8 +115,8 @@ def generate_udr_grid(latent_dim,
                 Further, see the code comments in udr.py where the function signature states that the kl divergence vector
                 should be: "a vector of the average kl divergence per latent"
                 '''
-                Z_mu = np.load(weights_path / f'data/{key}_z_mu.npy')
-                Z_log_var = np.load(weights_path / f'data/{key}_z_log_var.npy')
+                Z_mu = np.load(weights_path / f'signatures_weights/data/{key}_z_mu.npy')
+                Z_log_var = np.load(weights_path / f'signatures_weights/data/{key}_z_log_var.npy')
                 # single latent kl divergence, i.e. don't sum over latents
                 kl_loss = -0.5 * (1 + Z_log_var - np.square(Z_mu) - np.exp(Z_log_var))
                 # average kl divergence per latent
@@ -159,8 +157,6 @@ Calculate clustering scores and set in ndarray
 Calinski and Harabasz score (much faster than silhoette score)
 Also known as Variance Ratio Criterion.
 '''
-
-
 # https://towardsdatascience.com/gaussian-mixture-model-clusterization-how-to-select-the-number-of-components-clusters-553bef45f6e4
 # from https://stackoverflow.com/a/26079963/1190200
 def gmm_js(gmm_p, gmm_q, n_samples):
@@ -203,7 +199,7 @@ def generate_comp_grid(latent_dim,
                 else:
                     key = f'model_VaDE_e{epochs}_d{latent_dim}_b{beta}_c{cap}_s{seed}'
                 print(f'...loading data for {key}')
-                Z = np.load(weights_path / f'data/{key}_latent.npy')
+                Z = np.load(weights_path / f'signatures_weights/data/{key}_latent.npy')
                 # prepare sample indices - randomise index
                 attempt = 0
                 while attempt < 3:

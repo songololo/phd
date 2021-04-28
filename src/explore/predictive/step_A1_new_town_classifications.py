@@ -20,7 +20,7 @@ df_full = df_full.set_index('id')
 X_raw, distances, labels = generate_theme(df_full,
                                           'all_towns',
                                           bandwise=False,
-                                          city_pop_id=True)
+                                          add_city_pop_id=True)
 
 # db connection params
 db_config = {

@@ -18,7 +18,7 @@ from src.explore.signatures import sig_models
 from src.explore.theme_setup import data_path
 from src.explore.theme_setup import generate_theme
 
-#  %%
+# %%
 '''
 VaDE
 '''
@@ -27,21 +27,14 @@ VaDE
 df_20 = pd.read_feather(data_path / 'df_20.feather')
 df_20 = df_20.set_index('id')
 table = df_20
-X_raw, distances, labels = generate_theme(table, 'all', bandwise=True)
+X_raw, distances, labels = generate_theme(table, 'all_towns', bandwise=True, max_dist=800)
 X_trans = StandardScaler().fit_transform(X_raw)
 # setup paramaters
 seed = 0
-latent_dim = 16
-n_d = len(distances)
-split_input_dims = (int(5 * n_d), int(18 * n_d), int(4 * n_d))
-split_latent_dims = (6, 8, 2)
-split_hidden_layer_dims = ([128, 128, 128],
-                           [256, 256, 256],
-                           [64, 64, 64])
-# setup VaDE
-epochs = 50
-n_components = 21
+latent_dim = 6
+epochs = 5
 theme_base = f'VaDE'
+n_components = 21
 dropout = 0.05
 #
 vade = sig_models.VaDE(raw_dim=X_trans.shape[1],
@@ -62,16 +55,19 @@ Overall cluster max plot
 '''
 util_funcs.plt_setup()
 fig, ax = plt.subplots(1, 1, figsize=(12, 8))
-colours, sizes = plot_funcs.map_diversity_colour(X_raw, cluster_assign_VaDE, n_components=n_components)
+colours, sizes = plot_funcs.map_diversity_colour(X_raw,
+                                                 cluster_assign_VaDE,
+                                                 n_components=n_components)
 plot_funcs.plot_scatter(ax,
                         table.x,
                         table.y,
                         c=colours,
                         s=sizes,
                         x_extents=(-7000, 11500),
-                        y_extents=(-4500, 7500))
+                        y_extents=(-4500, 7500),
+                        rasterized=True)
 plt.suptitle('Individual probabilistic components - VaDE GMM')
-path = f'../phd-admin/PhD/part_3/images/signatures/{vade.theme}_cluster.png'
+path = f'../phd-admin/PhD/part_3/images/signatures/{vade.theme}_cluster.pdf'
 plt.savefig(path, dpi=300)
 
 # %%
@@ -151,7 +147,7 @@ for row_idx, ax_row in enumerate(axes):
             ax.axis('off')
         cluster_idx += 1
 plt.suptitle('Mean composition of each VaDE - GMM component')
-path = f'../phd-admin/PhD/part_3/images/signatures/{vade.theme}_cluster_mus.png'
+path = f'../phd-admin/PhD/part_3/images/signatures/{vade.theme}_cluster_mus.pdf'
 plt.savefig(path, dpi=300)
 
 # %%
@@ -174,18 +170,28 @@ Plots maps comparing X + GMM, Z + GMM, X + PCA + GMM, and VaDE
 Can't remember original experiments: seem to recall: beta doesn't necessarily help clustering 
 '''
 # prepare VAE latents
+n_d = len(distances)
+split_input_dims = (int(2 * n_d), int(9 * n_d), int(2 * n_d))
+split_latent_dims = (4, 6, 2)
+split_hidden_layer_dims = ([24, 24, 24],
+                           [32, 32, 32],
+                           [8, 8, 8])
+epochs = 5
+beta = 0
+capacity = 0
+seed = 0
 vae = sig_models.SplitVAE(raw_dim=X_trans.shape[1],
-                          latent_dim=16,
-                          beta=0,
-                          capacity=0,
-                          epochs=15,
+                          latent_dim=latent_dim,
+                          beta=beta,
+                          capacity=capacity,
+                          epochs=epochs,
                           split_input_dims=split_input_dims,
                           split_latent_dims=split_latent_dims,
                           split_hidden_layer_dims=split_hidden_layer_dims,
-                          theme_base='VAE_e15',
-                          seed=0,
+                          theme_base=f'VAE_e{epochs}',
+                          seed=seed,
                           name='VAE')
-dir_path = pathlib.Path(f'./temp_weights/signatures_weights/seed_0/VAE_e15_d16_b0_c0_s0_epochs_15_batch_256_train')
+dir_path = pathlib.Path(f'./temp_weights/signatures_weights/seed_0/VAE_e{epochs}_d{latent_dim}_b{beta}_c{capacity}_s{seed}_epochs_{epochs}_batch_256_train')
 vae.load_weights(str(dir_path / 'weights'))
 VAE_Z_mu, VAE_Z_log_var, VAE_Z = vae.encode(X_trans, training=False)
 
@@ -231,9 +237,10 @@ for ax_row in axes:
                                 c=colours,
                                 s=sizes / 2,
                                 x_extents=(-5500, 8500),
-                                y_extents=(-1500, 7000))
+                                y_extents=(-1500, 7000),
+                                rasterized=True)
         ax.set_title(theme)
         theme_idx += 1
 plt.suptitle('Comparative GMM clustering scenarios')
-path = f'../phd-admin/PhD/part_3/images/signatures/{vade.theme}_gmm_comparisons_maps.png'
+path = f'../phd-admin/PhD/part_3/images/signatures/{vade.theme}_gmm_comparisons_maps.pdf'
 plt.savefig(path, dpi=300)

@@ -15,8 +15,10 @@ from src.explore.theme_setup import generate_theme
 # %% load from disk
 df_full = pd.read_feather(data_path / 'df_full_all.feather')
 df_full = df_full.set_index('id')
-X_raw, distances, labels = generate_theme(df_full, 'all_towns', bandwise=False,
-                                          city_pop_id=True)
+X_raw, distances, labels = generate_theme(df_full,
+                                          'all_towns',
+                                          bandwise=False,
+                                          add_city_pop_id=True)
 
 # %%
 # db connection params

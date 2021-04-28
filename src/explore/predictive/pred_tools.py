@@ -82,7 +82,7 @@ def load_data(selected_data, max_dist=None):
     X_raw, distances, labels = generate_theme(df_20,
                                               'all_towns',
                                               bandwise=True,
-                                              city_pop_id=True,
+                                              add_city_pop_id=True,
                                               max_dist=max_dist)
     # create targets column on df_20
     X_raw['targets'] = 0

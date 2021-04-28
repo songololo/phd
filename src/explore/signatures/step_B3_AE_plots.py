@@ -20,7 +20,7 @@ from src.explore.signatures import step_B2_vae_latents_UDR
 from src.explore.theme_setup import data_path, weights_path
 from src.explore.theme_setup import generate_theme
 
-# %% load from disk
+#  %% load from disk
 df_20 = pd.read_feather(data_path / 'df_20.feather')
 df_20 = df_20.set_index('id')
 
@@ -52,7 +52,7 @@ def gather_loss(seeds, epochs, latent_dims, batch=256):
                 # iterate the seeds
                 for seed_idx, seed in enumerate(seeds):
                     # in case not all models have completed running
-                    fp = f'temp_weights/seed_{seed}/VAE_{key}_s{seed}_epochs_{epochs}_batch_{batch}_train/history.json'
+                    fp = weights_path / f'signatures_weights/seed_{seed}/VAE_{key}_s{seed}_epochs_{epochs}_batch_{batch}_train/history.json'
                     if pathlib.Path(fp).is_file():
                         with open(fp) as f:
                             vae_data = json.load(f)
@@ -156,7 +156,7 @@ def generate_arr_heatmap(ax,
                             cmap=cmap)
 
 
-# %%
+#  %%
 '''
 Fine grid plots:
 Each block is beta x capacity
@@ -164,13 +164,14 @@ Each block is beta x capacity
 epochs = 10
 table = df_20
 seeds = list(range(1, 11))
-latent_dims = [8]
+latent_dims = [6]
 history_data = gather_loss(seeds, epochs, latent_dims)
 # returns 3d array - beta x caps x seeds
 # load files if already calculated, otherwise compute, then save
-udr_path = pathlib.Path(weights_path / f'data/udr_scores.npy')
-udr_mask_path = pathlib.Path(weights_path / f'data/udr_mask_counts.npy')
+udr_path = pathlib.Path(weights_path / f'signatures_weights/data/udr_scores.npy')
+udr_mask_path = pathlib.Path(weights_path / f'signatures_weights/data/udr_mask_counts.npy')
 if not udr_path.exists():
+    print('UDR data does not exist, creating:')
     udr_arr, udr_mask_count_arr = step_B2_vae_latents_UDR.generate_udr_grid(latent_dims[0],
                                                                             epochs,
                                                                             seeds,
@@ -178,10 +179,11 @@ if not udr_path.exists():
     np.save(udr_path, udr_arr)
     np.save(udr_mask_path, udr_mask_count_arr)
 else:
+    print('Loading precomputed UDR data:')
     udr_arr = np.load(udr_path)
     udr_mask_count_arr = np.load(udr_mask_path)
 
-# %%
+#  %%
 '''
 VAE losses
 '''
@@ -208,7 +210,7 @@ for ax_row, theme_row in zip(axes, theme_sets):
             generate_heatmap(ax, theme, epochs, latent_dims[0], history_data)
 
 plt.suptitle(r'10 seed avg. losses for $\beta$ and $C$ hyperparameters (10 epochs)')
-path = f'../phd-admin/PhD/part_3/images/signatures/model_scores_fine.png'
+path = f'../phd-admin/PhD/part_3/images/signatures/model_scores_fine.pdf'
 plt.savefig(path, dpi=300)
 
 # %%
@@ -218,24 +220,24 @@ Prepare split model
 df_20 = pd.read_feather(data_path / 'df_20.feather')
 df_20 = df_20.set_index('id')
 table = df_20
-X_raw, distances, labels = generate_theme(table, 'all', bandwise=True)
+X_raw, distances, labels = generate_theme(table, 'all_towns', bandwise=True, max_dist=800)
 X_trans = StandardScaler().fit_transform(X_raw)
 test_idx = util_funcs.train_test_idxs(df_20, 200)  # 200 gives about 25%
 
-# setup paramaters
-epochs = 25
+# setup parameters
+epochs = 5
 batch = 256
 theme_base = f'VAE_e{epochs}'
 n_d = len(distances)
-split_input_dims = (int(5 * n_d), int(18 * n_d), int(4 * n_d))
-split_latent_dims = (6, 8, 2)
-split_hidden_layer_dims = ([128, 128, 128],
-                           [256, 256, 256],
-                           [64, 64, 64])
-latent_dim = 8
+split_input_dims = (int(2 * n_d), int(9 * n_d), int(2 * n_d))
+split_latent_dims = (4, 6, 2)
+split_hidden_layer_dims = ([24, 24, 24],
+                           [32, 32, 32],
+                           [8, 8, 8])
+latent_dim = 6
 seed = 0
-beta = 4
-cap = 12
+beta = 32
+cap = 4
 lr = 1e-3
 
 # setup model
@@ -250,7 +252,8 @@ vae = sig_models.SplitVAE(raw_dim=X_trans.shape[1],
                           theme_base=theme_base,
                           seed=seed,
                           name='VAE')
-dir_path = pathlib.Path(weights_path / f'seed_{seed}/{vae.theme}_epochs_{epochs}_batch_{batch}_train')
+dir_path = pathlib.Path(
+    weights_path / f'signatures_weights/seed_{seed}/{vae.theme}_epochs_{epochs}_batch_{batch}_train')
 # visualise
 vae.load_weights(str(dir_path / 'weights'))
 # get main latent dimensions (Z)
@@ -268,7 +271,7 @@ plot latent maps
 '''
 # plot
 util_funcs.plt_setup()
-fig, axes = plt.subplots(2, 8, figsize=(12, 8))
+fig, axes = plt.subplots(2, 6, figsize=(10, 8))
 for ax_row, inverse in zip(axes, [False, True]):
     L = np.copy(Z_mu)
     if inverse:
@@ -282,12 +285,13 @@ for ax_row, inverse in zip(axes, [False, True]):
                                 s_min=0,
                                 s_max=0.8,
                                 c_exp=5,
-                                s_exp=3.5)
+                                s_exp=3.5,
+                                rasterized=True)
         ax.set_title(f'#{latent_idx + 1} - ' + r'$D_{KL}=' + f'{kl_vec[latent_idx]:.4f}$')
         if inverse:
             ax.set_title(f'Dim. {latent_idx + 1} - Inverse')
 plt.suptitle(r"Geographic mappings (and inverses) for the latents of the VAE model")
-path = f'../phd-admin/PhD/part_3/images/signatures/latents_map_inv_{beta}_{str(cap).replace(".", "_")}.png'
+path = f'../phd-admin/PhD/part_3/images/signatures/latents_map_inv_{beta}_{str(cap).replace(".", "_")}.pdf'
 plt.savefig(path, dpi=300)
 
 #  %%
@@ -295,7 +299,7 @@ plt.savefig(path, dpi=300)
 plot latent correlations
 '''
 util_funcs.plt_setup()
-fig, axes = plt.subplots(2, 8, figsize=(12, 8))
+fig, axes = plt.subplots(2, 6, figsize=(10, 7))
 for ax_row, inverse in zip(axes, [False, True]):
     L = np.copy(Z_mu)
     if inverse:
@@ -308,12 +312,12 @@ for ax_row, inverse in zip(axes, [False, True]):
                                 row_labels=labels,
                                 col_labels=distances,
                                 set_row_labels=latent_idx == 0,
-                                cbar=True)
+                                cbar=False)
         ax.set_title(f'#{latent_idx + 1} - ' + r'$D_{KL}=' + f'{kl_vec[latent_idx]:.4f}$')
         if inverse:
             ax.set_title(f'Dim. {latent_idx + 1} - Inverse')
 plt.suptitle(r"Pearson's $\rho$ correlations (and inverses) to source variables for the latents of the VAE model")
-path = f'../phd-admin/PhD/part_3/images/signatures/latents_corr_inv_{beta}_{str(cap).replace(".", "_")}.png'
+path = f'../phd-admin/PhD/part_3/images/signatures/latents_corr_inv_{beta}_{str(cap).replace(".", "_")}.pdf'
 plt.savefig(path, dpi=300)
 
 #  %%
@@ -322,14 +326,14 @@ Plot split model latents - correlations
 '''
 for inverse in [False, True]:
     util_funcs.plt_setup()
-    fig = plt.figure(figsize=(12, 6))
-    gs = fig.add_gridspec(3, 8, height_ratios=[5, 18, 4], width_ratios=[1, 1, 1, 1, 1, 1, 1, 1])
+    fig = plt.figure(figsize=(10, 4.75))
+    gs = fig.add_gridspec(3, 6, height_ratios=[2, 9, 2], width_ratios=[1, 1, 1, 1, 1, 1])
     for title, ax_row, label_indices, sub_latent_X in zip(
             ('Centrality: C-{n}', 'Land-use: LU-{n}', 'Population: P-{n}'),
-            ((fig.add_subplot(gs[0, i]) for i in range(0, 6)),
-             (fig.add_subplot(gs[1, i]) for i in range(8)),
+            ((fig.add_subplot(gs[0, i]) for i in range(0, 4)),
+             (fig.add_subplot(gs[1, i]) for i in range(6)),
              (fig.add_subplot(gs[2, i]) for i in range(0, 2))),
-            ((0, 5), (5, 24), (24, 27)),
+            ((0, 2), (2, 11), (11, 13)),
             (latent_A, latent_B, latent_C)):
         lab = labels[label_indices[0]:label_indices[1]]  # five row labels
         start_src_idx, end_src_idx = label_indices
@@ -356,20 +360,20 @@ for inverse in [False, True]:
     path = f'../phd-admin/PhD/part_3/images/signatures/sub_latent_correlations_{beta}_{str(cap).replace(".", "_")}'
     if inverse:
         path += '_inverse'
-    path += '.png'
+    path += '.pdf'
     plt.savefig(path, dpi=300)
 
 #  %%
 '''
 Plot split model latents - maps
 '''
-set_A = [('Cent: C-{n}', (0, 6), (0, 5), latent_A),
-         ('Pop: P-{n}', (6, 2), (24, 27), latent_C)]
-set_B = [('Uses: LU-{n}', (0, 8), (5, 24), latent_B)]
+set_A = [('Cent: C-{n}', (0, 4), (0, 2), latent_A),
+         ('Pop: P-{n}', (4, 2), (2, 11), latent_C)]
+set_B = [('Uses: LU-{n}', (0, 6), (11, 13), latent_B)]
 
 for lb, set in zip(['A', 'B'], [set_A, set_B]):
     util_funcs.plt_setup()
-    fig, axes = plt.subplots(2, 8, figsize=(12, 8), gridspec_kw={'height_ratios': [1] * 2, 'width_ratios': [1] * 8})
+    fig, axes = plt.subplots(2, 6, figsize=(10, 8), gridspec_kw={'height_ratios': [1] * 2, 'width_ratios': [1] * 6})
     for title, ax_indices, label_indices, sub_latent_X in set:
         lab = labels[label_indices[0]:label_indices[1]]  # five row labels
         start_src_idx, end_src_idx = label_indices
@@ -395,7 +399,8 @@ for lb, set in zip(['A', 'B'], [set_A, set_B]):
                                     s_min=0,
                                     s_max=0.8,
                                     c_exp=5,
-                                    s_exp=3.5)
+                                    s_exp=3.5,
+                                    rasterized=True)
             axes[0][col_start_idx + latent_idx].set_title(t)
             # plot inverses
             plot_funcs.plot_scatter(axes[1][col_start_idx + latent_idx],
@@ -405,10 +410,11 @@ for lb, set in zip(['A', 'B'], [set_A, set_B]):
                                     s_min=0,
                                     s_max=0.8,
                                     c_exp=5,
-                                    s_exp=3.5)
+                                    s_exp=3.5,
+                                    rasterized=True)
             axes[1][col_start_idx + latent_idx].set_title(t + ' - Inverse')
     plt.suptitle(r"Geographic mapping of the split sub-latents of the VAE model")
-    path = f'../phd-admin/PhD/part_3/images/signatures/sub_latent_maps_{lb}_{beta}_{str(cap).replace(".", "_")}.png'
+    path = f'../phd-admin/PhD/part_3/images/signatures/sub_latent_maps_{lb}_{beta}_{str(cap).replace(".", "_")}.pdf'
     plt.savefig(path, dpi=300)
 
 #  %%
@@ -418,8 +424,8 @@ Generate tables of the weight mappings from Z mu and Z log var to main latents
 Z_mu_weights = vae.sampling.Z_mu_layer.get_weights()
 # rows are latent dimensions, columns are split latent dimensions
 table_start = r'''
-\begin{tabular}{ r | c c c c c c c c }
-    & Latent 1 & Latent 2 & Latent 3 & Latent 4 & Latent 5 & Latent 6 & Latent 7 & Latent 8 \\
+\begin{tabular}{ r | c c c c c c }
+    & Latent 1 & Latent 2 & Latent 3 & Latent 4 & Latent 5 & Latent 6 \\
     \midrule'''
 table_end = r'''
 \end{tabular}
@@ -430,7 +436,7 @@ table_rows = ''
 z_mu_wts = Z_mu_weights[0]
 z_mu_totals = np.nansum(np.abs(z_mu_wts), axis=0)
 z_mu_pcs = z_mu_wts / z_mu_totals * 100
-for prefix, start_idx, n_sub_latents in zip(['C', 'LU', 'P'], [0, 6, 14], [6, 8, 2]):
+for prefix, start_idx, n_sub_latents in zip(['C', 'LU', 'P'], [0, 4, 10], [4, 6, 2]):
     # iterate the sub latents to build the row
     for i in range(n_sub_latents):
         idx = start_idx + i
@@ -455,8 +461,8 @@ print(table_complete)
 Z_log_var_weights = vae.sampling.Z_logvar_layer.get_weights()
 # rows are latent dimensions, columns are split latent dimensions
 table_start = r'''
-\begin{tabular}{ r | c c c c c c c c}
-    & Latent 1 & Latent 2 & Latent 3 & Latent 4 & Latent 5 & Latent 6 & Latent 7 & Latent 8 \\
+\begin{tabular}{ r | c c c c c c }
+    & Latent 1 & Latent 2 & Latent 3 & Latent 4 & Latent 5 & Latent 6 \\
     \midrule'''
 table_end = r'''
 \end{tabular}
@@ -467,7 +473,7 @@ table_rows = ''
 z_lv_wts = Z_log_var_weights[0]
 z_lv_totals = np.nansum(np.abs(z_lv_wts), axis=0)
 z_lv_pcs = z_lv_wts / z_lv_totals * 100
-for prefix, start_idx, n_sub_latents in zip(['C', 'LU', 'P'], [0, 6, 14], [6, 8, 2]):
+for prefix, start_idx, n_sub_latents in zip(['C', 'LU', 'P'], [0, 4, 10], [4, 6, 2]):
     # iterate the sub latents to build the row
     for i in range(n_sub_latents):
         idx = start_idx + i
@@ -530,7 +536,7 @@ for ax_idx in range(6):
         ax.plot(theta, values, linewidth=1, linestyle='solid', label=f'latent {data_label}')
         ax.fill(theta, values, 'b', alpha=0.1)
 plt.suptitle('Spider plots showing distribution of sub-latent weights relative to latents.')
-path = f'../phd-admin/PhD/part_3/images/signatures/latent_spiders.png'
+path = f'../phd-admin/PhD/part_3/images/signatures/latent_spiders.pdf'
 plt.savefig(path, dpi=300)
 '''
 
@@ -538,17 +544,17 @@ plt.savefig(path, dpi=300)
 '''
 Sweep plots - x by y grids
 '''
-for l1, l2 in [[2, 3], [3, 7]]:
+for l1, l2 in [[1, 3]]:
     # extract latents into a placeholder array
-    arrs = np.full((7, 7, X_trans.shape[1]), np.nan)
+    arrs = np.full((5, 5, X_trans.shape[1]), np.nan)
     mins = np.inf
     maxs = -np.inf
-    sweeps = [-2.5, -2, -1, 0, 1, 2, 2.5]
+    sweeps = [-2.5, -1.25, 0, 1.25, 2.5]
     for i_idx, i_key in enumerate(sweeps):
         for j_idx, j_key in enumerate(sweeps):
             # expects 2d - remember that Z is sorted by KL so extrapolate to original order
             # in this case, indices 3 and 5
-            z_key = np.array([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]], dtype=float)
+            z_key = np.array([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]])
             z_key[0][l1] = i_key
             z_key[0][l2] = j_key
             arr = vae.decode(z_key).numpy()
@@ -561,11 +567,9 @@ for l1, l2 in [[2, 3], [3, 7]]:
     max_val = np.abs(max_val)
     max_val = np.min(max_val)
     arrs /= max_val
-    # select indices for display
-    display_idx = [1, 4, 5, 7, 9, 14, 15, 16, 23]
     # plot
     util_funcs.plt_setup()
-    fig, ax_rows = plt.subplots(7, 7, figsize=(10, 12))
+    fig, ax_rows = plt.subplots(5, 5, figsize=(5, 10))
     for i_idx, i_key in enumerate(sweeps):
         for j_idx, j_key in enumerate(sweeps):
             arr = arrs[i_idx][j_idx]
@@ -578,27 +582,27 @@ for l1, l2 in [[2, 3], [3, 7]]:
             if i_idx == len(sweeps) - 1:
                 cl = True
             plot_funcs.plot_heatmap(ax,
-                                    arr[display_idx],
-                                    np.array(labels)[display_idx],
+                                    arr,
+                                    labels,
                                     distances,
                                     set_row_labels=rl,
                                     set_col_labels=cl)
-            ax.set_xlabel(f'{i_key} $\sigma$ | {j_key} $\sigma$')
-    plt.suptitle(f'VAE latent variable sweeps across latent dimensions {l1 + 1} & {l2 + 1}.')  # 5 and 3 in unsorted Z
-    path = f'../phd-admin/PhD/part_3/images/signatures/vae_grid_{beta}_{str(cap).replace(".", "_")}_{l1}_{l2}.png'
+            ax.set_xlabel(f'{i_key} / {j_key} $\sigma$')
+    plt.suptitle(f'2D decoded sweep across latent dimensions {l1 + 1} & {l2 + 1}.')
+    path = f'../phd-admin/PhD/part_3/images/signatures/vae_grid_{beta}_{str(cap).replace(".", "_")}_{l1}_{l2}.pdf'
     plt.savefig(path, dpi=300)
 
 #  %%
 '''
 Sweep plots - each latent
 '''
-arrs = np.full((12, 12, X_trans.shape[1]), np.nan)
+arrs = np.full((6, 7, X_trans.shape[1]), np.nan)
 mins = np.inf
 maxs = -np.inf
-sweeps = [-2.5, -2, -1, 0.5, 0, 0.5, 1, 2, 2.5]
-for latent_idx in list(range(8)):
+sweeps = [-2.5, -1.25, 0.5, 0, 0.5, 1.25, 2.5]
+for latent_idx in range(6):
     for sweep_idx, sweep in enumerate(sweeps):
-        z_key = np.array([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]], dtype=float)
+        z_key = np.array([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]], dtype=float)
         z_key[0][latent_idx] = sweep
         arr = vae.decode(z_key).numpy()
         if arr.min() < mins:
@@ -611,27 +615,20 @@ max_val = np.abs(max_val)
 max_val = np.min(max_val)
 arrs /= max_val
 
-for i, (latent_start, latent_end) in enumerate(zip([1, 3, 5, 7], [3, 5, 7, 9])):
-    util_funcs.plt_setup()
-    fig, ax_rows = plt.subplots(2, 9, figsize=(12, 8))
-    for j, latent_idx in enumerate(list(range(latent_start, latent_end))):
-        for sweep_idx, sweep in enumerate(sweeps):
-            arr = arrs[latent_idx - 1][sweep_idx]
-            arr = np.reshape(arr, (len(labels), len(distances)))
-            ax = ax_rows[j][sweep_idx]
-            rl = False
-            if sweep_idx == 0:
-                rl = True
-            cl = False
-            if j == 1:
-                cl = True
-            plot_funcs.plot_heatmap(ax,
-                                    arr,
-                                    labels,
-                                    distances,
-                                    set_row_labels=rl,
-                                    set_col_labels=cl)
-            ax.set_xlabel(f'latent {latent_idx}: {sweep} $\sigma$')
-    plt.suptitle(f'VAE latent variable sweeps across individual latent dimensions {latent_start} & {latent_end - 1}.')
-    path = f'../phd-admin/PhD/part_3/images/signatures/vae_sweep_{i}_{beta}_{str(cap).replace(".", "_")}.png'
-    plt.savefig(path, dpi=300)
+util_funcs.plt_setup()
+fig, ax_rows = plt.subplots(6, 7, figsize=(6, 10))
+for latent_idx in range(6):
+    for sweep_idx, sweep in enumerate(sweeps):
+        arr = arrs[latent_idx][sweep_idx]
+        arr = np.reshape(arr, (len(labels), len(distances)))
+        ax = ax_rows[latent_idx][sweep_idx]
+        plot_funcs.plot_heatmap(ax,
+                                arr,
+                                labels,
+                                distances,
+                                set_row_labels=sweep_idx == 0,
+                                set_col_labels=latent_idx == 5)
+        ax.set_title(f'${sweep}\sigma$')
+plt.suptitle(f'Decoded sweeps across individual latent dimensions.')
+path = f'../phd-admin/PhD/part_3/images/signatures/vae_sweep_{beta}_{str(cap).replace(".", "_")}.pdf'
+plt.savefig(path, dpi=300)

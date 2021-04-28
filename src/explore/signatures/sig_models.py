@@ -182,7 +182,7 @@ class VAE(models.Model):
                  epochs: int,
                  theme_base='vae',
                  seed=0,
-                 hidden_layer_dims: tuple = (256, 256, 256),
+                 hidden_layer_dims: tuple = (32, 32, 32),
                  activation_func: str = 'swish',
                  kernel_init: str = 'glorot_uniform',
                  **kwargs):
@@ -332,7 +332,7 @@ class SplitVAE(VAE):
                  split_hidden_layer_dims: tuple = None,  # for split layers in encoder
                  theme_base='vae',
                  seed=0,
-                 hidden_layer_dims: tuple = (256, 256, 256),  # decoder
+                 hidden_layer_dims: tuple = (32, 32, 32),  # decoder
                  activation_func: str = 'swish',
                  kernel_init: str = 'glorot_uniform',
                  **kwargs):

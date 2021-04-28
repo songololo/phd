@@ -44,14 +44,12 @@ def prepare_v(vals):
 '''
 provide vals, otherwise provide explicit c and s params to override
 '''
-
-
 def plot_scatter(ax,
                  xs,
                  ys,
                  vals=None,
                  dark=False,
-                 x_extents=(-1000, 3500),
+                 x_extents=(-1250, 3750),
                  y_extents=(-5000, 7000),
                  relative_extents=True,
                  s_min=0,
@@ -59,6 +57,7 @@ def plot_scatter(ax,
                  c_exp=1,
                  s_exp=1,
                  cmap=None,
+                 rasterized=True,
                  **kwargs):
     '''
     :param relative_extents: Uses the centrepoint of all points as a starting point.
@@ -102,6 +101,7 @@ def plot_scatter(ax,
                     linewidths=0,
                     edgecolors='none',
                     cmap=cmap,
+                    rasterized=rasterized,
                     **kwargs)
 
     ax.set_xlim(left=x_left, right=x_right)
@@ -214,7 +214,8 @@ def plot_components(component_idxs,
                     c_exp=1,
                     s_exp=1,
                     cbar=False,
-                    figsize=None):
+                    figsize=None,
+                    rasterized=True):
     n_rows = 2
     n_cols = len(component_idxs)
 
@@ -266,7 +267,8 @@ def plot_components(component_idxs,
                      s_min=s_min,
                      s_max=s_max,
                      c_exp=c_exp,
-                     s_exp=s_exp)
+                     s_exp=s_exp,
+                     rasterized=rasterized)
         map_ax.set_title(f'Latent {comp_idx + 1}')
 
         if tag_values is not None:
@@ -284,7 +286,8 @@ def plot_prob_clusters(X_raw,
                        max_only=False,
                        plt_cmap='gist_ncar',
                        shape_exp=0.5,
-                       suptitle='GMM VaDE'):
+                       suptitle='GMM VaDE',
+                       rasterized=True):
     # get the assignments based on maximum probability
     cluster_assignments = np.argmax(cluster_probs, axis=1)
     # get the colours for each cluster based on mean mixed uses
@@ -320,7 +323,8 @@ def plot_prob_clusters(X_raw,
                              c=c,
                              s=s,
                              x_extents=x_extents,
-                             y_extents=y_extents)
+                             y_extents=y_extents,
+                             rasterized=rasterized)
                 ax.set_title(f'Cluster {cluster_idx + 1}')
             counter += 1
     plt.suptitle(suptitle)
@@ -348,7 +352,10 @@ def mu_mus(X_raw, cluster_assignments, n_components, shape_exp=0.5):
     return mu_mus
 
 
-def map_diversity_colour(X_raw, cluster_assignments, n_components, plt_cmap='gist_ncar',
+def map_diversity_colour(X_raw,
+                         cluster_assignments,
+                         n_components,
+                         plt_cmap='gist_ncar',
                          shape_exp=0.5):
     # get the colours based on mean mixed uses
     m_m = mu_mus(X_raw, cluster_assignments, n_components, shape_exp)

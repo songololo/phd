@@ -1,6 +1,7 @@
 import warnings
 from pathlib import Path
 
+import pandas as pd
 from sklearn.exceptions import UndefinedMetricWarning
 
 warnings.simplefilter(action='ignore', category=UndefinedMetricWarning)
@@ -11,10 +12,10 @@ warnings.simplefilter(action='ignore', category=DeprecationWarning)
 data_path = Path('/Users/gareth/databases/phd_data/')
 
 # plot_path = Path('../../phd-admin/PhD/part_3/images/signatures')
-plot_path = Path('./temp_images/')
+plot_path = Path('./src/temp_images/')
 
-logs_path = Path('./temp_logs/')
-weights_path = Path('./temp_weights/')
+logs_path = Path('./src/temp_logs/')
+weights_path = Path('./src/temp_weights/')
 
 # use of bands gives slightly more defined delineations for latent dimensions
 columns_cent = [
@@ -193,15 +194,19 @@ labels_pred_sim = [
     'dwellings'
 ]
 
-# important - modify bandwise code below if adding back 50m
-distances = [100, 200, 300, 400, 600, 800, 1200, 1600]
 
+template_distances = (100, 200, 300, 400, 600, 800, 1200, 1600)
 
-def generate_theme(df, theme, bandwise=False, city_pop_id=False, max_dist=None):
+def generate_theme(df,
+                   theme,
+                   bandwise=False,
+                   add_city_pop_id=False,
+                   max_dist=None):
+
     if max_dist is None:
-        _distances = [d for d in distances]
+        distances = [d for d in template_distances]
     else:
-        _distances = [d for d in distances if d <= max_dist]
+        distances = [d for d in template_distances if d <= max_dist]
 
     if theme == 'all':
         columns = columns_cent + columns_lu + columns_cens
@@ -230,7 +235,7 @@ def generate_theme(df, theme, bandwise=False, city_pop_id=False, max_dist=None):
     else:
         raise ValueError('Invalid theme specified for data theme.')
 
-    if city_pop_id:
+    if add_city_pop_id:
         # unpack the columns by distances and fetch the data
         # first add generic (non-distance) columns
         labels = ['City Population ID'] + labels
@@ -241,7 +246,7 @@ def generate_theme(df, theme, bandwise=False, city_pop_id=False, max_dist=None):
         selected_columns = []
     # unpack the columns by distances and fetch the data
     for column in columns:
-        for d in _distances:
+        for d in distances:
             selected_columns.append(column.format(dist=d))
     # if not bandwise, simply return distance based columns as they are
     if not bandwise:
@@ -251,28 +256,18 @@ def generate_theme(df, theme, bandwise=False, city_pop_id=False, max_dist=None):
         print('Generating bandwise')
         df_copy = df.copy(deep=True)
         for column in columns:
-            for d in _distances:
+            for d in distances:
                 print(f'Current distance leading edge: {d}m')
-                # the first band does not subtract anything
-                if d == 100:
+                d_idx = distances.index(d)
+                if d_idx == 0:
                     print(f'No trailing edge for distance {d}m')
-                    t = df[column.format(dist=d)]
                 # subsequent bands subtract the prior band
                 else:
-                    lag_dist = d - 100
-                    t_cur = df[column.format(dist=d)]
-                    while True:
-                        if lag_dist == 0:
-                            raise ValueError('Please check leading and trailing distances.')
-                        trailing_key = column.format(dist=lag_dist)
-                        if trailing_key in df.columns:
-                            break
-                        else:
-                            lag_dist -= 100
+                    lag_idx = d_idx - 1
+                    lag_dist = distances[lag_idx]
                     print(f'Trailing edge: {lag_dist}m')
-                    t_lag = df[column.format(dist=lag_dist)]
-                    t = t_cur - t_lag
-                df_copy[column.format(dist=d)] = t
+                    df_copy[column.format(dist=d)] = df[column.format(dist=d)] - df[column.format(dist=lag_dist)]
+        # edited necessary columns in place, only pass those columns back
         X = df_copy[selected_columns]
 
-    return X, _distances, labels
+    return X, distances, labels

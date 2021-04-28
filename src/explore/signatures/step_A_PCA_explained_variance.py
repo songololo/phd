@@ -32,8 +32,11 @@ Plot PCA
 - robust scaling - exacerbates internal variances (scales to 1st and 3rd quartiles)
 '''
 table = df_20
-X_raw, distances, labels = generate_theme(table, 'all', bandwise=True)
-n_components = 8
+X_raw, distances, labels = generate_theme(table,
+                                          'all_towns',
+                                          bandwise=True,
+                                          max_dist=800)
+n_components = 6
 model = PCA()
 X_trans = StandardScaler().fit_transform(X_raw)
 X_latent = model.fit_transform(X_trans)
@@ -62,9 +65,10 @@ plot_funcs.plot_components(list(range(n_components)),
                            s_max=0.8,
                            c_exp=5,
                            s_exp=3.5,
-                           cbar=True)
-plt.suptitle('Principle Component Analysis')
-path = f'../phd-admin/PhD/part_3/images/signatures/pca.png'
+                           cbar=False,
+                           figsize=(10, 7.5))
+plt.suptitle('Principal Component Analysis')
+path = f'../phd-admin/PhD/part_3/images/signatures/pca.pdf'
 plt.savefig(path, dpi=300)
 
 # %%
@@ -72,8 +76,7 @@ plt.savefig(path, dpi=300)
 Generate the data used for the components plot
 '''
 table = df_20
-X_raw, distances, labels = generate_theme(table, 'all', bandwise=True)
-_, _, select_labels = generate_theme(table, 'select', bandwise=True)
+X_raw, distances, labels = generate_theme(table, 'all_towns', bandwise=True, max_dist=800)
 X_trans = StandardScaler().fit_transform(X_raw)
 #
 explained_total_variance = []
@@ -117,5 +120,5 @@ ax.legend(loc='center right')
 ax.legend()
 
 plt.suptitle(f'PCA explained $\sigma^2$ / $MSE$ reconstruction losses for ${components[-1]}$ components')
-path = f'../phd-admin/PhD/part_3/images/signatures/pca_components.png'
-plt.savefig(path, dpi=300)
+path = f'../phd-admin/PhD/part_3/images/signatures/pca_components.pdf'
+plt.savefig(path)
