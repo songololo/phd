@@ -271,10 +271,10 @@ for rdm in [False, True]:
             app_title = ''
             app_path = ''
         plt.suptitle(r'Spearman $\rho$ ' + f'correlations for centrality measures to {app_title}{lu_label}')
-        path = f'../phd-admin/PhD/part_2/images/centrality/primal_centralities_corr_grid_{lu_theme_base}{app_path}.png'
-        plt.savefig(path, dpi=300)
+        path = f'../phd-admin/PhD/part_2/images/centrality/primal_centralities_corr_grid_{lu_theme_base}{app_path}.pdf'
+        plt.savefig(path)
 
-#  %%
+# %%
 '''
 plot the maps showing the mapped centrality measures
 '''
@@ -339,10 +339,10 @@ for n, (theme_set, theme_labels, theme_meta, theme_wt) in enumerate(
             ax.set_title(l)
 
     plt.suptitle(f'Comparative plots of centrality measures for inner London (set {n + 1})')
-    path = f'../phd-admin/PhD/part_2/images/centrality/primal_centrality_comparisons_{theme_meta}.png'
+    path = f'../phd-admin/PhD/part_2/images/centrality/primal_centrality_comparisons_{theme_meta}.pdf'
     plt.savefig(path, dpi=300)
 
-#  %%
+# %%
 '''
 demonstrate the typical distributions
 the contention is that low values preclude mixed-uses but high values don't guarantee them
@@ -364,34 +364,51 @@ x2 = df_full['c_segment_betweenness_1000']
 y = df_full['mu_hill_branch_wt_0_1000']
 s = preprocessing.minmax_scale(y, (0.1, 50))
 lw = preprocessing.minmax_scale(y, (0.05, 0.2))
-# scatter
-axes[0][0].scatter(x1, y, marker='.', s=s, c='#0064b7', alpha=0.5, linewidths=lw, edgecolors='white')
+# hexbin
+axes[0][0].hexbin(x1,
+                  y,
+                  gridsize=(80, 50),
+                  mincnt=5,
+                  bins='log',
+                  xscale='linear',
+                  yscale='linear',
+                  lw=0.2,
+                  edgecolors='w',
+                  cmap='Blues')
 # histogram
-axes[1][0].hist(x1, 150, edgecolor='white', linewidth=0.3, log=False, color='#0064b7')
+axes[1][0].hist(x1, 100, edgecolor='white', linewidth=0.3, log=False, color='#0064b7')
 axes[1][0].set_xlabel(r'segment $\beta$ weighted closeness $_{\beta=0.004\ d_{max}=1000m}$')
-axes[1][0].set_xlim(left=0, right=7000)
-# right panel - scatter
-axes[0][1].scatter(x2, y, marker='.', s=s, c='#0064b7', alpha=0.5, linewidths=lw, edgecolors='white')
+axes[1][0].set_xlim(left=0, right=6000)
+# right panel - hexbin
+axes[0][1].hexbin(x2[x2 > 0],
+                  y[x2 > 0],
+                  gridsize=(160, 50),
+                  mincnt=5,
+                  bins='log',
+                  xscale='log',
+                  yscale='linear',
+                  lw=0.2,
+                  edgecolors='w',
+                  cmap='Blues')
 # histogram
-b_w = np.logspace(np.log10(100), np.log10(100000), 150)
+b_w = np.logspace(np.log10(100), np.log10(100000), 100)
 axes[1][1].hist(x2, b_w, edgecolor='white', linewidth=0.3, log=False, color='#0064b7')
 axes[1][1].set_xlabel(r'$\log$ segment $\beta$ weighted betweenness $_{\beta=0.004\ d_{max}=1000m}$')
 axes[1][1].set_xscale('log')
-axes[1][1].set_xlim(left=100, right=100000)
+axes[1][1].set_xlim(left=300, right=100000)
 # shared
-axes[0][0].set_ylim(bottom=0, top=140)
+axes[0][0].set_ylim(bottom=0, top=100)
 axes[0][0].set_ylabel(r'mixed-use richness $H_{0\ \beta=0.004\ d_{max}=1000m}$')
 
 plt.suptitle(
-    'Comparative distributions and scatterplots for network centrality measures compared to mixed-use richness')
-path = f'../phd-admin/PhD/part_2/images/centrality/primal_scatter_gravity_betweenness.png'
+    'Comparative hexbin plots and distributions for network centrality measures compared to mixed-use richness')
+path = f'../phd-admin/PhD/part_2/images/centrality/primal_hexbin_gravity_betweenness.pdf'
 plt.savefig(path, dpi=300)
 
-#  %%
+# %%
 '''
 plot betweenness vs closeness, coloring mixed-uses
 '''
-
 util_funcs.plt_setup()
 
 fig, ax = plt.subplots(1, 1, figsize=(5, 5))
@@ -404,15 +421,18 @@ x = df_temp['c_segment_beta_1000']
 y = df_temp['c_segment_betweenness_1000']
 c = df_temp[['mu_hill_branch_wt_0_1000']]
 
-c_shape = preprocessing.power_transform(c, method='yeo-johnson', standardize=False)
-c_shape = c_shape.T[0] ** 6
-
-s = preprocessing.minmax_scale(c_shape, (0.1, 50))
-lw = preprocessing.minmax_scale(c_shape, (0, 0.2))
-cmap = plt.get_cmap('YlOrRd')
-colors = preprocessing.minmax_scale(c_shape, (0, 1))
-
-sp = ax.scatter(x, y, marker='.', s=s, alpha=1, c=colors, linewidths=lw, edgecolors='white', cmap='YlOrRd')
+sp = ax.hexbin(x[y > 0],
+               y[y > 0],
+               C=c[y > 0],
+               gridsize=(80, 100),
+               mincnt=5,
+               bins='log',
+               xscale='linear',
+               yscale='log',
+               cmap='YlOrRd',
+               lw=0.2,
+               edgecolors='w',
+               reduce_C_function=np.mean)
 divider = make_axes_locatable(ax)
 cax = divider.append_axes('right', size='2%', pad=0.05)
 cbar_max = round(c.values.max())
@@ -420,16 +440,17 @@ cbar = plt.colorbar(sp, cax=cax, ticks=[0, cbar_max])
 cbar.ax.set_yticklabels([0, cbar_max])
 
 ax.set_xlabel(r'segment $\beta$ weighted closeness $_{\beta=0.004\ d_{max}=1000m}$')
-ax.set_xlim(left=0, right=7000)
+ax.set_xlim(left=0, right=6000)
 ax.set_yscale('log')
-ax.set_ylim(bottom=10, top=100000)
+ax.set_ylim(bottom=300, top=100000)
 ax.set_ylabel(r'$\log$ segment $\beta$ weighted betweenness $_{\beta=0.004\ d_{max}=1000m}$')
 ax.title.set_text(r'Intensity of mixed-use richness $H_{0\ \beta=0.004\ d_{max}=1000m}$')
 
-plt.suptitle('Scatterplot of closeness, betweenness & mixed-use richness')
-path = f'../phd-admin/PhD/part_2/images/centrality/primal_gravity_betweenness_mixed_scatter.png'
+plt.suptitle('Hexbin plot of closeness, betweenness, mixed-use richness')
+path = f'../phd-admin/PhD/part_2/images/centrality/primal_gravity_betweenness_mixed_hexbin.pdf'
 plt.savefig(path, dpi=300)
 
+# %%
 """
 DEPRECATED
 #  %%
@@ -500,8 +521,8 @@ for ax, y_theme, y_label in zip(axes, y_themes, y_labels):
     ax.set_xlabel(f'Correlations for closeness measures to length normalised {y_label}')
 plt.suptitle('Correlations for closeness measures to length-normalised mixed-use and landuse themes')
 
-path = f'../phd-admin/PhD/part_2/images/centrality/primal_correlations_closeness.png'
-plt.savefig(path, dpi=300)
+path = f'../phd-admin/PhD/part_2/images/centrality/primal_correlations_closeness.pdf'
+plt.savefig(path)
 
 #  %%
 # compare variants of betweenness
@@ -561,8 +582,8 @@ for ax, y_theme, y_label in zip(axes, y_themes, y_labels):
     ax.set_xlabel(f'Correlations for betweenness measures to length normalised {y_label}')
 plt.suptitle('Correlations for betweenness measures to length-normalised mixed-use and landuse themes')
 
-path = f'../phd-admin/PhD/part_2/images/centrality/primal_correlations_betweenness.png'
-plt.savefig(path, dpi=300)
+path = f'../phd-admin/PhD/part_2/images/centrality/primal_correlations_betweenness.pdf'
+plt.savefig(path)
 """
 
 #  %%
@@ -667,15 +688,15 @@ for angular in [False]:  # , True
     if angular:
         plt.suptitle(
             r'Correlations for angular network centrality measures to length normalised mixed-use richness at varying decompositions')
-        path = f'../phd-admin/PhD/part_2/images/centrality/primal_decompositions_angular.png'
+        path = f'../phd-admin/PhD/part_2/images/centrality/primal_decompositions_angular.pdf'
     else:
         plt.suptitle(
             r'Correlations for network centrality measures to length-normalised mixed-use richness at varying decompositions')
-        path = f'../phd-admin/PhD/part_2/images/centrality/primal_decompositions.png'
+        path = f'../phd-admin/PhD/part_2/images/centrality/primal_decompositions.pdf'
 
-    plt.savefig(path, dpi=300)
+    plt.savefig(path)
 
-# %%
+#  %%
 '''
 plots fragmentation of distributions at smaller thresholds
 '''
@@ -714,5 +735,5 @@ for target, label, meta in zip(targets, labels, metas):
 
     plt.suptitle(f'{label} distributions at respective network decompositions and distance thresholds')
 
-    path = f'../phd-admin/PhD/part_2/images/centrality/distribution_degeneration_{meta}.png'
-    plt.savefig(path, dpi=300)
+    path = f'../phd-admin/PhD/part_2/images/centrality/distribution_degeneration_{meta}.pdf'
+    plt.savefig(path)

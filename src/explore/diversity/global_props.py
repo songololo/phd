@@ -1,5 +1,4 @@
 # %%
-import asyncio
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -17,12 +16,19 @@ db_config = {
     'password': ''
 }
 
-df = asyncio.run(util_funcs.load_data_as_pd_df(
+df = util_funcs.load_data_as_pd_df(
     db_config,
-    ['pop_id', 'city_name', 'city_type', 'city_area', 'city_population',
-     'city_species_count', 'city_species_unique', 'city_streets_len', 'city_intersections_count'],
+    ['pop_id',
+     'city_name',
+     'city_type',
+     'city_area',
+     'city_population',
+     'city_species_count',
+     'city_species_unique',
+     'city_streets_len',
+     'city_intersections_count'],
     'analysis.city_boundaries_150',
-    'ORDER BY pop_id'))
+    'WHERE city_population IS NOT NULL ORDER BY pop_id')
 
 Style = util_funcs.Style()
 
@@ -30,13 +36,12 @@ Style = util_funcs.Style()
 
 # clear previous figures and set matplotlib defaults
 util_funcs.plt_setup()
-
 fig, axes = plt.subplots(1, 2, sharey='row', figsize=(6, 3))
 
 # data
-d = df.dropna(how='all')
-pop = d.city_population.values
-species_count = d.city_species_count.values
+# d = df.dropna(how='all')
+pop = df.city_population.values
+species_count = df.city_species_count.values
 count_dens = pop / species_count
 
 # sizes
@@ -88,10 +93,8 @@ axes[1].vlines(x=count_dens, ymin=0, ymax=species_count, colors=dens_col, alpha=
 axes[1].set_xlabel('Persons per Point of Interest')
 axes[1].set_xlim(3, 60)
 
-path = f'../phd-admin/PhD/part_2/images/diversity/global_poi_count_pop.png'
-plt.savefig(path, dpi=300)
-
-plt.show()
+path = f'../phd-admin/PhD/part_2/images/diversity/global_poi_count_pop.pdf'
+plt.savefig(path)
 
 #  %% plot population vs. unique number of POI
 
@@ -160,7 +163,5 @@ axes[1].set_ylabel('Unique Points of Interest $linear$')
 axes[1].set_ylim(0, 840)
 axes[1].legend(loc=2)
 
-path = f'../phd-admin/PhD/part_2/images/diversity/global_poi_unique_pop.png'
-plt.savefig(path, dpi=300)
-
-plt.show()
+path = f'../phd-admin/PhD/part_2/images/diversity/global_poi_unique_pop.pdf'
+plt.savefig(path)

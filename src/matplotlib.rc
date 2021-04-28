@@ -508,7 +508,7 @@ image.cmap   : viridis           # A colormap name, gray etc...
 savefig.dpi         : figure   # figure dots per inch or 'figure'
 savefig.facecolor   : white    # figure facecolor when saving
 savefig.edgecolor   : white    # figure edgecolor when saving
-savefig.format      : png      # png, ps, pdf, svg
+savefig.format      : pdf      # png, ps, pdf, svg
 savefig.bbox        : tight # 'tight' or 'standard'.
                                 # 'tight' is incompatible with pipe-based animation
                                 # backends but will workd with temporary file based ones:

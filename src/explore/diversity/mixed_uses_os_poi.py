@@ -1,4 +1,6 @@
 # %%
+import asyncio
+
 import asyncpg
 import matplotlib.pyplot as plt
 import numpy as np
@@ -135,7 +137,7 @@ df_20 = util_funcs.clean_pd(df_20, drop_na='all', fill_inf=np.nan)
 
 # %%
 '''
-plot the maps showing the distribution of respective mixed use measures
+plot the geographic maps showing the distribution of respective mixed use measures
 '''
 theme_sets = [
     ('mu_hill_0_{dist}', 'mu_hill_1_{dist}', 'mu_hill_2_{dist}'),
@@ -143,12 +145,12 @@ theme_sets = [
     ('mu_gini_{dist}', 'mu_shannon_{dist}', 'mu_raos_{dist}')
 ]
 theme_label_sets = [
-    ('Hill $_{q=0\ ',
-     'Hill $_{q=1\ ',
-     'Hill $_{q=2\ '),
-    ('Hill branch distance weighted $_{q=0\ ',
-     'Hill branch distance weighted $_{q=1\ ',
-     'Hill branch distance weighted $_{q=2\ '),
+    (r'Hill $_{q=0\ ',
+     r'Hill $_{q=1\ ',
+     r'Hill $_{q=2\ '),
+    (r'Hill branch distance weighted $_{q=0\ ',
+     r'Hill branch distance weighted $_{q=1\ ',
+     r'Hill branch distance weighted $_{q=2\ '),
     ('Gini-Simpson $_{',
      'Shannon $_{',
      'Raos Quadratic $_{')
@@ -177,15 +179,14 @@ for theme_set, theme_labels, t_meta, p_meta, weighted in zip(theme_sets, theme_l
             if not weighted:
                 l = label + 'd_{max}=' + str(dist) + 'm}$'
             else:
-                l = label + r'\beta=' + beta + '\ d_{max}=' + str(dist) + 'm}$'
+                l = label + r'\beta=' + beta + r'\ d_{max}=' + str(dist) + 'm}$'
             ax.set_title(l)
 
     plt.suptitle(f'Comparative plots of {t_meta} mixed-use measures for inner London')
-
-    path = f'../phd-admin/PhD/part_2/images/diversity/diversity_comparisons_{p_meta}.png'
+    path = f'../phd-admin/PhD/part_2/images/diversity/diversity_comparisons_{p_meta}.pdf'
     plt.savefig(path, dpi=300)
 
-# %% prepare PCA
+#  %% prepare PCA
 # use of bands gives slightly more defined delineations for latent dimensions
 pca_columns_dist = [
     'ac_accommodation_{dist}',
@@ -271,7 +272,7 @@ plot_funcs.plot_components(list(range(4)),
                            X_pca_20_clipped,
                            df_20.x,
                            df_20.y,
-                           tag_string='explained $\sigma^{2}$:',
+                           tag_string=r'explained $\sigma^{2}$:',
                            tag_values=exp_var_str,
                            loadings=loadings,
                            label_all=False,
@@ -280,9 +281,9 @@ plot_funcs.plot_components(list(range(4)),
                            c_exp=1,
                            s_exp=2,
                            cbar=False,
-                           figsize=(6, 7))
+                           figsize=(8.75, 10))
 plt.suptitle(f'Feature extraction - first 4 PCA components from POI landuse accessibilities')
-path = f'../phd-admin/PhD/part_2/images/diversity/PCA.png'
+path = f'../phd-admin/PhD/part_2/images/diversity/PCA.pdf'
 plt.savefig(path, dpi=300)
 
 # %%
@@ -314,19 +315,18 @@ for ax_row, divs, div_labels in zip(
         div_theme = divs[ax_col]
         _x = df_20.loc[:, div_theme].values.reshape(-1, 1)
         x_label = div_labels[ax_col]
-
-        axes[ax_row][ax_col].scatter(_x, _y, s=0.03, alpha=0.5)
+        axes[ax_row][ax_col].scatter(_x, _y, s=0.03, alpha=0.5, rasterized=True)
         axes[ax_row][ax_col].set_xlim(left=0, right=np.percentile(_x, 99.999))
         axes[ax_row][ax_col].set_ylim(bottom=0, top=np.percentile(_y, 99.999))
         axes[ax_row][ax_col].set_ylabel(y_label)
-        axes[ax_row + 1][ax_col].hist(_x, 150, edgecolor='white', linewidth=0.3, log=False)
+        axes[ax_row + 1][ax_col].hist(_x, 100, edgecolor='white', linewidth=0.3, log=False)
         axes[ax_row + 1][ax_col].set_xlim(left=0, right=np.percentile(_x, 99.999))
         axes[ax_row + 1][ax_col].set_ylim(bottom=0)
         axes[ax_row + 1][ax_col].set_xlabel(x_label)
 
 plt.suptitle(f'A comparison of mixed-use measure distributions')
 
-path = f'../phd-admin/PhD/part_2/images/diversity/mixed_uses_example_distributions.png'
+path = f'../phd-admin/PhD/part_2/images/diversity/mixed_uses_example_distributions.pdf'
 plt.savefig(path, dpi=300)
 
 # %%
@@ -427,9 +427,8 @@ for pca_dim in range(2):
             ax.set_title(ax_title)
 
     plt.suptitle(r'Spearman $\rho$ ' + f'correlations for mixed-use measures to PCA component {pca_dim + 1}')
-    path = f'../phd-admin/PhD/part_2/images/diversity/mixed_use_measures_correlated_pca_{pca_dim + 1}.png'
-    plt.savefig(path, dpi=300)
-
+    path = f'../phd-admin/PhD/part_2/images/diversity/mixed_use_measures_correlated_pca_{pca_dim + 1}.pdf'
+    plt.savefig(path)
 
 # %%
 '''
@@ -482,147 +481,8 @@ for ax, pca_dim in zip(axes, list(range(2))):
 
 plt.suptitle(r'Correlations for variants of Hill mixed-use measures to PCA at increasing network decomposition')
 
-path = f'../phd-admin/PhD/part_2/images/diversity/mixed_use_measures_corr_pca_decompositions.png'
-plt.savefig(path, dpi=300)
-
-# %%
-"""
-DEPRECATED
-'''
-selected measures compared to PCA
-'''
-
-themes_unweighted = [
-    ('mu_hill_0_{dist}', 'Hill $_{q=0}$', '-', 'o', 2, 0.6),
-    ('mu_hill_1_{dist}', 'Hill $_{q=1}$', '-', 'o', 2, 0.6),
-    ('mu_hill_2_{dist}', 'Hill $_{q=2}$', '-', 'o', 2, 0.6),
-    ('mu_hill_dispar_wt_0_{dist}', 'Hill class disparity wt. $_{q=0}$', '-.', 's', 0.8, 1),
-    ('mu_hill_dispar_wt_1_{dist}', 'Hill class disparity wt. $_{q=1}$', '-.', 's', 0.8, 1),
-    ('mu_hill_dispar_wt_2_{dist}', 'Hill class disparity wt. $_{q=2}$', '-.', 's', 0.8, 1),
-    ('mu_shannon_{dist}', 'Shannon', '--', 'x', 1, 1),
-    ('mu_gini_{dist}', 'Gini-Simpson', '--', 'x', 1, 1),
-    ('mu_raos_{dist}', 'Rao / Stirling', '--', 'x', 1, 1)
-]
-
-themes_weighted = [
-    ('mu_hill_branch_wt_0_{dist}', 'Hill branch distance wt. $_{q=0}$', '-', 'x', 1.5, 0.8),
-    ('mu_hill_branch_wt_1_{dist}', 'Hill branch distance wt. $_{q=1}$', '-', 'x', 1.5, 0.8),
-    ('mu_hill_branch_wt_2_{dist}', 'Hill branch distance wt. $_{q=2}$', '-', 'x', 1.5, 0.8),
-    ('mu_hill_pairwise_wt_0_{dist}', 'Hill pairwise distance wt. $_{q=0}$', '--', '.', 1, 1),
-    ('mu_hill_pairwise_wt_1_{dist}', 'Hill pairwise distance wt. $_{q=1}$', '--', '.', 1, 1),
-    ('mu_hill_pairwise_wt_2_{dist}', 'Hill pairwise distance wt. $_{q=2}$', '--', '.', 1, 1)
-]
-
-util_funcs.plt_setup()
-fig, axes = plt.subplots(4, 1, figsize=(8, 12))
-
-for ax_row, ax in enumerate(axes):
-    print(f'processing ax: {ax_row}')
-
-    if ax_row in [0, 2]:
-        theme_set = themes_unweighted
-        weighted = False
-        theme_label = 'unweighted'
-    else:
-        theme_set = themes_weighted
-        weighted = True
-        theme_label = 'weighted'
-
-    if ax_row < 2:
-        pca_dim = 0
-    else:
-        pca_dim = 1
-
-    pca_slice = X_pca_20[:, pca_dim]
-    for theme, label, ls, ms, lw, al in theme_set:
-        corrs = []
-        for dist in distances_bandwise:
-            v = get_band(df_20, dist, theme, seg_beta_norm=True)
-            corrs.append(spearmanr(v, pca_slice)[0])
-
-        ax.plot(distances_bandwise, corrs, lw=lw, alpha=al, linestyle=ls, marker=ms, label=label)
-
-    ax.set_xlim([100, 1600])
-    ax.set_xticks(distances_bandwise)
-    ax.set_xlabel(
-        f'Correlation for bandwise & length-normalised {theme_label} mixed-use measures to PCA component {pca_dim + 1}')
-    ax.set_ylim([0, 1])
-    ax.set_ylabel(r"spearman $\rho$")
-
-    ax.legend(loc='lower right', title='')
-
-plt.suptitle('Correlations for weighted / unweighted mixed-use measures to PCA components 1 & 2')
-
-path = f'../phd-admin/PhD/part_2/images/diversity/mixed_use_measures_corr_pca_themes.png'
-plt.savefig(path, dpi=300)
-"""
-
-# %%
-"""
-DEPRECATED
-'''
-Comparisons between mixed-use measures and land use accessibilities on 20m network
-'''
-
-themes = [
-    'ac_eating_{dist}',
-    'ac_drinking_{dist}',
-    'ac_commercial_{dist}',
-    'ac_retail_food_{dist}',
-    'ac_retail_other_{dist}',
-    'ac_total_{dist}'
-]
-
-labels = [
-    'eating',
-    'drinking',
-    'commercial',
-    'food retail',
-    'other retail',
-    'all landuses'
-]
-
-util_funcs.plt_setup()
-fig, axes = plt.subplots(4, 1, figsize=(8, 12))
-
-for ax_row, ax in enumerate(axes):
-    print(f'processing ax: {ax_row}')
-
-    if ax_row == 0:
-        y_data = X_pca_20[:, 0]
-        y_label = 'PCA component 1'
-    elif ax_row == 1:
-        y_data = df_20['mu_hill_branch_wt_0_800']
-        y_label = r'mixed-uses (branch distance wt. $_{q=0\ \beta=-0.005\ d_{max}=800m}$)'
-    elif ax_row == 2:
-        y_data = X_pca_20[:, 1]
-        y_label = 'PCA component 2'
-    else:
-        y_data = df_20['mu_hill_branch_wt_0_100']
-        y_label = r'mixed-uses (branch distance wt. $_{q=0\ \beta=-0.04\ d_{max}=100m}$)'
-
-    for theme_idx, (theme, label) in enumerate(zip(themes, labels)):
-        corrs = []
-        for dist in distances_bandwise:
-            v = get_band(df_20, dist, theme, seg_beta_norm=False)
-            corrs.append(spearmanr(v, y_data)[0])
-
-        axes[ax_row].plot(distances_bandwise, corrs, lw=1, alpha=1, linestyle='-', marker='.', color=f'C{theme_idx}',
-                          label=label)
-
-    ax.set_xlim([100, 1600])
-    ax.set_xticks(distances_bandwise)
-    ax.set_xlabel('Correlations for ' + y_label + ' to bandwise landuse accessibilities')
-    ax.set_ylim([0, 1])
-    ax.set_ylabel(r'spearman $\rho$')
-
-    ax.legend(loc='lower right', title='')
-
-plt.suptitle('Correlations for landuse accessibilities to PCA components & mixed-use measures')
-
-path = f'../phd-admin/PhD/part_2/images/diversity/landuse_accessibilities.png'
-plt.savefig(path, dpi=300)
-"""
+path = f'../phd-admin/PhD/part_2/images/diversity/mixed_use_measures_corr_pca_decompositions.pdf'
+plt.savefig(path)
 
 # %%
 # RANDOM REMOVAL PLOTS
@@ -671,7 +531,7 @@ async def fetch_data(db_config, data_lng, data_lat):
 data_lng = -0.130104
 data_lat = 51.510352
 
-class_data = await fetch_data(db_config, data_lng, data_lat)
+class_data = asyncio.run(fetch_data(db_config, data_lng, data_lat))
 
 class_codes = class_data['cc']
 class_codes = [int(c) for c in class_codes]
@@ -747,7 +607,7 @@ def deduce_unique_species(classes, distances, max_dist):
 
 data_5 = {}
 data_keys = ['A']
-data_betas = [-0.005]  # intentional beta vs 1600
+data_betas = [0.005]  # intentional beta vs 1600
 for k, beta in zip(data_keys, data_betas):
     data_5[k] = {
         'beta': beta,
@@ -828,7 +688,7 @@ while len(class_code_list):
                                                                                                 2,
                                                                                                 beta=beta))
 
-        from process.metrics.shortest.landuses_shortest_poi import disparity_wt_matrix
+        from src.process.metrics.landuses.landuses_poi import disparity_wt_matrix
 
         wt_matrix = disparity_wt_matrix(classes_unique)
 
@@ -943,5 +803,5 @@ for ax, y_top, x_right in zip(axes, [None, 30], [5000, 500]):
     ax.set_ylabel('diversity / effective number of uses')
     ax.legend(loc='upper right', title='')
 
-path = f'../phd-admin/PhD/part_2/images/diversity/mixed_uses_random_removal.png'
-plt.savefig(path, dpi=300)
+path = f'../phd-admin/PhD/part_2/images/diversity/mixed_uses_random_removal.pdf'
+plt.savefig(path)

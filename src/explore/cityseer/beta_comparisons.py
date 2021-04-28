@@ -42,8 +42,7 @@ ax.set_ylim([0, 1.0])
 ax.set_ylabel('Weighting')
 ax.legend(loc='upper right', title='$exp(-\\beta \\cdot d[i,j])$')
 
-plt.savefig('../phd-admin/PhD/part_1/images/cityseer/gravity_decay.png', dpi=300)
-plt.show()
+plt.savefig('../phd-admin/PhD/part_1/images/cityseer/gravity_decay.pdf')
 
 # %%
 
