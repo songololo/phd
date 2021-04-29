@@ -62,7 +62,7 @@ def process_latents_vae():
                                               name='VAE')
                     print(vae.theme)
                     dir_path = pathlib.Path(
-                        weights_path / f'seed_{seed}/{vae.theme}_epochs_{epochs}_batch_{batch}_train')
+                        weights_path / f'signatures_weights/seed_{seed}/{vae.theme}_epochs_{epochs}_batch_{batch}_train')
                     # visualise
                     vae.load_weights(str(dir_path / 'weights'))
                     print('preparing latents...')

@@ -202,7 +202,7 @@ def generate_theme(df,
                    bandwise=False,
                    add_city_pop_id=False,
                    max_dist=None):
-
+    df_copy = df.copy(deep=True)
     if max_dist is None:
         distances = [d for d in template_distances]
     else:
@@ -250,11 +250,10 @@ def generate_theme(df,
             selected_columns.append(column.format(dist=d))
     # if not bandwise, simply return distance based columns as they are
     if not bandwise:
-        X = df[selected_columns]
+        X = df_copy[selected_columns]
     # but if bandwise, first subtract foregoing distances
     else:
         print('Generating bandwise')
-        df_copy = df.copy(deep=True)
         for column in columns:
             for d in distances:
                 print(f'Current distance leading edge: {d}m')
@@ -266,7 +265,8 @@ def generate_theme(df,
                     lag_idx = d_idx - 1
                     lag_dist = distances[lag_idx]
                     print(f'Trailing edge: {lag_dist}m')
-                    df_copy[column.format(dist=d)] = df[column.format(dist=d)] - df[column.format(dist=lag_dist)]
+                    df_copy.loc[:, column.format(dist=d)] = \
+                        df.loc[:, column.format(dist=d)] - df.loc[:, column.format(dist=lag_dist)]
         # edited necessary columns in place, only pass those columns back
         X = df_copy[selected_columns]
 

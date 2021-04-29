@@ -37,7 +37,7 @@ df = util_funcs.load_data_as_pd_df(
     'analysis.city_boundaries_150',
     'WHERE city_population is not null ORDER BY pop_id ASC')
 
-# %% area vs population and density
+#  %% area vs population and density
 
 util_funcs.plt_setup()
 
@@ -88,8 +88,16 @@ axes[0].set_ylim(100, 10 ** 5.5)
 axes[0].legend(loc=2)
 
 # plot the density against area
-axes[1].scatter(x=dens, y=area, c=dens, cmap=Style.def_cmap, s=pop_log_norm * 80 + 10,
-                marker='.', edgecolors='white', linewidths=0.2, zorder=2)
+axes[1].scatter(x=dens,
+                y=area,
+                c=dens,
+                cmap=Style.def_cmap,
+                s=pop_log_norm * 80 + 10,
+                marker='.',
+                edgecolors='white',
+                linewidths=0.2,
+                zorder=2,
+                rasterized=True)
 axes[1].axhline(400, linewidth=0.4, color='dimgrey', linestyle='--')
 # density colour fill
 dens_col = plt.cm.plasma_r(dens_norm)
@@ -99,12 +107,12 @@ axes[1].vlines(x=dens, ymin=0, ymax=area, colors=dens_col, alpha=0.15,
 axes[1].set_xlabel('City Density (persons per hectare)')
 axes[1].set_xlim(10, 70)
 
-path = f'../phd-admin/PhD/part_3/images/predicted/area_pop_density.png'
+path = f'../phd-admin/PhD/part_3/images/predicted/area_pop_density.pdf'
 plt.savefig(path, dpi=300)
 
 plt.show()
 
-# %% plot powerlaw distributions for city population
+#  %% plot powerlaw distributions for city population
 
 # clear previous figures and set matplotlib defaults
 util_funcs.plt_setup()
@@ -175,7 +183,7 @@ axes[1].set_xlabel(r'Population $x_{min}' + f'={pl_xmin}$')
 axes[1].set_xlim(10 ** 4, 10 ** 7)
 axes[1].legend(loc=3)
 
-path = f'../phd-admin/PhD/part_3/images/predicted/pop_scale_fit.png'
+path = f'../phd-admin/PhD/part_3/images/predicted/pop_scale_fit.pdf'
 plt.savefig(path, dpi=300)
 
 plt.show()

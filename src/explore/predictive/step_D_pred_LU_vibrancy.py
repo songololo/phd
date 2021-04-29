@@ -14,7 +14,7 @@ from matplotlib.colors import LinearSegmentedColormap
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from sklearn.metrics import r2_score
 from sklearn.preprocessing import StandardScaler
-from src.explore.predictions import pred_models
+from src.explore.predictive import pred_models
 from tensorflow.keras import backend as K
 from tensorflow.keras import losses
 from tensorflow.keras.callbacks import TensorBoard, ReduceLROnPlateau, TerminateOnNaN, \
@@ -179,7 +179,7 @@ for ax_idx, (ax, vals, title) in enumerate(zip(axes,
     plt.colorbar(im, cax=cax)
 
 plt.suptitle(f'Observed, predicted, differenced eateries at 400m threshold. Test set accuracy: {y_score_r2:.1%} r2')
-path = f'../phd-admin/PhD/part_3/images/predicted/eatery_predictions_400_{reg.theme}.png'
+path = f'../phd-admin/PhD/part_3/images/predicted/eatery_predictions_400_{reg.theme}.pdf'
 plt.savefig(path, dpi=300)
 
 #  %%
@@ -209,5 +209,5 @@ ax.legend(loc='upper right', prop={'size': 5})
 ax.yaxis.set_major_formatter(mtick.PercentFormatter(xmax=1))
 
 plt.suptitle(f'Learning Curve and Validation Curve')
-path = f'../phd-admin/PhD/part_3/images/predicted/validation_curve_{reg.theme}.png'
+path = f'../phd-admin/PhD/part_3/images/predicted/validation_curve_{reg.theme}.pdf'
 plt.savefig(path, dpi=300)

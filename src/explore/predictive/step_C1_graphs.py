@@ -19,8 +19,8 @@ import asyncio
 import asyncpg
 import networkx as nx
 import numpy as np
-from cityseer.util import graphs
-from process.loaders import postGIS_to_networkX
+from cityseer.tools import graphs
+from src.process.loaders import postGIS_to_networkX
 from shapely import wkt, geometry
 
 
@@ -344,10 +344,10 @@ def suburb():
 # %%
 if __name__ == '__main__':
     york_burb_graph = york_burb()
-    # plot.plot_nX(york_burb_graph, figsize=(20, 20), dpi=150, labels=False, path='./temp_images/temp_york_burb.png')
+    # plot.plot_nX(york_burb_graph, figsize=(20, 20), dpi=150, labels=False, path='./temp_images/temp_york_burb.pdf')
 
     grid_ville_graph = grid_ville()
-    # plot.plot_nX(grid_ville_graph, figsize=(20, 20), dpi=150, labels=False, path='./temp_images/temp_grid_ville.png')
+    # plot.plot_nX(grid_ville_graph, figsize=(20, 20), dpi=150, labels=False, path='./temp_images/temp_grid_ville.pdf')
 
     suburb_graph = suburb()
-    # plot.plot_nX(suburb_graph, figsize=(20, 20), dpi=150, labels=False, path='./temp_images/temp_suburb.png')
+    # plot.plot_nX(suburb_graph, figsize=(20, 20), dpi=150, labels=False, path='./temp_images/temp_suburb.pdf')

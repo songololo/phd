@@ -534,6 +534,7 @@ class VaDE(models.Model):
         dropout_text = str(dropout).replace('.', '_')
         self.theme = f'{theme_base}_s{seed}_d{latent_dim}_comp{n_components}_do{dropout_text}'
         self.n_components = n_components
+        self.mask = layers.Masking(mask_value=0.)
         self.encoder = DeepLayer(name='DeepEncoder',
                                  hidden_layer_dims=hidden_layer_dims,
                                  activation_func=activation_func,
@@ -572,7 +573,8 @@ class VaDE(models.Model):
         return X_hat
 
     def encode(self, X, training=False):
-        X = self.encoder(X, training=training)
+        X_masked = self.mask(X)
+        X = self.encoder(X_masked, training=training)
         Z_mu, Z_log_var, Z = self.sampling(X, training=training)
         return Z_mu, Z_log_var, Z
 

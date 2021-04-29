@@ -14,11 +14,11 @@ from sklearn.preprocessing import StandardScaler
 
 from src import util_funcs
 from src.explore import plot_funcs
-from src.explore.signatures import sig_models
-from src.explore.theme_setup import data_path
+from src.explore.signatures import sig_models, sig_model_runners
+from src.explore.theme_setup import data_path, weights_path
 from src.explore.theme_setup import generate_theme
 
-# %%
+#  %%
 '''
 VaDE
 '''
@@ -27,15 +27,15 @@ VaDE
 df_20 = pd.read_feather(data_path / 'df_20.feather')
 df_20 = df_20.set_index('id')
 table = df_20
-X_raw, distances, labels = generate_theme(table, 'all_towns', bandwise=True, max_dist=800)
+X_raw, distances, labels = generate_theme(table, 'all', bandwise=True, max_dist=800)
 X_trans = StandardScaler().fit_transform(X_raw)
 # setup paramaters
 seed = 0
-latent_dim = 6
-epochs = 5
-theme_base = f'VaDE'
+latent_dim = 32
+dropout = 0
+epochs = 25
 n_components = 21
-dropout = 0.05
+theme_base = f'VaDE'
 #
 vade = sig_models.VaDE(raw_dim=X_trans.shape[1],
                        latent_dim=latent_dim,
@@ -43,7 +43,7 @@ vade = sig_models.VaDE(raw_dim=X_trans.shape[1],
                        theme_base=theme_base,
                        seed=seed,
                        dropout=dropout)
-dir_path = pathlib.Path(f'./temp_weights/signatures_weights/seed_{seed}/{vade.theme}_d{latent_dim}_e{epochs}')
+dir_path = pathlib.Path(weights_path / f'signatures_weights/seed_{seed}/{vade.theme}_d{latent_dim}_e{epochs}')
 vade.load_weights(str(dir_path / 'weights'))
 # predictions
 cluster_probs_VaDE = vade.classify(X_trans).numpy()
@@ -70,47 +70,57 @@ plt.suptitle('Individual probabilistic components - VaDE GMM')
 path = f'../phd-admin/PhD/part_3/images/signatures/{vade.theme}_cluster.pdf'
 plt.savefig(path, dpi=300)
 
-# %%
+#  %%
 '''
 mu of each cluster
 simultaneously find locations closest to the means of the respective clusters (least norm?)
 
-Kensington Palace Gardens
-Cluster 3 centre at df iloc idx: 558090
-Sample id: 1_3927D740-2BA3-4284-9192-C7C465D52CF0_2_1_9B1A2738-28F3-4C72-BCFB-EEB7E681D63F
-Lng: -0.19206422999646736 Lat: 51.508717527113824
+High Rd. Leytonstone - stronger main streets and environs
+Cluster 1 centre at df iloc idx: 753586
+Sample id: 1_B00368DD-EFE1-4321-B2EA-22D6A11E8999_0_1_DC4BCCB0-000E-4520-ACE5-282C129B0D5D
+Lng: 0.011043025105092134 Lat: 51.56846022125958
 
-Broadway Street: West Ealing
-Cluster 9 centre at df iloc idx: 364797
-Sample id: 1_82F3A81F-5074-440C-8EE4-CCA545C87579_2_1_B9BC6ACA-6677-405D-B788-BA23D5E8156F
-Lng: -0.32695193411871576 Lat: 51.50971434150192
+Highgate: Posh residential
+Cluster 3 centre at df iloc idx: 803698
+Sample id: 1_97C32A27-385A-49F3-8FEC-B78C341A0204_7_1_86441039-05F0-4E38-A55F-72CECCDE2516
+Lng: -0.14702181665694422 Lat: 51.563204928991816
 
-Soho Square
-Cluster 10 centre at df iloc idx: 392759
-Sample id: 1_82DA840E-EB67-4C14-8BFC-049CF6406917
-Lng: -0.13275366611025008 Lat: 51.51514873770344
+Roehampton: Estates
+Cluster 5 centre at df iloc idx: 160128
+Sample id: 1_42182A5A-6CEC-410B-8B96-DBE27E83E7BE_5_1_AC15E57D-4FF2-4685-B4A7-ECCFDD880C8D
+Lng: -0.24438732558678886 Lat: 51.44966483494396
 
-Parkway Street: Camden
-Cluster 12 centre at df iloc idx: 979498
-Sample id: 1_545ECB3D-082E-466B-86FC-FD57F36E1E8D
-Lng: -0.1460060141274238 Lat: 51.53697689237661
+Near London Bridge / City Hall - back-street office areas
+Cluster 6 centre at df iloc idx: 205456
+Sample id: 1_3AE6E91C-7A66-459C-8C8D-33AF21CD53E3_1_1_8E324766-B525-4277-ADDE-A0A2A159CD90
+Lng: -0.08024486551064719 Lat: 51.503204547844014
 
-Eastcastle Street: Fitzrovia
-Cluster 16 centre at df iloc idx: 828237
-Sample id: 1_E176A6A6-3D3A-4C96-86A7-0D8006E891B7_4_1_BB45E200-4005-473D-91A9-1089A28AC3B2
-Lng: -0.1376411493160056 Lat: 51.516705394800475
+Soho - vibrant
+Cluster 8 centre at df iloc idx: 1095300
+Sample id: 1_691C51F0-FADA-4607-ADD6-AF29AAF51613_2_1_39222C74-D7C9-47D8-8B29-45DCAD559324
+Lng: -0.13574983887746525 Lat: 51.51084555099987
 
-Hornchurch:
-Cluster 20 centre at df iloc idx: 1087833
-Sample id: 1_B529E5B0-05FA-4704-B03E-0B1AF85BD6E3_0_1_9D633CE9-2C4A-4D2C-878B-449AFDEF2010
-Lng: 0.2142670213065938 Lat: 51.57348446030934
+Illford - suburbia-like
+Cluster 9 centre at df iloc idx: 109625
+Sample id: 1_F51A9BAB-29C9-4483-9E3E-82DDFDF85F33_2_1_33941A52-D531-46C1-ADB1-40DA2687919B
+Lng: 0.07137008744864858 Lat: 51.555855126769465
+
+Clerkenwell - charismatic
+Cluster 12 centre at df iloc idx: 123994
+Sample id: 1_1B0A83CB-A6D3-48EE-8B74-445010AB397A_2_1_490B8D09-C9D7-4429-B7FE-FEF1B9B0F51B
+Lng: -0.11031135027826866 Lat: 51.52215644190008
+
+Residential area near Edmonton
+Cluster 16 centre at df iloc idx: 919940
+Sample id: 1_98E712C3-9EAE-46E4-A282-70CAD9AFB10D_7_1_60A42612-77CA-4A1A-84FF-83A463219D8D
+Lng: -0.10234238117032159 Lat: 51.63070046494594
 '''
 # for getting lng lat of targeted examples
 bng = Proj('epsg:27700')
 lng_lat = Proj('epsg:4326')
-#
+#  %%
 util_funcs.plt_setup()
-fig, axes = plt.subplots(3, 7, figsize=(8, 11))
+fig, axes = plt.subplots(3, 7, figsize=(6, 10))
 cluster_idx = 0
 for row_idx, ax_row in enumerate(axes):
     for ax_idx, ax in enumerate(ax_row):
@@ -118,21 +128,20 @@ for row_idx, ax_row in enumerate(axes):
         print(f'cluster {cluster_idx + 1}: n: {X_cluster.shape[0]}')
         if X_cluster.shape[0] != 0:
             X_mu = np.mean(X_cluster, axis=0)
-            if cluster_idx in [2, 15, 9, 11, 8, 19]:  # subtract "1" from plots
-                # find least norm
-                X_diff = X_trans - X_mu  # do against X_trans so that index corresponds to df_20
-                X_norm = np.linalg.norm(X_diff, axis=1)
-                X_smallest_idx = np.argmin(X_norm)
-                sample_id = df_20.index[X_smallest_idx]
-                lat, lng = transform(bng,
-                                     lng_lat,
-                                     df_20.loc[sample_id, 'x'],
-                                     df_20.loc[sample_id, 'y'])
-                print(f'''
-                    Cluster {cluster_idx + 1} centre at df iloc idx: {X_smallest_idx}
-                    Sample id: {sample_id}
-                    Lng: {lng} Lat: {lat}
-                ''')
+            # find least norm
+            X_diff = X_trans - X_mu  # do against X_trans so that index corresponds to df_20
+            X_norm = np.linalg.norm(X_diff, axis=1)
+            X_smallest_idx = np.argmin(X_norm)
+            sample_id = df_20.index[X_smallest_idx]
+            lat, lng = transform(bng,
+                                 lng_lat,
+                                 df_20.loc[sample_id, 'x'],
+                                 df_20.loc[sample_id, 'y'])
+            print(f'''
+                Cluster {cluster_idx + 1} centre at df iloc idx: {X_smallest_idx}
+                Sample id: {sample_id}
+                Lng: {lng} Lat: {lat}
+            ''')
             X_mu = X_mu.reshape((len(labels), -1))
             plot_funcs.plot_heatmap(ax,
                                     heatmap=X_mu,
@@ -142,7 +151,7 @@ for row_idx, ax_row in enumerate(axes):
                                     set_row_labels=ax_idx == 0,
                                     set_col_labels=row_idx == 2,
                                     cbar=False)
-            ax.set_title(f'Cluster {cluster_idx + 1}')
+            ax.set_title(f'#{cluster_idx + 1}')
         else:
             ax.axis('off')
         cluster_idx += 1
@@ -150,7 +159,7 @@ plt.suptitle('Mean composition of each VaDE - GMM component')
 path = f'../phd-admin/PhD/part_3/images/signatures/{vade.theme}_cluster_mus.pdf'
 plt.savefig(path, dpi=300)
 
-# %%
+#  %%
 '''
 Individual probabilistic clusters
 '''
@@ -164,35 +173,32 @@ plot_funcs.plot_prob_clusters(X_raw,
                               y_extents=(500, 7000),
                               suptitle='Individual probabilistic components - VaDE GMM')
 
-# %%
+#  %%
 '''
 Plots maps comparing X + GMM, Z + GMM, X + PCA + GMM, and VaDE  
-Can't remember original experiments: seem to recall: beta doesn't necessarily help clustering 
 '''
 # prepare VAE latents
-n_d = len(distances)
-split_input_dims = (int(2 * n_d), int(9 * n_d), int(2 * n_d))
-split_latent_dims = (4, 6, 2)
-split_hidden_layer_dims = ([24, 24, 24],
-                           [32, 32, 32],
-                           [8, 8, 8])
 epochs = 5
-beta = 0
-capacity = 0
-seed = 0
-vae = sig_models.SplitVAE(raw_dim=X_trans.shape[1],
-                          latent_dim=latent_dim,
-                          beta=beta,
-                          capacity=capacity,
-                          epochs=epochs,
-                          split_input_dims=split_input_dims,
-                          split_latent_dims=split_latent_dims,
-                          split_hidden_layer_dims=split_hidden_layer_dims,
-                          theme_base=f'VAE_e{epochs}',
-                          seed=seed,
-                          name='VAE')
-dir_path = pathlib.Path(f'./temp_weights/signatures_weights/seed_0/VAE_e{epochs}_d{latent_dim}_b{beta}_c{capacity}_s{seed}_epochs_{epochs}_batch_256_train')
-vae.load_weights(str(dir_path / 'weights'))
+vae = sig_models.VAE(raw_dim=X_trans.shape[1],
+                     latent_dim=8,
+                     beta=0,
+                     capacity=0,
+                     epochs=epochs,
+                     name='VAE')
+test_idx = util_funcs.train_test_idxs(df_20, 200)  # 200 gives about 25%
+lr = 1e-3
+batch = 256
+trainer = sig_model_runners.VAE_trainer(model=vae,
+                                        X_samples=X_trans,
+                                        labels=labels,
+                                        distances=distances,
+                                        epochs=epochs,
+                                        batch=batch,
+                                        best_loss=True,
+                                        lr=lr,
+                                        save_path=dir_path,
+                                        test_indices=test_idx)
+trainer.train()
 VAE_Z_mu, VAE_Z_log_var, VAE_Z = vae.encode(X_trans, training=False)
 
 #  %%

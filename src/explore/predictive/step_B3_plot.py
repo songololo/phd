@@ -28,9 +28,9 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from src import util_funcs
 from src.explore.theme_setup import data_path, weights_path, generate_theme
-from src.explore.predictions import step_C1_graphs
-from src.explore.predictions.step_B2_MMML_DNN import mmml_phd
-from src.explore.predictions import pred_models
+from src.explore.predictive import step_C1_graphs
+from src.explore.predictive.step_B2_MMML_DNN import mmml_phd
+from src.explore.predictive import pred_models
 
 #  %%
 '''

@@ -9,7 +9,7 @@ import matplotlib.ticker as mtick
 import numpy as np
 from sklearn.metrics import classification_report
 from sklearn.preprocessing import StandardScaler
-from src.explore.predictions import pred_tools
+from src.explore.predictive import pred_tools
 
 from src import util_funcs
 from src.explore import plot_funcs
@@ -108,7 +108,7 @@ for x, y, town_name in [(485970, 236920, 'Milton Keynes'),
                             y_extents=y_extents,
                             relative_extents=False)
     plt.suptitle(f"{town_name} hyperlocal predictions")
-    path = f'../phd-admin/PhD/part_3/images/predicted/stage_2_DNN_{town_name}_{clf.theme}_yc{y_conf}.png'
+    path = f'../phd-admin/PhD/part_3/images/predicted/stage_2_DNN_{town_name}_{clf.theme}_yc{y_conf}.pdf'
     plt.savefig(path, dpi=300)
 
 #  %%
@@ -151,7 +151,8 @@ for ax_theme, y_pred, points_perc, points_perc_norm in zip(
                   marker='.',
                   edgecolors='white',
                   linewidths=0.2,
-                  zorder=2)
+                  zorder=2,
+                  rasterized=True)
     ax[1].set_xlabel('City Population')
     ax[1].set_xlim(8000, 310000)
     ax[1].set_ylabel(f'{ax_theme} - Average of New Town probabilities by town')
@@ -159,5 +160,5 @@ for ax_theme, y_pred, points_perc, points_perc_norm in zip(
 
 plt.suptitle(
     'New Town probabilities compared for towns between 8,200 and 290,000 people.')
-path = f'../phd-admin/PhD/part_3/images/predicted/nt_dists_probs_{clf.theme}.png'
+path = f'../phd-admin/PhD/part_3/images/predicted/nt_dists_probs_{clf.theme}.pdf'
 plt.savefig(path, dpi=300)

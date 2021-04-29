@@ -116,12 +116,15 @@ class Trainer():
         else:
             self.val_loss(loss)
 
-    def train(self):
+    def train(self, crank=None):
         # process epochs
         least_loss = np.inf
         best_epoch = 0
         batch_counter = 0  # track aggregate counter over different batches
-        for epoch_step in range(self.epochs):
+        n_iters = self.epochs
+        if crank:
+            n_iters = crank
+        for epoch_step in range(n_iters):
             logger.info(f'Epoch: {epoch_step + 1}')
             # setup progress bar
             progress_bar = tf.keras.utils.Progbar(self.X_train.shape[0])
@@ -302,26 +305,28 @@ class VaDE_trainer(VAE_trainer):
         pass
 
     def batch_writes(self, batch_step):
-        super().batch_writes(batch_step)
-        # log scalars
-        if self.writer is not None:
-            with self.writer.as_default():
-                # image of cluster priors
-                cat_pi_img = self.model.classify(self.X_val)
-                cat_pi_img = np.reshape(cat_pi_img,
-                                        (-1, cat_pi_img.shape[0], cat_pi_img.shape[1], 1))
-                tf.summary.image('Batch cluster probabilities', cat_pi_img, step=batch_step)
+        pass
+        # super().batch_writes(batch_step)
+        # # log scalars
+        # if self.writer is not None:
+        #     with self.writer.as_default():
+        #         # image of cluster priors
+        #         cat_pi_img = self.model.classify(self.X_val[:1000])
+        #         cat_pi_img = np.reshape(cat_pi_img,
+        #                                 (-1, cat_pi_img.shape[0], cat_pi_img.shape[1], 1))
+        #         tf.summary.image('Batch cluster probabilities', cat_pi_img, step=batch_step)
 
     def epoch_writes(self, epoch_step):
-        super().epoch_writes(epoch_step)
-        # tensorboard
-        if self.writer is not None:
-            with self.writer.as_default():
-                # histograms
-                tf.summary.histogram(f'GMM cat p', self.model.gamma.cat_pi, step=epoch_step)
-                tf.summary.histogram(f'GMM mu', self.model.gamma.gmm_mu, step=epoch_step)
-                tf.summary.histogram(f'GMM logvar', self.model.gamma.gmm_log_var,
-                                     step=epoch_step)
+        pass
+        # super().epoch_writes(epoch_step)
+        # # tensorboard
+        # if self.writer is not None:
+        #     with self.writer.as_default():
+        #         # histograms
+        #         tf.summary.histogram(f'GMM cat p', self.model.gamma.cat_pi, step=epoch_step)
+        #         tf.summary.histogram(f'GMM mu', self.model.gamma.gmm_mu, step=epoch_step)
+        #         tf.summary.histogram(f'GMM logvar', self.model.gamma.gmm_log_var,
+        #                              step=epoch_step)
 
 
 class GMVAE_trainer(Trainer):

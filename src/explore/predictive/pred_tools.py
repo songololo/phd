@@ -9,7 +9,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from src.explore.predictions import pred_models
+from src.explore.predictive import pred_models
 from tensorflow.keras import losses
 from tensorflow.keras.callbacks import TensorBoard, ReduceLROnPlateau, TerminateOnNaN, \
     ModelCheckpoint

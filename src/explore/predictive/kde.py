@@ -16,13 +16,13 @@ from src.explore.theme_setup import generate_theme
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# %% load from disk
+#  %% load from disk
 df_full = pd.read_feather(data_path / 'df_full_all.feather')
 df_full = df_full.set_index('id')
 X_raw, distances, labels = generate_theme(df_full, 'all_towns', bandwise=False, add_city_pop_id=True)
 
 
-# %%
+#  %%
 def kde_gen(_data, _col_name, _pop_id, _y_chunks):
     # select only data from city id
     # first check that column exists
@@ -173,11 +173,11 @@ def kde_plot(data, theme, label, x_max=100, y_chunks=500):
                          fontdict={'size': 6},
                          color=c)
 
-    path = f'../phd-admin/PhD/part_3/images/predicted/kde/{theme.strip("_{dist}")}.png'
+    path = f'../phd-admin/PhD/part_3/images/predicted/kde/{theme.strip("_{dist}")}.pdf'
     plt.savefig(path, dpi=300)
 
 
-# %%
+#  %%
 # census aggregation plot compound KDE
 kde_plot(X_raw, 'cens_tot_pop_{dist}', 'KDE Population', x_max=99)
 # kde_plot(X_raw, 'cens_dwellings_{dist}', 'KDE Dwellings', x_max=99)

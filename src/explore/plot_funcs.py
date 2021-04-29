@@ -331,7 +331,7 @@ def plot_prob_clusters(X_raw,
     path = f'../phd-admin/PhD/part_3/images/signatures/{path_theme}_cluster_composite'
     if max_only:
         path += '_max'
-    path += '.png'
+    path += '.pdf'
     plt.savefig(path, dpi=300)
 
 

@@ -25,7 +25,7 @@ df_20 = pd.read_feather(data_path / 'df_20.feather')
 df_20 = df_20.set_index('id')
 
 
-# %%
+#  %%
 def gather_loss(seeds, epochs, latent_dims, batch=256):
     vae_losses = ['train_loss',
                   'val_loss',
@@ -161,9 +161,9 @@ def generate_arr_heatmap(ax,
 Fine grid plots:
 Each block is beta x capacity
 '''
-epochs = 10
+epochs = 5
 table = df_20
-seeds = list(range(1, 11))
+seeds = list(range(10))
 latent_dims = [6]
 history_data = gather_loss(seeds, epochs, latent_dims)
 # returns 3d array - beta x caps x seeds
@@ -209,11 +209,11 @@ for ax_row, theme_row in zip(axes, theme_sets):
         else:
             generate_heatmap(ax, theme, epochs, latent_dims[0], history_data)
 
-plt.suptitle(r'10 seed avg. losses for $\beta$ and $C$ hyperparameters (10 epochs)')
+plt.suptitle(r'10 seed avg. losses for $\beta$ and $C$ hyperparameters (5 epochs)')
 path = f'../phd-admin/PhD/part_3/images/signatures/model_scores_fine.pdf'
 plt.savefig(path, dpi=300)
 
-# %%
+#  %%
 '''
 Prepare split model
 '''
@@ -236,8 +236,8 @@ split_hidden_layer_dims = ([24, 24, 24],
                            [8, 8, 8])
 latent_dim = 6
 seed = 0
-beta = 32
-cap = 4
+beta = 1
+cap = 8
 lr = 1e-3
 
 # setup model
@@ -283,9 +283,9 @@ for ax_row, inverse in zip(axes, [False, True]):
                                 table.y,
                                 L[:, latent_idx],
                                 s_min=0,
-                                s_max=0.8,
-                                c_exp=5,
-                                s_exp=3.5,
+                                s_max=1,
+                                c_exp=2,
+                                s_exp=3,
                                 rasterized=True)
         ax.set_title(f'#{latent_idx + 1} - ' + r'$D_{KL}=' + f'{kl_vec[latent_idx]:.4f}$')
         if inverse:
@@ -397,9 +397,9 @@ for lb, set in zip(['A', 'B'], [set_A, set_B]):
                                     table.y,
                                     v,
                                     s_min=0,
-                                    s_max=0.8,
-                                    c_exp=5,
-                                    s_exp=3.5,
+                                    s_max=1,
+                                    c_exp=2,
+                                    s_exp=3,
                                     rasterized=True)
             axes[0][col_start_idx + latent_idx].set_title(t)
             # plot inverses
@@ -408,16 +408,16 @@ for lb, set in zip(['A', 'B'], [set_A, set_B]):
                                     table.y,
                                     -v,
                                     s_min=0,
-                                    s_max=0.8,
-                                    c_exp=5,
-                                    s_exp=3.5,
+                                    s_max=1,
+                                    c_exp=2,
+                                    s_exp=3,
                                     rasterized=True)
             axes[1][col_start_idx + latent_idx].set_title(t + ' - Inverse')
     plt.suptitle(r"Geographic mapping of the split sub-latents of the VAE model")
     path = f'../phd-admin/PhD/part_3/images/signatures/sub_latent_maps_{lb}_{beta}_{str(cap).replace(".", "_")}.pdf'
     plt.savefig(path, dpi=300)
 
-#  %%
+# %%
 '''
 Generate tables of the weight mappings from Z mu and Z log var to main latents
 '''
@@ -540,16 +540,16 @@ path = f'../phd-admin/PhD/part_3/images/signatures/latent_spiders.pdf'
 plt.savefig(path, dpi=300)
 '''
 
-#  %%
+# %%
 '''
 Sweep plots - x by y grids
 '''
-for l1, l2 in [[1, 3]]:
+for l1, l2 in [[1, 0]]:
     # extract latents into a placeholder array
     arrs = np.full((5, 5, X_trans.shape[1]), np.nan)
     mins = np.inf
     maxs = -np.inf
-    sweeps = [-2.5, -1.25, 0, 1.25, 2.5]
+    sweeps = [-2, -1, 0, 1, 2]
     for i_idx, i_key in enumerate(sweeps):
         for j_idx, j_key in enumerate(sweeps):
             # expects 2d - remember that Z is sorted by KL so extrapolate to original order
@@ -561,7 +561,7 @@ for l1, l2 in [[1, 3]]:
             if arr.min() < mins:
                 mins = arr.min()
             if arr.max() > maxs:
-                maxs = arr.max()
+                maxs = arr.max() * 1.1
             arrs[i_idx][j_idx] = arr
     max_val = np.array([mins, maxs])
     max_val = np.abs(max_val)
@@ -587,19 +587,19 @@ for l1, l2 in [[1, 3]]:
                                     distances,
                                     set_row_labels=rl,
                                     set_col_labels=cl)
-            ax.set_xlabel(f'{i_key} / {j_key} $\sigma$')
+            ax.set_title(f'{i_key} $\sigma$ / {j_key} $\sigma$')
     plt.suptitle(f'2D decoded sweep across latent dimensions {l1 + 1} & {l2 + 1}.')
     path = f'../phd-admin/PhD/part_3/images/signatures/vae_grid_{beta}_{str(cap).replace(".", "_")}_{l1}_{l2}.pdf'
     plt.savefig(path, dpi=300)
 
-#  %%
+# %%
 '''
 Sweep plots - each latent
 '''
 arrs = np.full((6, 7, X_trans.shape[1]), np.nan)
 mins = np.inf
 maxs = -np.inf
-sweeps = [-2.5, -1.25, 0.5, 0, 0.5, 1.25, 2.5]
+sweeps = [-3, -2, 1, 0, 1, 2, 3]
 for latent_idx in range(6):
     for sweep_idx, sweep in enumerate(sweeps):
         z_key = np.array([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]], dtype=float)

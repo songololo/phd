@@ -12,44 +12,40 @@ from sklearn.preprocessing import StandardScaler
 
 from src import util_funcs
 from src.explore import plot_funcs
-from src.explore.signatures import sig_models, sig_model_runners
-from src.explore.theme_setup import data_path, logs_path
+from src.explore.signatures import sig_models
+from src.explore.theme_setup import data_path, weights_path
 from src.explore.theme_setup import generate_theme
 
 #  %%
 locations = [
+    'Carnaby Street',
     'Seven Dials',
-    'Oxford Circus',
     'Primrose Hill',
     'Crouch End',
-    'Hackney',
-    'Angel',
-    'Croydon',
-    'Dagenham'
+    'Ikea Edmonton',
+    'Croydon'
 ]
 
 indices = [
-    '1_042BA54D-8726-4DAD-BD05-45475148D18F',
-    '1_FCA12886-4447-4C7A-BEDA-10E22E671BB0',
-    '1_595E24E0-0F46-4634-929F-C854D6A9E7DB',
-    '1_E6AB1D3C-80D3-4324-917F-1581EE0CA55E_3_1_CB1F8F8D-B8DD-4E23-AD4B-285FD388D95F',
-    '1_B8F41B70-37B6-425C-9FDF-F31D6124D8F1_1_1_2648AB14-E08A-4BB7-807A-EADC7783FF9D',
-    '1_60664D0F-DA94-4461-9076-DB8F305512D6',
-    '1_9A4426B0-12E6-42C4-B733-1137762F0440',
-    '1_406B2485-AA29-4331-8320-9CD3577B76F1_1_1_2906401A-8A53-4DAE-A70E-E3DF92EA7DF5'
+    '1_C8BB3E22-3BB9-4C5C-A463-C73B36B83846',  # carnaby street
+    '1_042BA54D-8726-4DAD-BD05-45475148D18F',  # seven dials
+    '1_B25102D8-1353-458F-A96D-BAC48A2407E5',  # primrose hill
+    '1_E6AB1D3C-80D3-4324-917F-1581EE0CA55E_3_1_CB1F8F8D-B8DD-4E23-AD4B-285FD388D95F',  # Crouch End
+    '1_576FDF2D-61F1-4F0C-A44D-93DDCB5896B1',  # ikea
+    '1_9A4426B0-12E6-42C4-B733-1137762F0440_3_1_D9A5397C-5432-4001-802E-83C556309431'  # Croydon
 ]
-
+#  %%
 df_20 = pd.read_feather(data_path / 'df_20.feather')
 df_20 = df_20.set_index('id')
 table = df_20
-X_raw, distances, labels = generate_theme(table, 'all', bandwise=False)
-trans_model = StandardScaler()
-X_trans = trans_model.fit_transform(X_raw)
-test_idx = util_funcs.train_test_idxs(df_20, 200)  # 200 gives about 25%
+
+X_raw, distances, labels = generate_theme(df_20, 'all_towns', bandwise=True, max_dist=800)
+X_trans = StandardScaler().fit_transform(X_raw)
 
 bng = Proj('epsg:27700')
 lng_lat = Proj('epsg:4326')
 
+#  %%
 location_keys = {}
 for loc, idx in zip(locations, indices):
     x, y = table.loc[idx, 'x'], table.loc[idx, 'y']
@@ -59,9 +55,10 @@ for loc, idx in zip(locations, indices):
         'iloc': table.index.get_loc(idx),
         'x': round(x, 1),
         'y': round(y, 1),
-        'lng': round(lng, 4),
-        'lat': round(lat, 4)
+        'lng': round(lng, 3),
+        'lat': round(lat, 3)
     }
+    print(location_keys[loc])
 
 #  %%
 '''
@@ -69,20 +66,21 @@ Prepare split model
 NB - this version uses bandwise=False
 '''
 # setup paramaters
-epochs = 100
+epochs = 5
 batch = 256
-theme_base = f'VAE_examples_no_bandwise'
+theme_base = f'VAE_e{epochs}'
 n_d = len(distances)
-split_input_dims = (int(5 * n_d), int(18 * n_d), int(4 * n_d))
-split_latent_dims = (6, 8, 2)
-split_hidden_layer_dims = ([128, 128, 128],
-                           [256, 256, 256],
-                           [64, 64, 64])
-latent_dim = 8
+split_input_dims = (int(2 * n_d), int(9 * n_d), int(2 * n_d))
+split_latent_dims = (4, 6, 2)
+split_hidden_layer_dims = ([24, 24, 24],
+                           [32, 32, 32],
+                           [8, 8, 8])
+latent_dim = 6
 seed = 0
-beta = 4
-cap = 12
+beta = 1
+cap = 8
 lr = 1e-3
+
 # setup model
 vae = sig_models.SplitVAE(raw_dim=X_trans.shape[1],
                           latent_dim=latent_dim,
@@ -95,39 +93,25 @@ vae = sig_models.SplitVAE(raw_dim=X_trans.shape[1],
                           theme_base=theme_base,
                           seed=seed,
                           name='VAE')
-dir_path = pathlib.Path(f'./temp_weights/signatures_weights/seed_{seed}/{vae.theme}_epochs_{epochs}_batch_{batch}')
-if not dir_path.exists():
-    trainer = sig_model_runners.VAE_trainer(model=vae,
-                                            X_samples=X_trans,
-                                            labels=labels,
-                                            distances=distances,
-                                            logs_path=logs_path,
-                                            epochs=epochs,
-                                            batch=batch,
-                                            val_split=0.2,
-                                            best_loss=True,
-                                            lr=lr,
-                                            save_path=dir_path,
-                                            test_indices=test_idx)
-    trainer.train()
-else:
-    vae.load_weights(str(dir_path / 'weights'))
+dir_path = pathlib.Path(
+    weights_path / f'signatures_weights/seed_{seed}/{vae.theme}_epochs_{epochs}_batch_{batch}_train')
+vae.load_weights(str(dir_path / 'weights'))
 Z_mu, Z_log_var, Z = vae.encode(X_trans, training=False)
 
-# %%
+#  %%
 '''
 Plots decoded landuses from latents for respective example locations
 '''
 # plots decoded exemplar landuses
 util_funcs.plt_setup()
-fig, axes = plt.subplots(1, 8, figsize=(13, 6))
+fig, axes = plt.subplots(1, len(indices), figsize=(10, 4.25))
 names = [n for n in location_keys.keys()]
 indices = [i['iloc'] for i in location_keys.values()]
 z_keys = []
 arrs = []
 maxes = np.full(len(labels), 0)
 
-for idx in range(8):
+for idx in range(len(indices)):
     loc_idx = indices[idx]
     z_state = Z_mu[loc_idx]
     z_key = np.array([[*z_state]])  # expects 2d
@@ -155,14 +139,13 @@ for ax_idx, ax in enumerate(axes):
     else:
         lng = f'{lng}°E'
     lat = f'{location_keys[name]["lat"]}°N'
-    ax.set_title(f'{name}\n${lng}\ {lat}$', fontsize='small')
+    ax.set_title(f'{name}\n{lng} {lat}')
     # prepare codes
     loc_idx = indices[ax_idx]
     z_state = Z_mu[loc_idx]
-    z_txt = [str(f'${z:.2f}$') for z in z_state]
-    z_txt_a = str.join(", ", z_txt[:4])
-    z_txt_b = str.join(", ", z_txt[4:])
-    ax.set_xlabel(f'landuses decoded from latents:\n{z_txt_a} \n{z_txt_b}', fontsize='x-small', )
+    z_txt = [str(f'{z:.1f}') for z in z_state]
+    z_txt = '|'.join(z_txt)
+    ax.set_xlabel(f'encoded latents:\n{z_txt}', fontsize='x-small', )
 plt.suptitle('Landuse decodings for example locations')
-path = f'../phd-admin/PhD/part_3/images/signatures/vae_example_decodings.png'
+path = f'../phd-admin/PhD/part_3/images/signatures/vae_example_decodings.pdf'
 plt.savefig(path, dpi=300)

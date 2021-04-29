@@ -1,8 +1,8 @@
+#%%
 '''
 PCA and accompanying explained variance plots
 '''
 
-# %%
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -15,11 +15,11 @@ from src.explore import plot_funcs
 from src.explore.theme_setup import data_path
 from src.explore.theme_setup import generate_theme
 
-# %% load from disk
+#  %% load from disk
 df_20 = pd.read_feather(data_path / 'df_20.feather')
 df_20 = df_20.set_index('id')
 
-# %%
+#  %%
 '''
 Plot PCA
 
@@ -41,7 +41,7 @@ model = PCA()
 X_trans = StandardScaler().fit_transform(X_raw)
 X_latent = model.fit_transform(X_trans)
 
-# %%
+#%%
 # explained variance
 exp_var = model.explained_variance_
 exp_var_ratio = model.explained_variance_ratio_
@@ -62,9 +62,9 @@ plot_funcs.plot_components(list(range(n_components)),
                            loadings=loadings,
                            label_all=False,
                            s_min=0,
-                           s_max=0.8,
-                           c_exp=5,
-                           s_exp=3.5,
+                           s_max=1,
+                           c_exp=2,
+                           s_exp=3,
                            cbar=False,
                            figsize=(10, 7.5))
 plt.suptitle('Principal Component Analysis')
@@ -97,7 +97,7 @@ for n_components in components:
     if n_components == components[-1]:
         explained_indiv_variance = model.explained_variance_ratio_ * 100
 
-# %%
+#  %%
 '''
 Plot explained variance and error loss
 '''
