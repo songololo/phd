@@ -22,7 +22,7 @@ df_full = df_full.set_index('id')
 X_raw, distances, labels = generate_theme(df_full, 'all_towns', bandwise=False, add_city_pop_id=True)
 
 
-#  %%
+#%%
 def kde_gen(_data, _col_name, _pop_id, _y_chunks):
     # select only data from city id
     # first check that column exists
@@ -88,7 +88,8 @@ def compound_kde(df,
                 y_l,
                 c=c,
                 lw=city_scale * 1.5 - 0.5,
-                alpha=city_scale - 0.25)
+                alpha=city_scale - 0.25,
+                rasterized=True)
         if city_pop_id == 1 or city_pop_id % 5 == 0:
             ax.plot(x,
                     y,
@@ -129,7 +130,7 @@ def kde_plot(data, theme, label, x_max=100, y_chunks=500):
             y_scales.append(target / y_max)
 
     util_funcs.plt_setup()
-    fig, axes = plt.subplots(1, 4, figsize=(12, 10))
+    fig, axes = plt.subplots(1, 4, figsize=(8, 4))
     for n, (dist, y_scale) in enumerate(zip(['200', '400', '800', '1600'], y_scales)):
         col_key = theme.format(dist=dist)
         axes[n].set_xlabel(label + r' $d_{max}=' + f'{dist}m$')

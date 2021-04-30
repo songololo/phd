@@ -65,7 +65,7 @@ reg.compile(optimizer='adam',
             loss=losses.MeanSquaredError(),
             metrics=['mean_squared_error', r2])
 # prepare path and check for previously trained model
-dir_path = pathlib.Path(weights_path / f'{reg.theme}')
+dir_path = pathlib.Path(weights_path / f'predictive_weights/{reg.theme}')
 history_path = dir_path / 'history.json'
 if not dir_path.exists():
     # prepare callbacks

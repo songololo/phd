@@ -71,7 +71,7 @@ def york_burb():
     '''
     db_config = {
         'host': 'localhost',
-        'port': 5432,
+        'port': 5433,
         'user': 'gareth',
         'database': 'gareth',
         'password': ''

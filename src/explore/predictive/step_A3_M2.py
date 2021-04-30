@@ -114,7 +114,7 @@ m2_pred_nt = m2_y_pred[:, 1]
 # select * from analysis.nodes_20 where city_pop_id =Any(ARRAY[40, 30, 27, 161, 73, 49, 52, 22, 473]);
 db_config = {
     'host': 'localhost',
-    'port': 5432,
+    'port': 5433,
     'user': 'gareth',
     'database': 'gareth',
     'password': ''

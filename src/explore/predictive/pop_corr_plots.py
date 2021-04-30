@@ -12,7 +12,7 @@ from src import util_funcs
 from src.explore.theme_setup import data_path
 from src.explore.theme_setup import generate_theme
 
-# %% load from disk
+#  %% load from disk
 df_full = pd.read_feather(data_path / 'df_full_all.feather')
 df_full = df_full.set_index('id')
 X_raw, distances, labels = generate_theme(df_full,
@@ -20,11 +20,11 @@ X_raw, distances, labels = generate_theme(df_full,
                                           bandwise=False,
                                           add_city_pop_id=True)
 
-# %%
+#  %%
 # db connection params
 db_config = {
     'host': 'localhost',
-    'port': 5432,
+    'port': 5433,
     'user': 'gareth',
     'database': 'gareth',
     'password': ''
@@ -46,7 +46,7 @@ bound_data = util_funcs.load_data_as_pd_df(db_config,
                                            'WHERE pop_id IS NOT NULL ORDER BY pop_id')
 
 
-# %%
+#%%
 def pop_corr_plot(city_data, theme_1, theme_2, towns_data, label):
     new_towns = []
     other_towns = []
@@ -57,10 +57,10 @@ def pop_corr_plot(city_data, theme_1, theme_2, towns_data, label):
             other_towns.append(d['pop_id'])
 
     util_funcs.plt_setup()
-    fig, axes = plt.subplots(4, 1, figsize=(8, 10))
+    fig, axes = plt.subplots(2, 1, figsize=(8, 4))
 
     max_pop_id = city_data.city_pop_id.max()
-    for n, dist in enumerate(['200', '400', '800', '1600']):
+    for n, dist in enumerate(['200', '1600']):  # , '400', '800',
 
         key_1 = theme_1.format(dist=dist)
         key_2 = theme_2.format(dist=dist)
@@ -192,7 +192,7 @@ def pop_corr_plot(city_data, theme_1, theme_2, towns_data, label):
     plt.savefig(path, dpi=300)
 
 
-# %%
+#  %%
 pop_corr_plot(X_raw,
               'cens_tot_pop_{dist}',
               'c_node_harmonic_angular_{dist}',

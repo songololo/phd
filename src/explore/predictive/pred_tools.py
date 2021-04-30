@@ -28,7 +28,7 @@ def load_bounds():
     # db connection params
     db_config = {
         'host': 'localhost',
-        'port': 5432,
+        'port': 5433,
         'user': 'gareth',
         'database': 'gareth',
         'password': ''
@@ -110,7 +110,7 @@ def generate_clf(X_train,
                 loss=losses.BinaryCrossentropy(),
                 metrics=['binary_accuracy'])
     # prepare path and check for previously trained model
-    dir_path = pathlib.Path(weights_path / f'{clf.theme}')
+    dir_path = pathlib.Path(weights_path / f'predictive_weights/{clf.theme}')
     if not dir_path.exists():
         # prepare callbacks
         callbacks = [
@@ -230,7 +230,7 @@ def generate_M2(X_y,
                         seed=seed,
                         dropout=dropout,
                         name='VAE')
-    dir_path = pathlib.Path(weights_path / f'{m2.theme}')
+    dir_path = pathlib.Path(weights_path / f'predictive_weights/{m2.theme}')
     if not dir_path.exists():
         dir_path.mkdir(exist_ok=True, parents=True)
         l_path = logs_path
