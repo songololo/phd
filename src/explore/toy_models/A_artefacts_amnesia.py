@@ -9,8 +9,8 @@ import os
 
 os.environ['CITYSEER_QUIET_MODE'] = '1'
 
-from src.explore.MMM._blocks import generate_graph
-from src.explore.MMM.layercake_d import mmm_single
+from src.explore.toy_models import generate_graph
+from src.explore.toy_models import mmm_single
 
 # defaults
 _cap_step = 0.2

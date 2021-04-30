@@ -5,7 +5,7 @@ import os
 os.environ['CITYSEER_QUIET_MODE'] = '1'
 
 from cityseer.util import mock, graphs
-from src.explore.MMM.layercake_b import mmm_layercake_b
+from src.explore.toy_models import mmm_layercake_b
 
 iters = 200
 graph = mock.mock_graph()

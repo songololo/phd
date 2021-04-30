@@ -3,8 +3,8 @@ import os
 
 os.environ['CITYSEER_QUIET_MODE'] = '1'
 
-from src.explore.MMM._blocks import generate_graph
-from src.explore.MMM.layercake_c import mmm_single
+from src.explore.toy_models import generate_graph
+from src.explore.toy_models.layercake_c import mmm_single
 
 iters = 250
 graph = generate_graph(_spans=200)

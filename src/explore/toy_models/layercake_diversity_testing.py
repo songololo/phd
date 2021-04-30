@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 from src import util_funcs
 
 os.environ['CITYSEER_QUIET_MODE'] = '1'
-from src.explore.MMM._blocks import generate_graph
-from src.explore.MMM.layercake_diversity import mmm_wrap
+from src.explore.toy_models import generate_graph
+from src.explore.toy_models import mmm_wrap
 
 iters = 50
 spans = 200

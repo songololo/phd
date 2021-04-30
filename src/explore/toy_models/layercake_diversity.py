@@ -3,7 +3,7 @@ from cityseer.algos import data, checks
 from cityseer.metrics import networks
 from numba import njit
 
-from src.explore.MMM._blocks import generate_data_layer, plotter
+from src.explore.toy_models import generate_data_layer, plotter
 
 
 # numba doesn't yet support summing by axis, though might be added soon per #1269

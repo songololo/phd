@@ -6,7 +6,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 from src import util_funcs
-from src.explore.MMM._blocks import generate_graph_lattice
+from src.explore.toy_models import generate_graph_lattice
 
 # %%
 g = generate_graph_lattice()

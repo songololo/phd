@@ -6,7 +6,7 @@ from cityseer.metrics import networks, layers
 from tqdm import tqdm
 
 from src import util_funcs
-from src.explore.MMM._blocks import generate_data_layer, plotter
+from src.explore.toy_models import generate_data_layer, plotter
 
 os.environ['CITYSEER_QUIET_MODE'] = '1'
 

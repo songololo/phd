@@ -11,7 +11,7 @@ os.environ['CITYSEER_QUIET_MODE'] = '1'
 from cityseer.util import mock
 from cityseer.metrics import networks, layers
 
-from src.explore.MMM._blocks import generate_graph, generate_data_layer, set_current_num, plotter, pressure_reallocation
+from src.explore.toy_models import generate_graph, generate_data_layer, set_current_num, plotter, pressure_reallocation
 
 # %%
 '''

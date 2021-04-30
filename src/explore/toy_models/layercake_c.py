@@ -4,10 +4,10 @@ from cityseer.metrics import networks
 from tqdm import tqdm
 
 from src import util_funcs
-from src.explore.MMM._blocks import generate_data_layer, plotter
+from src.explore.toy_models import generate_data_layer, plotter
 
 
-def mmm_layercake_d(_graph,
+def mmm_layercake_c(_graph,
                     _iters=200,
                     _layer_specs=(),
                     random_seed=0):
@@ -21,13 +21,12 @@ def mmm_layercake_d(_graph,
                 dist_threshold=800,
                 pop_threshold=800,
                 explore_rate=0.5,
-                comp_rate=0.5,
-                echo_rate=0.1
+                comp_rate=0.5
             })
         ''')
 
     for l_s in _layer_specs:
-        for k in ['cap_step', 'dist_threshold', 'pop_threshold', 'explore_rate', 'comp_rate', 'echo_rate']:
+        for k in ['cap_step', 'dist_threshold', 'pop_threshold', 'explore_rate', 'comp_rate']:
             if k not in l_s:
                 raise AttributeError(f'Missing key {k}')
 
@@ -61,19 +60,10 @@ def mmm_layercake_d(_graph,
     # per layer
     landuse_states = np.full((n_layers, len(Landuse_Layer.uids)), 0.0)
     capacitances = np.full((n_layers, _spans), 0.0)
-
     assigned_trips_actual = np.full((n_layers, _spans), 0.0)
     assigned_trips_potential = np.full((n_layers, _spans), 0.0)
-    assigned_trips_echos = np.full((n_layers, _spans), 0.0)
-
     netw_flow_actual = np.full((n_layers, _spans), 0.0)
     netw_flow_potential = np.full((n_layers, _spans), 0.0)
-    netw_flow_echos = np.full((n_layers, _spans), 0.0)
-
-    agged_trips_actual = np.full((n_layers, _spans), 0.0)
-    agged_flows_actual = np.full((n_layers, _spans), 0.0)
-    agged_trips_potential = np.full((n_layers, _spans), 0.0)
-    agged_flows_potential = np.full((n_layers, _spans), 0.0)
 
     # left and right spatial gradients
     right_gradient = np.zeros_like(pop_state)
@@ -117,89 +107,68 @@ def mmm_layercake_d(_graph,
         pop_map[n] = pop_intensity
 
         # apportion flow - once per layer
+        assigned_trips_actual.fill(0)
+        netw_flow_actual.fill(0)
+        assigned_trips_potential.fill(0)
+        netw_flow_potential.fill(0)
         flat_lu = np.full(_spans, 1.0)
         for i, l_s in enumerate(_layer_specs):
             # record current landuse state
-            landuse_maps[i][n] = landuse_states[i] * capacitances[i]
+            landuse_maps[i][n] = landuse_states[i]
 
-            ### ACTUAL
             # compute singly constrained realised flows
-            # NOTE: do not use a capacitance weighted version:
-            # singly-constrained already effectively takes competition vis-a-vis flow potentials into account!!!
-            Landuse_Layer.model_singly_constrained('trips',
-                                                   Pop_Layer._data,
-                                                   Landuse_Layer._data,
-                                                   pop_intensity,
-                                                   landuse_states[i])
-            assigned_trips_actual[i] = Netw_Layer.metrics['models']['trips'][l_s['dist_threshold']]['assigned_trips']
-            netw_flow_actual[i] = Netw_Layer.metrics['models']['trips'][l_s['dist_threshold']]['network_flows']
-            # aggregate PREVIOUS iterations echos to current trips BEFORE computing new echos
-            agged_trips_actual[i] = assigned_trips_actual[i] + assigned_trips_echos[i]
-            agged_flows_actual[i] = netw_flow_actual[i] + netw_flow_echos[i]
+            Landuse_Layer.model_singly_constrained('assigned_flows', Pop_Layer._data, Landuse_Layer._data,
+                                                   pop_intensity, landuse_states[i])
+            assigned_trips_actual[i] += Netw_Layer.metrics['models']['assigned_flows'][l_s['dist_threshold']][
+                'assigned_trips']
+            netw_flow_actual[i] += Netw_Layer.metrics['models']['assigned_flows'][l_s['dist_threshold']][
+                'network_flows']
 
             # record flow state
             flow_maps[i][n] = netw_flow_actual[i]
 
-            ### POTENTIALS
             # compute potential flows (for exploration)
-            Landuse_Layer.model_singly_constrained('potentials',
-                                                   Pop_Layer._data,
-                                                   Landuse_Layer._data,
-                                                   pop_intensity,
-                                                   flat_lu)
-            assigned_trips_potential[i] = Netw_Layer.metrics['models']['potentials'][l_s['dist_threshold']][
+            # this is an even surface and doesn't need smoothing
+            Landuse_Layer.model_singly_constrained('potential_flows', Pop_Layer._data, Landuse_Layer._data,
+                                                   pop_intensity, flat_lu)
+            assigned_trips_potential[i] += Netw_Layer.metrics['models']['potential_flows'][l_s['dist_threshold']][
                 'assigned_trips']
-            netw_flow_potential[i] = Netw_Layer.metrics['models']['potentials'][l_s['dist_threshold']]['network_flows']
-            # aggregate PREVIOUS iterations echos to current potentials BEFORE computing new echos
-            agged_trips_potential[i] = assigned_trips_potential[i] + assigned_trips_echos[i]
-            agged_flows_potential[i] = netw_flow_potential[i] + netw_flow_echos[i]
-
-            ### echos
-            # compute singly constrained echos (spillovers)
-            # uses echo rate - compounds current trip origins with previous echos loop
-            echos = assigned_trips_actual[i] * l_s['echo_rate'] + assigned_trips_echos[i] * l_s['echo_rate']
-            Landuse_Layer.model_singly_constrained('echos',
-                                                   Landuse_Layer._data,  # landuse to landuse
-                                                   Landuse_Layer._data,  # landuse to landuse
-                                                   echos,
-                                                   landuse_states[i])
-            assigned_trips_echos[i] = Netw_Layer.metrics['models']['echos'][l_s['dist_threshold']]['assigned_trips']
-            netw_flow_echos[i] = Netw_Layer.metrics['models']['echos'][l_s['dist_threshold']]['network_flows']
+            netw_flow_potential[i] += Netw_Layer.metrics['models']['potential_flows'][l_s['dist_threshold']][
+                'network_flows']
 
         # compute
         # the tension between existing stores and latent competition (for given capacity) is important to dynamics
         # the non-linearity between activation and deactivation is also important
-        squashed_flows_actual = np.sum(agged_flows_actual, axis=0)
-        squashed_flows_potential = np.sum(agged_flows_potential, axis=0)
+        squashed_netw_flow_actual = np.sum(netw_flow_actual, axis=0)
+        squashed_netw_flow_potential = np.sum(netw_flow_potential, axis=0)
         for i, l_s in enumerate(_layer_specs):
+            # assign health to existing locations based on actual constrained flows - using continuous form
+            # don't need to filter by active because constrained flows only available for active locations
+            health = np.copy(assigned_trips_actual[i])
+            health -= l_s['pop_threshold']
+            health /= l_s['pop_threshold']
+            health *= l_s['cap_step']
+            health = np.clip(health, -l_s['cap_step'], l_s['cap_step'])
+            landuse_states[i] += health
+            landuse_states[i] = np.clip(landuse_states[i], 0, 1)
 
-            blended = squashed_flows_actual * (1 - l_s['explore_rate']) + squashed_flows_potential * l_s['explore_rate']
-            jitter = np.random.randn(_spans) * l_s['cap_step'] - l_s['cap_step'] / 2
-            blended += jitter
-
-            success_idx = np.where(agged_trips_actual[i] >= l_s['pop_threshold'])[0]
-            if len(success_idx) > 0:
-                success_threshold = np.nanmin(agged_flows_actual[i][success_idx])
-                caps = np.copy(blended)
-                caps -= success_threshold
-                caps /= success_threshold
-                caps *= l_s['cap_step']
-                caps = np.clip(caps, -l_s['cap_step'], l_s['cap_step'])
-                capacitances[i] += caps
-            else:
-                capacitances[i] -= l_s['cap_step']
-
+            # capacitances are fluid - they constantly decay and need constant energy inputs to persist or grow
+            capacitances[i] /= 2
             # determine latent competition - start by measuring actual and potential landuse intensity
-            potential = np.nansum(agged_trips_potential[i])
-            actual = np.nansum(agged_trips_actual[i])
-            # high potential = full competition for flows: new entrants attempting to capture from non-competitive existing
-            success_n = len(success_idx)
-            high_potential = potential / l_s['pop_threshold'] - success_n
-            # low potential represents weak competition for flows, new entrants only trying to capture untapped trips
+            potential = np.nansum(assigned_trips_potential[i])
+            actual = np.nansum(assigned_trips_actual[i])
+            # high potential represents full competition for flows, new entrants are trying to capture from existing
+            high_potential = potential / l_s['pop_threshold'] - np.nansum(actual > l_s['pop_threshold'])
+            # low potential represents weak competition for flows, new entrants only trying to capture untapped potential
             low_potential = (potential - actual) / l_s['pop_threshold']
             # apply competition rate
             new = int(low_potential * (1 - l_s['comp_rate']) + high_potential * l_s['comp_rate'])
             if new > 0:
+                # deduce flows, this does not need to be exact, as long as proportional representation of flows
+                blended = squashed_netw_flow_actual * (1 - l_s['explore_rate']) + squashed_netw_flow_potential * l_s[
+                    'explore_rate']
+                jitter = np.random.randn(_spans) * l_s['cap_step'] - l_s['cap_step'] / 2
+                blended += jitter
                 # sort by highest jittered flow
                 seed_idx = np.argsort(blended, kind='mergesort')[::-1]
                 # can't use np.intersect1d because it will sort indices
@@ -218,10 +187,7 @@ def mmm_layercake_d(_graph,
                     # seed_vals *= l_s['cap_step']
                     capacitances[i][seed_idx] += seed_vals
 
-            capacitances[i] = np.clip(capacitances[i], 0, 1)
-            off_idx = np.intersect1d(np.where(capacitances[i] == 0), np.where(landuse_states[i] == 1))
-            landuse_states[i][off_idx] = 0
-            on_idx = np.intersect1d(np.where(capacitances[i] == 1), np.where(landuse_states[i] == 0))
+            on_idx = np.intersect1d(np.where(capacitances[i] >= 1), np.where(landuse_states[i] == 0))
             landuse_states[i][on_idx] = 1
             # record capacitance state
             capacitance_maps[i][n] = capacitances[i]
@@ -259,7 +225,7 @@ def mmm_single(_graph,
     util_funcs.plt_setup(dark=dark)
 
     if isinstance(_layer_specs, dict):
-        pop_map, landuse_maps, capacitance_maps, flow_maps = mmm_layercake_d(_graph,
+        pop_map, landuse_maps, capacitance_maps, flow_maps = mmm_layercake_c(_graph,
                                                                              _iters,
                                                                              _layer_specs=_layer_specs,
                                                                              random_seed=random_seed)
@@ -267,9 +233,7 @@ def mmm_single(_graph,
         caps = capacitance_maps[0]
         lus = landuse_maps[0]
         flows = flow_maps[0]
-        plotter(ax, _iters, xs, _res_factor=1,
-                _plot_maps=[pop_map, caps, lus, flows],
-                _plot_scales=(1, 1.5, 0.75, 1))
+        plotter(ax, _iters, xs, _res_factor=1, _plot_maps=[pop_map, caps, lus, flows])
         title = _title + f'l.u: {np.round(np.sum(landuse_maps), 2)}'
         style_ax(ax, title, _iters, dark=dark)
 
@@ -283,7 +247,7 @@ def mmm_single(_graph,
             assert isinstance(_title, (list, tuple))
             assert len(_title) == len(_layer_specs)
         for ax, title, layer_spec in zip(axes, _title, _layer_specs):
-            pop_map, landuse_maps, capacitance_maps, flow_maps = mmm_layercake_d(_graph,
+            pop_map, landuse_maps, capacitance_maps, flow_maps = mmm_layercake_c(_graph,
                                                                                  _iters,
                                                                                  _layer_specs=layer_spec,
                                                                                  random_seed=random_seed)
@@ -299,6 +263,8 @@ def mmm_single(_graph,
 
     if path is not None:
         plt.savefig(path, dpi=300)
+
+    plt.show()
 
 
 def mmm_nested_split(_graph,
@@ -319,7 +285,7 @@ def mmm_nested_split(_graph,
     assert isinstance(_layer_specs, (list, tuple))
     fig, axes = plt.subplots(1, 3, figsize=figsize)
 
-    pop_map, landuse_maps, capacitance_maps, flow_maps = mmm_layercake_d(_graph,
+    pop_map, landuse_maps, capacitance_maps, flow_maps = mmm_layercake_c(_graph,
                                                                          _iters,
                                                                          _layer_specs=_layer_specs[0],
                                                                          random_seed=random_seed)
@@ -331,7 +297,7 @@ def mmm_nested_split(_graph,
     style_ax(axes[0], title, _iters, dark=dark)
 
     # both
-    pop_map, landuse_maps, capacitance_maps, flow_maps = mmm_layercake_d(_graph,
+    pop_map, landuse_maps, capacitance_maps, flow_maps = mmm_layercake_c(_graph,
                                                                          _iters,
                                                                          _layer_specs=_layer_specs,
                                                                          random_seed=random_seed)
@@ -343,7 +309,7 @@ def mmm_nested_split(_graph,
     title = _title + f'l.u: {np.round(np.sum(landuse_maps), 2)}'
     style_ax(axes[1], title, _iters, dark=dark)
 
-    pop_map, landuse_maps, capacitance_maps, flow_maps = mmm_layercake_d(_graph,
+    pop_map, landuse_maps, capacitance_maps, flow_maps = mmm_layercake_c(_graph,
                                                                          _iters,
                                                                          _layer_specs=_layer_specs[1],
                                                                          random_seed=random_seed)
@@ -359,6 +325,8 @@ def mmm_nested_split(_graph,
 
     if path is not None:
         plt.savefig(path, dpi=300)
+
+    plt.show()
 
 
 def mmm_nested_doubles(_graph,
@@ -379,7 +347,7 @@ def mmm_nested_doubles(_graph,
     assert isinstance(_layer_specs, (list, tuple))
     fig, axes = plt.subplots(1, 3, figsize=figsize)
     # both
-    pop_map, landuse_maps, capacitance_maps, flow_maps = mmm_layercake_d(_graph,
+    pop_map, landuse_maps, capacitance_maps, flow_maps = mmm_layercake_c(_graph,
                                                                          _iters,
                                                                          _layer_specs=_layer_specs,
                                                                          random_seed=random_seed)
@@ -394,7 +362,7 @@ def mmm_nested_doubles(_graph,
     style_ax(axes[1], title, _iters, dark=dark)
 
     fast_layers = (_layer_specs[0].copy(), _layer_specs[0].copy())
-    pop_map, landuse_maps, capacitance_maps, flow_maps = mmm_layercake_d(_graph,
+    pop_map, landuse_maps, capacitance_maps, flow_maps = mmm_layercake_c(_graph,
                                                                          _iters,
                                                                          _layer_specs=fast_layers,
                                                                          random_seed=random_seed)
@@ -408,7 +376,7 @@ def mmm_nested_doubles(_graph,
     style_ax(axes[0], title, _iters, dark=dark)
 
     slow_layers = (_layer_specs[1].copy(), _layer_specs[1].copy())
-    pop_map, landuse_maps, capacitance_maps, flow_maps = mmm_layercake_d(_graph,
+    pop_map, landuse_maps, capacitance_maps, flow_maps = mmm_layercake_c(_graph,
                                                                          _iters,
                                                                          _layer_specs=slow_layers,
                                                                          random_seed=random_seed)
@@ -425,3 +393,5 @@ def mmm_nested_doubles(_graph,
 
     if path is not None:
         plt.savefig(path, dpi=300)
+
+    plt.show()

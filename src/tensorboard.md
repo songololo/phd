@@ -47,7 +47,6 @@ pip3 install tensorflow
 - do from console, not pycharm's console context:
 
 ```bash
-cd /Users/gareth/dev/github/songololo/phd/src/temp_logs
 tensorboard --logdir=./
 ```
 

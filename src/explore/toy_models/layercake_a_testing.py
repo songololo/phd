@@ -3,19 +3,18 @@ import os
 
 os.environ['CITYSEER_QUIET_MODE'] = '1'
 
-from src.explore.MMM._blocks import generate_graph
-from src.explore.MMM.layercake_d import mmm_single
+from src.explore.toy_models import generate_graph
+from src.explore.toy_models import mmm_single
 
-iters = 250
-graph = generate_graph(_spans=200)
+iters = 200
+graph = generate_graph(200)
 
 layer_specs = {
-    'cap_step': 0.5,
+    'cap_step': 0.2,
     'dist_threshold': 1200,
-    'pop_threshold': 200,
-    'explore_rate': 0.75,
-    'comp_rate': 0.5,
-    'echo_rate': 0.75
+    'pop_threshold': 100,
+    'explore_rate': 0.5,
+    'spill_rate': 0
 }
 
 theme = 'test_layercake'

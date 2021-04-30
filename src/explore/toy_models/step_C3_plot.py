@@ -15,8 +15,8 @@ from matplotlib.collections import LineCollection
 import numpy as np
 
 from src import util_funcs
-from src.explore.predictive import step_C1_graphs
-from src.explore.predictive.step_C2_MMM import mmm_layercake_phd
+from src.explore.toy_models import step_C1_graphs
+from src.explore.toy_models.step_C2_MMM import mmm_layercake_phd
 
 #  %%
 '''
