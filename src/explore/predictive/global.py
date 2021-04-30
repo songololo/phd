@@ -107,7 +107,7 @@ axes[1].vlines(x=dens, ymin=0, ymax=area, colors=dens_col, alpha=0.15,
 axes[1].set_xlabel('City Density (persons per hectare)')
 axes[1].set_xlim(10, 70)
 
-path = f'../phd-admin/PhD/part_3/images/predicted/area_pop_density.pdf'
+path = f'../phd-doc/doc/part_3/images/predicted/area_pop_density.pdf'
 plt.savefig(path, dpi=300)
 
 plt.show()
@@ -183,7 +183,7 @@ axes[1].set_xlabel(r'Population $x_{min}' + f'={pl_xmin}$')
 axes[1].set_xlim(10 ** 4, 10 ** 7)
 axes[1].legend(loc=3)
 
-path = f'../phd-admin/PhD/part_3/images/predicted/pop_scale_fit.pdf'
+path = f'../phd-doc/doc/part_3/images/predicted/pop_scale_fit.pdf'
 plt.savefig(path, dpi=300)
 
 plt.show()

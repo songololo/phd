@@ -189,7 +189,7 @@ for ax_row, ax_theme, y_pred, points_perc, points_perc_norm in zip(
 
 plt.suptitle(
     'New (vs. historic) probabilities compared for towns between 8,200 and 290,000 people.')
-path = f'../phd-admin/PhD/part_3/images/predicted/nt_dists_probs.pdf'
+path = f'../phd-doc/doc/part_3/images/predicted/nt_dists_probs.pdf'
 plt.savefig(path, dpi=300)
 
 #  %%
@@ -287,7 +287,7 @@ for set, set_theme, path_theme in zip([[(460570, 451740, 'York', 41),
 
     plt.suptitle(
         f"{set_theme}: localised predictions of probabilities of being new (red) vs. historic (blue) development")
-    path = f'../phd-admin/PhD/part_3/images/predicted/hyperlocal_pred_{path_theme}.pdf'
+    path = f'../phd-doc/doc/part_3/images/predicted/hyperlocal_pred_{path_theme}.pdf'
     plt.savefig(path, dpi=300)
 
 #  %%
@@ -340,7 +340,7 @@ for ax_row, preds, X_tr, titles, dists in zip(axes,
 plt.suptitle(
     'Correlations against source variables for DNN "pre-hat", M2 latents, M2 latents by OT, M2 latents by NT.')
 plt.savefig(
-    f'../phd-admin/PhD/part_3/images/predicted/dnn_m2_latents.pdf',
+    f'../phd-doc/doc/part_3/images/predicted/dnn_m2_latents.pdf',
     dpi=300)
 
 #  %%
@@ -369,6 +369,6 @@ for ax_idx, (t_pred, t_title) in enumerate(zip(
 plt.suptitle(
     'M2 predictions for new and historic towns correlated against source variables.')
 plt.savefig(
-    f'../phd-admin/PhD/part_3/images/predicted/nt_hist_corrs.pdf',
+    f'../phd-doc/doc/part_3/images/predicted/nt_hist_corrs.pdf',
     dpi=300)
 '''

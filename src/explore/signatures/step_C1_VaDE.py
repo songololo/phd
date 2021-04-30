@@ -87,5 +87,5 @@ plot_funcs.plot_scatter(ax,
                         x_extents=(-7000, 11500),
                         y_extents=(-4500, 7500),
                         rasterized=True)
-path = f'../phd-admin/PhD/part_3/images/signatures/{vade.theme}_d{latent_dim}_e{epochs}_comp{n_components}_clust_comb.pdf'
+path = f'../phd-doc/doc/part_3/images/signatures/{vade.theme}_d{latent_dim}_e{epochs}_comp{n_components}_clust_comb.pdf'
 plt.savefig(path, dpi=300)

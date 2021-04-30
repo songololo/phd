@@ -11,7 +11,7 @@ warnings.simplefilter(action='ignore', category=DeprecationWarning)
 # data_path = Path('/Users/gareth/Documents/data/')
 data_path = Path('/Users/gareth/databases/phd_data/')
 
-# plot_path = Path('../../phd-admin/PhD/part_3/images/signatures')
+# plot_path = Path('../../phd-doc/doc/part_3/images/signatures')
 plot_path = Path('./src/temp_images/')
 
 logs_path = Path('./src/temp_logs/')

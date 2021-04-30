@@ -271,7 +271,7 @@ for rdm in [False, True]:
             app_title = ''
             app_path = ''
         plt.suptitle(r'Spearman $\rho$ ' + f'correlations for centrality measures to {app_title}{lu_label}')
-        path = f'../phd-admin/PhD/part_2/images/centrality/primal_centralities_corr_grid_{lu_theme_base}{app_path}.pdf'
+        path = f'../phd-doc/doc/part_2/images/centrality/primal_centralities_corr_grid_{lu_theme_base}{app_path}.pdf'
         plt.savefig(path)
 
 # %%
@@ -339,7 +339,7 @@ for n, (theme_set, theme_labels, theme_meta, theme_wt) in enumerate(
             ax.set_title(l)
 
     plt.suptitle(f'Comparative plots of centrality measures for inner London (set {n + 1})')
-    path = f'../phd-admin/PhD/part_2/images/centrality/primal_centrality_comparisons_{theme_meta}.pdf'
+    path = f'../phd-doc/doc/part_2/images/centrality/primal_centrality_comparisons_{theme_meta}.pdf'
     plt.savefig(path, dpi=300)
 
 # %%
@@ -402,7 +402,7 @@ axes[0][0].set_ylabel(r'mixed-use richness $H_{0\ \beta=0.004\ d_{max}=1000m}$')
 
 plt.suptitle(
     'Comparative hexbin plots and distributions for network centrality measures compared to mixed-use richness')
-path = f'../phd-admin/PhD/part_2/images/centrality/primal_hexbin_gravity_betweenness.pdf'
+path = f'../phd-doc/doc/part_2/images/centrality/primal_hexbin_gravity_betweenness.pdf'
 plt.savefig(path, dpi=300)
 
 # %%
@@ -447,7 +447,7 @@ ax.set_ylabel(r'$\log$ segment $\beta$ weighted betweenness $_{\beta=0.004\ d_{m
 ax.title.set_text(r'Intensity of mixed-use richness $H_{0\ \beta=0.004\ d_{max}=1000m}$')
 
 plt.suptitle('Hexbin plot of closeness, betweenness, mixed-use richness')
-path = f'../phd-admin/PhD/part_2/images/centrality/primal_gravity_betweenness_mixed_hexbin.pdf'
+path = f'../phd-doc/doc/part_2/images/centrality/primal_gravity_betweenness_mixed_hexbin.pdf'
 plt.savefig(path, dpi=300)
 
 # %%
@@ -521,7 +521,7 @@ for ax, y_theme, y_label in zip(axes, y_themes, y_labels):
     ax.set_xlabel(f'Correlations for closeness measures to length normalised {y_label}')
 plt.suptitle('Correlations for closeness measures to length-normalised mixed-use and landuse themes')
 
-path = f'../phd-admin/PhD/part_2/images/centrality/primal_correlations_closeness.pdf'
+path = f'../phd-doc/doc/part_2/images/centrality/primal_correlations_closeness.pdf'
 plt.savefig(path)
 
 #  %%
@@ -582,7 +582,7 @@ for ax, y_theme, y_label in zip(axes, y_themes, y_labels):
     ax.set_xlabel(f'Correlations for betweenness measures to length normalised {y_label}')
 plt.suptitle('Correlations for betweenness measures to length-normalised mixed-use and landuse themes')
 
-path = f'../phd-admin/PhD/part_2/images/centrality/primal_correlations_betweenness.pdf'
+path = f'../phd-doc/doc/part_2/images/centrality/primal_correlations_betweenness.pdf'
 plt.savefig(path)
 """
 
@@ -688,11 +688,11 @@ for angular in [False]:  # , True
     if angular:
         plt.suptitle(
             r'Correlations for angular network centrality measures to length normalised mixed-use richness at varying decompositions')
-        path = f'../phd-admin/PhD/part_2/images/centrality/primal_decompositions_angular.pdf'
+        path = f'../phd-doc/doc/part_2/images/centrality/primal_decompositions_angular.pdf'
     else:
         plt.suptitle(
             r'Correlations for network centrality measures to length-normalised mixed-use richness at varying decompositions')
-        path = f'../phd-admin/PhD/part_2/images/centrality/primal_decompositions.pdf'
+        path = f'../phd-doc/doc/part_2/images/centrality/primal_decompositions.pdf'
 
     plt.savefig(path)
 
@@ -735,5 +735,5 @@ for target, label, meta in zip(targets, labels, metas):
 
     plt.suptitle(f'{label} distributions at respective network decompositions and distance thresholds')
 
-    path = f'../phd-admin/PhD/part_2/images/centrality/distribution_degeneration_{meta}.pdf'
+    path = f'../phd-doc/doc/part_2/images/centrality/distribution_degeneration_{meta}.pdf'
     plt.savefig(path)

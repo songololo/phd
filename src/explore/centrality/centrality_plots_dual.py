@@ -131,5 +131,5 @@ for ax_row in range(2):
         ax.set_title(y_label)
         theme_dim += 1
 plt.suptitle(r'Spearman $\rho$ ' + f'correlations for centralities to mixed-uses & landuses on the dual graph')
-path = f'../phd-admin/PhD/part_2/images/centrality/dual_centralities_corr_grid.pdf'
+path = f'../phd-doc/doc/part_2/images/centrality/dual_centralities_corr_grid.pdf'
 plt.savefig(path)
