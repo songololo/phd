@@ -20,7 +20,7 @@ Workflows (not included in this repository) load the data into a `PostGIS` enabl
 A series of scripts processes the files and saves the derived data to a PostGIS enabled Postgres database.
 
 - Network Centralities:
-  - [src/process/metrics/centrality/centrality_primal.py]()
+  - [./src/process/metrics/centrality/centrality_primal.py]()
   - [src/process/metrics/centrality/centrality_dual.py]()
 - Landuse accessibilities and mixed-uses:
   - [src/process/metrics/landuses/landuses_poi.py]()
