@@ -2,7 +2,7 @@
 
 _Detection and prediction of urban archetypes at the pedestrian scale: computational toolsets, morphological metrics, and machine learning methods._
 
-Completed in 2021, though this work was completed over the span of the preceding five years during the PhD.
+Completed in 2021, though this work was developed over the span of the preceding five years during the PhD.
 
 This work is also available through the accompanying papers released in the `arXiv` preprint repository:
 - links pending.
