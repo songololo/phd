@@ -6,6 +6,7 @@ from src import util_funcs
 
 # %%
 # solve for beta using: log(1/y)/d where y = 0.01831563888873418
+# or, per Elsa's comment: beta = 4 / d_tau
 w_min = 0.01831563888873418
 betas = []
 for d_max in [50, 100, 150, 200, 300, 400, 600, 800, 1200, 1600]:
@@ -28,7 +29,11 @@ for d_max in distances:
         distances_arr.append(d)
     distances_arr = np.array(distances_arr)
     y_falloff = np.exp(beta * distances_arr)
-    ax.plot(distances_arr, y_falloff, label=f'$\\beta={round(-beta, 4)}$')
+    if d_max == 1600:
+        spacer = '\ '
+    else:
+        spacer = '\ \ \ '
+    ax.plot(distances_arr, y_falloff, label=r'$d_{max}=' + f'{d_max}' + spacer + f'\ \\beta={round(-beta, 4)}$')
 
 # add w_min
 plt.axhline(y=w_min, ls='--', lw=0.5, c='grey')
@@ -37,12 +42,13 @@ ax.text(1500, 0.035, '$w_{min}$')
 ax.set_xticks(distances)
 ax.set_xticklabels(['100', '200', '$d_{max}=400$', '$d_{max}=800$', '$d_{max}=1600$'])
 ax.set_xlim([0, 1600])
-ax.set_xlabel('Distance in Metres')
+ax.set_xlabel('distance in metres $d$')
 ax.set_ylim([0, 1.0])
-ax.set_ylabel('Weighting')
-ax.legend(loc='upper right', title='$exp(-\\beta \\cdot d[i,j])$')
+ax.set_ylabel('effective weight $w$')
+ax.set_title('$w = exp(-\\beta \\cdot d)\ \ \ \\beta=4/d_{max}$')
+ax.legend(loc='upper right', labelspacing=0.8)
 
-plt.savefig('../phd-doc/doc/part_1/images/cityseer/gravity_decay.pdf')
+plt.savefig('../phd-doc/doc/part_1/cityseer/images/gravity_decay.pdf')
 
 # %%
 

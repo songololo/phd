@@ -147,5 +147,5 @@ for ax_idx, ax in enumerate(axes):
     z_txt = '|'.join(z_txt)
     ax.set_xlabel(f'encoded latents:\n{z_txt}', fontsize='x-small', )
 plt.suptitle('Landuse decodings for example locations')
-path = f'../phd-doc/doc/part_3/images/signatures/vae_example_decodings.pdf'
+path = f'../phd-doc/doc/part_3/signatures/images/vae_example_decodings.pdf'
 plt.savefig(path, dpi=300)

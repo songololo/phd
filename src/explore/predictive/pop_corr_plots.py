@@ -188,7 +188,7 @@ def pop_corr_plot(city_data, theme_1, theme_2, towns_data, label):
         axes[n].set_xscale('log')
         axes[n].legend(loc=2)
 
-    path = f'../phd-doc/doc/part_3/images/predicted/corr/{theme_1.strip("_{dist}")}_{theme_2.strip("_{dist}")}.pdf'
+    path = f'../phd-doc/doc/part_3/predictive/images/corr/{theme_1.strip("_{dist}")}_{theme_2.strip("_{dist}")}.pdf'
     plt.savefig(path, dpi=300)
 
 

@@ -183,7 +183,7 @@ for theme_set, theme_labels, t_meta, p_meta, weighted in zip(theme_sets, theme_l
             ax.set_title(l)
 
     plt.suptitle(f'Comparative plots of {t_meta} mixed-use measures for inner London')
-    path = f'../phd-doc/doc/part_2/images/diversity/diversity_comparisons_{p_meta}.pdf'
+    path = f'../phd-doc/doc/part_2/diversity/images/diversity_comparisons_{p_meta}.pdf'
     plt.savefig(path, dpi=300)
 
 #  %% prepare PCA
@@ -283,7 +283,7 @@ plot_funcs.plot_components(list(range(4)),
                            cbar=False,
                            figsize=(8.75, 10))
 plt.suptitle(f'Feature extraction - first 4 PCA components from POI landuse accessibilities')
-path = f'../phd-doc/doc/part_2/images/diversity/PCA.pdf'
+path = f'../phd-doc/doc/part_2/diversity/images/PCA.pdf'
 plt.savefig(path, dpi=300)
 
 # %%
@@ -326,7 +326,7 @@ for ax_row, divs, div_labels in zip(
 
 plt.suptitle(f'A comparison of mixed-use measure distributions')
 
-path = f'../phd-doc/doc/part_2/images/diversity/mixed_uses_example_distributions.pdf'
+path = f'../phd-doc/doc/part_2/diversity/images/mixed_uses_example_distributions.pdf'
 plt.savefig(path, dpi=300)
 
 # %%
@@ -427,7 +427,7 @@ for pca_dim in range(2):
             ax.set_title(ax_title)
 
     plt.suptitle(r'Spearman $\rho$ ' + f'correlations for mixed-use measures to PCA component {pca_dim + 1}')
-    path = f'../phd-doc/doc/part_2/images/diversity/mixed_use_measures_correlated_pca_{pca_dim + 1}.pdf'
+    path = f'../phd-doc/doc/part_2/diversity/images/mixed_use_measures_correlated_pca_{pca_dim + 1}.pdf'
     plt.savefig(path)
 
 # %%
@@ -481,7 +481,7 @@ for ax, pca_dim in zip(axes, list(range(2))):
 
 plt.suptitle(r'Correlations for variants of Hill mixed-use measures to PCA at increasing network decomposition')
 
-path = f'../phd-doc/doc/part_2/images/diversity/mixed_use_measures_corr_pca_decompositions.pdf'
+path = f'../phd-doc/doc/part_2/diversity/images/mixed_use_measures_corr_pca_decompositions.pdf'
 plt.savefig(path)
 
 # %%
@@ -803,5 +803,5 @@ for ax, y_top, x_right in zip(axes, [None, 30], [5000, 500]):
     ax.set_ylabel('diversity / effective number of uses')
     ax.legend(loc='upper right', title='')
 
-path = f'../phd-doc/doc/part_2/images/diversity/mixed_uses_random_removal.pdf'
+path = f'../phd-doc/doc/part_2/diversity/images/mixed_uses_random_removal.pdf'
 plt.savefig(path)
