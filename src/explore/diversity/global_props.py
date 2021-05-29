@@ -30,10 +30,10 @@ df = util_funcs.load_data_as_pd_df(
     'WHERE city_population IS NOT NULL ORDER BY pop_id')
 Style = util_funcs.Style()
 
-# %% plot population vs. total number of POI
+#  %% plot population vs. total number of POI
 # clear previous figures and set matplotlib defaults
 util_funcs.plt_setup()
-fig, axes = plt.subplots(1, 2, sharey='row', figsize=(6, 3))
+fig, axes = plt.subplots(1, 2, sharey='row', figsize=(7, 3.5))
 # data
 # d = df.dropna(how='all')
 pop = df.city_population.values
@@ -86,10 +86,10 @@ axes[0].axhline(500,
                 color='dimgrey',
                 linestyle='--')
 axes[0].text(10 ** 7.5,
-             530,
+             5030,
              'P.O.I. falloff at pop $x_{min}=5000$',
              horizontalalignment='right',
-             fontdict={'size': 5})
+             fontdict={'size': 'xx-small'})
 axes[0].set_xscale('log')
 axes[0].set_xlabel('Population per town / city')
 axes[0].set_xlim(5000, 10 ** 7.5)
@@ -129,10 +129,10 @@ axes[1].set_xlim(3, 60)
 path = f'../phd-doc/doc/part_2/diversity/images/global_poi_count_pop.pdf'
 plt.savefig(path)
 
-# %% plot population vs. unique number of POI
+#  %% plot population vs. unique number of POI
 # clear previous figures and set matplotlib defaults
 util_funcs.plt_setup()
-fig, axes = plt.subplots(1, 2, figsize=(6, 3))
+fig, axes = plt.subplots(1, 2, figsize=(7, 3.5))
 # data
 # d = df.dropna(how='all')
 pop = df.city_population.values
@@ -220,7 +220,7 @@ axes[1].text(5200,
              620,
              'taxonomic limit ($616$)',
              verticalalignment='bottom',
-             fontdict={'size': 5})
+             fontdict={'size': 'xx-small'})
 axes[1].set_xscale('log')
 axes[1].set_xlabel('Population per town / city')
 axes[1].set_xlim(5000, 10 ** 7.5)

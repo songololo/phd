@@ -133,7 +133,8 @@ def plot_heatmap(heatmap_ax,
                  cbar: bool = False,
                  text: np.ndarray = None,
                  cmap=None,
-                 fontsize=5):
+                 tick_fontsize='x-small',
+                 grid_fontsize='xx-small'):
     '''
     Modified to permit text only plots
     '''
@@ -165,22 +166,32 @@ def plot_heatmap(heatmap_ax,
 
     if row_labels is not None and set_row_labels:
         y_labels = [str(l) for l in row_labels]
-        heatmap_ax.set_yticklabels(y_labels, rotation='horizontal', fontsize=fontsize)
+        heatmap_ax.set_yticklabels(y_labels,
+                                   rotation='horizontal',
+                                   fontsize=tick_fontsize)
     else:
         heatmap_ax.set_yticklabels([])
 
     if col_labels is not None and set_col_labels:
         x_labels = [str(l) for l in col_labels]
-        heatmap_ax.set_xticklabels(x_labels, rotation='vertical', fontsize=fontsize)
+        heatmap_ax.set_xticklabels(x_labels,
+                                   rotation='vertical',
+                                   fontsize=tick_fontsize)
     else:
         heatmap_ax.set_xticklabels([])
 
     if cbar:
         divider = make_axes_locatable(heatmap_ax)
-        cax = divider.append_axes('right', size='5%', pad=0.06)
-        cbar = plt.colorbar(im, cax=cax, ticks=[constrain[0], constrain[1]])
-        cbar.ax.set_yticklabels([constrain[0], constrain[1]])
-
+        cax = divider.append_axes('top', size='2%', pad=0.05)
+        cbar = plt.colorbar(im,
+                            cax=cax,
+                            aspect=100,
+                            pad=0.02,
+                            orientation='horizontal',
+                            ticks=[constrain[0], 0.0, constrain[1]])
+        title = r"Pearson's $\rho$ correlation"
+        cbar.ax.set_xticklabels([constrain[0], title, constrain[1]])
+        cbar.ax.xaxis.set_ticks_position('top')
     if text is not None:
         for row_idx in range(text.shape[0]):
             for col_idx in range(text.shape[1]):
@@ -193,7 +204,13 @@ def plot_heatmap(heatmap_ax,
                     # use white colour on darker backgrounds
                     if abs(v) > 0.5:
                         c = 'w'
-                heatmap_ax.text(col_idx, row_idx, t, ha='center', va='center', color=c, fontsize=fontsize)
+                heatmap_ax.text(col_idx,
+                                row_idx,
+                                t,
+                                ha='center',
+                                va='center',
+                                color=c,
+                                fontsize=grid_fontsize)
 
 
 # %%
@@ -247,7 +264,7 @@ def plot_components(component_idxs,
                                              len(distances),
                                              X,
                                              X_latent[:, comp_idx])
-
+        # corr matrix
         plot_heatmap(heatmap_ax,
                      heatmap_corr,
                      row_labels=feature_labels,
@@ -256,9 +273,8 @@ def plot_components(component_idxs,
                      set_col_labels=True,
                      dark=dark,
                      cbar=cbar)
-
         col_data = X_latent[:, comp_idx]
-
+        # map
         plot_scatter(map_ax,
                      xs,
                      ys,
@@ -270,7 +286,6 @@ def plot_components(component_idxs,
                      s_exp=s_exp,
                      rasterized=rasterized)
         map_ax.set_title(f'Latent {comp_idx + 1}')
-
         if tag_values is not None:
             map_ax.set_xlabel(f'{tag_string} {tag_values[comp_idx]}')
 

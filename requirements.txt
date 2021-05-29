@@ -1,6 +1,5 @@
 asyncpg
 cityseer
-keras
 matplotlib
 networkx
 numpy

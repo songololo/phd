@@ -4,31 +4,28 @@ import logging
 import asyncpg
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
 import numpy as np
 import pandas as pd
 from matplotlib.colors import LinearSegmentedColormap
 from tqdm import tqdm
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 def plt_setup(dark=False):
-    '''
-    plot area vs. population and area vs. density
-    using area vs. density because population cutoff is not clean
-    (as the cutoff is based on area per largest 1000 clusters)
-    clear previous figures and set matplotlib defaults
-    :param plt:
-    :return:
-    '''
     # clear existing plots
     plt.ioff()
     plt.close('all')
     plt.cla()
     plt.clf()
-
     mpl.rcdefaults()  # resets seaborn
+    # load Open Sans - which is referred to from matplotlib.rc
+    font_files = fm.findSystemFonts(fontpaths=['./fonts/Open_Sans'])
+    for font_file in font_files:
+        fm.fontManager.addfont(font_file)
     mpl_rc_path = './src/matplotlib.rc'
     mpl.rc_file(mpl_rc_path)
     if dark:

@@ -38,7 +38,7 @@
 #
 # If you omit this parameter, it will always default to "Agg", which is a
 # non-interactive backend.
-# backend      : qt5agg
+# backend      : Agg
 
 # Note that this can be overridden by the environment variable
 # QT_API used by Enthought Tool Suite (ETS); valid values are
@@ -200,9 +200,14 @@ font.stretch        : normal
 # settings for axes and ticks. Special text sizes can be defined
 # relative to font.size, using the following values: xx-small, x-small,
 # small, medium, large, x-large, xx-large, larger, or smaller
-font.size           : 9.0
+
+### FONT SCALINGS: https://matplotlib.org/stable/_modules/matplotlib/font_manager.html
+### E.G. 'x-small': 0.694, 'small: 0.833, 'medium': 1.0, 'large': 1.200, 'x-large': 1.440, etc.
+### NOTE: Open Sans loaded manually from scripts because ttc (collections) aren't yet supported by matplotlib
+
+#font.size           : 10.0
 #font.serif          : DejaVu Serif, Bitstream Vera Serif, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
-font.sans-serif     : DejaVu Sans, Bitstream Vera Sans, Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, sans-serif
+font.sans-serif      : Open Sans # DejaVu Sans, Bitstream Vera Sans, Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, sans-serif
 #font.cursive        : Apple Chancery, Textile, Zapf Chancery, Sand, Script MT, Felipa, cursive
 #font.fantasy        : Comic Sans MS, Chicago, Charcoal, Impact, Western, Humor Sans, xkcd, fantasy
 #font.monospace      : DejaVu Sans Mono, Bitstream Vera Sans Mono, Andale Mono, Nimbus Mono L, Courier New, Courier, Fixed, Terminal, monospace
@@ -281,15 +286,15 @@ text.color          : dimgrey
 # default face and edge color, default tick sizes,
 # default fontsizes for ticklabels, and so on.  See
 # http://matplotlib.org/api/axes_api.html#module-matplotlib.axes
-axes.facecolor      : white   # axes background color
-axes.edgecolor      : dimgrey   # axes edge color
-axes.linewidth      : 0.5     # edge linewidth
-axes.grid           : True   # display grid or not
-axes.titlesize      : medium   # fontsize of the axes title
-axes.titlepad       : 5.0     # pad between axes and title in points
-axes.labelsize      : small  # fontsize of the x any y labels
-axes.labelpad       : 4.0     # space between label and axis
-axes.labelweight    : medium # weight of the x and y labels
+axes.facecolor      : white    # axes background color
+axes.edgecolor      : dimgrey  # axes edge color
+axes.linewidth      : 0.5      # edge linewidth
+axes.grid           : True     # display grid or not
+axes.titlesize      : large    # fontsize of the axes title
+axes.titlepad       : 8.0      # pad between axes and title in points
+axes.labelsize      : medium   # fontsize of the x any y labels
+axes.labelpad       : 4.0      # space between label and axis
+axes.labelweight    : 600      # weight of the x and y labels
 axes.labelcolor     : dimgrey
 #axes.axisbelow      : 'line'  # draw axis gridlines and ticks below
                                # patches (True); above patches but below
@@ -420,9 +425,9 @@ legend.columnspacing : 1.0      # column separation
 
 ### FIGURE
 # See http://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure
-figure.titlesize : medium      # size of the figure title (Figure.suptitle())
-figure.titleweight : bold   # weight of the figure title
-figure.figsize   : 6, 6   # figure size in inches
+figure.titlesize : x-large # size of the figure title (Figure.suptitle())
+figure.titleweight : 700   # weight of the figure title
+figure.figsize   : 6, 6    # figure size in inches
 figure.dpi       : 75      # figure dots per inch
 figure.facecolor : white   # figure facecolor; 0.75 is scalar gray
 figure.edgecolor : white   # figure edgecolor

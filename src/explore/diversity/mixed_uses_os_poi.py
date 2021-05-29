@@ -5,7 +5,7 @@ import asyncpg
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from scipy.stats import spearmanr
+from scipy.stats import pearsonr
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 
@@ -29,7 +29,6 @@ columns = [
 ]
 
 columns_base = [
-    'c_segment_density',
     'c_segment_beta',
     'mu_hill_0',
     'mu_hill_1',
@@ -57,20 +56,17 @@ columns_base = [
     'ac_government',
     'ac_manufacturing',
     'ac_retail_food',
-    'ac_retail_food_nw',
     'ac_retail_other',
-    'ac_retail_other_nw',
     'ac_transport',
     'ac_health',
     'ac_education',
     'ac_parks',
     'ac_cultural',
     'ac_sports',
-    'ac_total',
-    'ac_total_nw'
+    'ac_total'
 ]
 col_template = '{col}[{i}] as {col}_{dist}'
-distances = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600]
+distances = [50, 100, 200, 300, 400, 600, 800, 1000, 1200, 1600]
 for col_base in columns_base:
     for i, d in enumerate(distances):
         columns.append(col_template.format(col=col_base, i=i + 1, dist=d))
@@ -135,7 +131,7 @@ df_20 = util_funcs.load_data_as_pd_df(db_config,
 df_20 = df_20.set_index('id')
 df_20 = util_funcs.clean_pd(df_20, drop_na='all', fill_inf=np.nan)
 
-# %%
+#%%
 '''
 plot the geographic maps showing the distribution of respective mixed use measures
 '''
@@ -145,25 +141,28 @@ theme_sets = [
     ('mu_gini_{dist}', 'mu_shannon_{dist}', 'mu_raos_{dist}')
 ]
 theme_label_sets = [
-    (r'Hill $_{q=0\ ',
-     r'Hill $_{q=1\ ',
-     r'Hill $_{q=2\ '),
-    (r'Hill branch distance weighted $_{q=0\ ',
-     r'Hill branch distance weighted $_{q=1\ ',
-     r'Hill branch distance weighted $_{q=2\ '),
-    ('Gini-Simpson $_{',
-     'Shannon $_{',
-     'Raos Quadratic $_{')
+    (r'Hill $q=0$',
+     r'Hill $q=1$',
+     r'Hill $q=2$'),
+    (r'Hill weighted $q=0$',
+     r'Hill weighted $q=1$',
+     r'Hill weighted $q=2$'),
+    ('Gini-Simpson',
+     'Shannon',
+     'Raos Quadratic')
 ]
-theme_metas = ('Hill', 'distance-weighted Hill', 'traditional')
+theme_metas = ('Hill', 'weighted Hill', 'traditional')
 path_metas = ('hill', 'weighted_hill', 'traditional')
 theme_wt = (False, True, False)
 
-for theme_set, theme_labels, t_meta, p_meta, weighted in zip(theme_sets, theme_label_sets, theme_metas, path_metas,
+for theme_set, theme_labels, t_meta, p_meta, weighted in zip(theme_sets,
+                                                             theme_label_sets,
+                                                             theme_metas,
+                                                             path_metas,
                                                              theme_wt):
     print(f'processing metas: {t_meta}')
     util_funcs.plt_setup()
-    fig, axes = plt.subplots(3, 2, figsize=(8, 12))
+    fig, axes = plt.subplots(3, 2, figsize=(7, 11))
     for t_idx, (t, label) in enumerate(zip(theme_set, theme_labels)):
         for d_idx, (dist, beta) in enumerate(zip([300, 1000], [r'-0.01\bar{3}', r'-0.004'])):
             ax = axes[t_idx][d_idx]
@@ -176,17 +175,13 @@ for theme_set, theme_labels, t_meta, p_meta, weighted in zip(theme_sets, theme_l
                                     x_extents=(-5000, 6000),
                                     y_extents=(-4500, 6500),
                                     s_exp=4)
-            if not weighted:
-                l = label + 'd_{max}=' + str(dist) + 'm}$'
-            else:
-                l = label + r'\beta=' + beta + r'\ d_{max}=' + str(dist) + 'm}$'
-            ax.set_title(l)
+            ax.set_xlabel(f'{label} ' + r'$d_{max}=' + f'{dist}m$')
 
-    plt.suptitle(f'Comparative plots of {t_meta} mixed-use measures for inner London')
+    plt.suptitle(f'Plots of {t_meta} mixed-use measures for inner London')
     path = f'../phd-doc/doc/part_2/diversity/images/diversity_comparisons_{p_meta}.pdf'
     plt.savefig(path, dpi=300)
 
-#  %% prepare PCA
+#%% prepare PCA
 # use of bands gives slightly more defined delineations for latent dimensions
 pca_columns_dist = [
     'ac_accommodation_{dist}',
@@ -272,7 +267,7 @@ plot_funcs.plot_components(list(range(4)),
                            X_pca_20_clipped,
                            df_20.x,
                            df_20.y,
-                           tag_string=r'explained $\sigma^{2}$:',
+                           tag_string=r'explained $\sigma^{2}$',
                            tag_values=exp_var_str,
                            loadings=loadings,
                            label_all=False,
@@ -280,9 +275,9 @@ plot_funcs.plot_components(list(range(4)),
                            s_max=1,
                            c_exp=1,
                            s_exp=2,
-                           cbar=False,
-                           figsize=(8.75, 10))
-plt.suptitle(f'Feature extraction - first 4 PCA components from POI landuse accessibilities')
+                           cbar=True,
+                           figsize=(7, 8))
+plt.suptitle(f'First 4 PCA components from POI landuse accessibilities')
 path = f'../phd-doc/doc/part_2/diversity/images/PCA.pdf'
 plt.savefig(path, dpi=300)
 
@@ -291,8 +286,12 @@ plt.savefig(path, dpi=300)
 scatter and distributions for selected examples contrasting hill vs. non hill typical behaviour
 '''
 util_funcs.plt_setup()
-fig, axes = plt.subplots(6, 2, figsize=(8, 12), gridspec_kw={'height_ratios': [4, 1, 4, 1, 4, 1]})
+fig, axes = plt.subplots(6,
+                         2,
+                         figsize=(7, 11),
+                         gridspec_kw={'height_ratios': [4, 1, 4, 1, 4, 1]})
 dist = 800
+X_pca_20 = pca_transformed[-1]
 _y = X_pca_20[:, 0]
 y_label = r'PCA component $1$'
 
@@ -304,18 +303,26 @@ for ax_row, divs, div_labels in zip(
           f'mu_gini_{dist}'),
          (f'mu_hill_dispar_wt_2_{dist}',
           f'mu_raos_{dist}')],
-        [(r'Hill $_{q=1\ d_{max}=800m}$',
-          r'Shannon Information $_{d_{max}=800m}$'),
-         (r'Hill $_{q=2\ d_{max}=800m}$',
-          r'Gini-Simpson $_{d_{max}=800m}$'),
-         (r'Hill class disparity wt. $_{q=2\ d_{max}=800m}$',
-          r'Rao / Stirling class disparity wt. $_{d_{max}=800m}$')]):
-
+        [(r'Hill $q=1$',
+          r'Shannon Information'),
+         (r'Hill $q=2$',
+          r'Gini'),
+         (r'Hill class disparity wt. $q=2$',
+          r'Rao class disparity wt.')]):
     for ax_col in [0, 1]:
         div_theme = divs[ax_col]
-        _x = df_20.loc[:, div_theme].values.reshape(-1, 1)
+        _x = df_20.loc[:, div_theme].values
         x_label = div_labels[ax_col]
-        axes[ax_row][ax_col].scatter(_x, _y, s=0.03, alpha=0.5, rasterized=True)
+        axes[ax_row][ax_col].hexbin(_x,
+                                    _y,
+                                    gridsize=(70, 40),
+                                    mincnt=5,
+                                    bins='log',
+                                    xscale='linear',
+                                    yscale='linear',
+                                    lw=0.2,
+                                    edgecolors='w',
+                                    cmap='Blues')
         axes[ax_row][ax_col].set_xlim(left=0, right=np.percentile(_x, 99.999))
         axes[ax_row][ax_col].set_ylim(bottom=0, top=np.percentile(_y, 99.999))
         axes[ax_row][ax_col].set_ylabel(y_label)
@@ -335,7 +342,6 @@ correlation matrix plots for all measures at all distances set against PCA dimen
 one page each PCA dim
 1 - correlations as is, 2 - by band, 3 - as-is normalised by segments, 4 - by band normalised by segments
 '''
-
 themes = ['mu_hill_0_{dist}',
           'mu_hill_1_{dist}',
           'mu_hill_2_{dist}',
@@ -352,29 +358,30 @@ themes = ['mu_hill_0_{dist}',
           'mu_shannon_{dist}',
           'mu_raos_{dist}']
 
-labels = ['Hill $_{q=0}$',
-          'Hill $_{q=1}$',
-          'Hill $_{q=2}$',
-          'Hill br. dist. wt. $_{q=0}$',
-          'Hill br. dist. wt. $_{q=1}$',
-          'Hill br. dist. wt. $_{q=2}$',
-          'Hill pw. dist. wt. $_{q=0}$',
-          'Hill pw. dist. wt. $_{q=1}$',
-          'Hill pw. dist. wt. $_{q=2}$',
-          'Hill cl. disp. wt. $_{q=0}$',
-          'Hill cl. disp. wt. $_{q=1}$',
-          'Hill cl. disp. wt. $_{q=2}$',
-          'Gini-Simpson',
+labels = ['$H_{0}$',
+          '$H_{1}$',
+          '$H_{2}$',
+          '$H_{0}$ b.w.',
+          '$H_{1}$ b.w.',
+          '$H_{2}$ b.w.',
+          '$H_{0}$ p.w.',
+          '$H_{1}$ p.w.',
+          '$H_{2}$ p.w.',
+          '$H_{0}$ d.w.',
+          '$H_{1}$ d.w.',
+          '$H_{2}$ d.w.',
+          'Gini',
           'Shannon',
-          'Rao / Stirling']
+          'Rao']
 
 # don't include 50
 for pca_dim in range(2):
     print(f'Processing dimension {pca_dim + 1}')
     # setup the plot
     util_funcs.plt_setup()
-    fig, axes = plt.subplots(2, 2, figsize=(11.25, 10))
+    fig, axes = plt.subplots(2, 2, figsize=(7, 12.25))
     # fetch the slice
+    X_pca_20 = pca_transformed[-1]
     pca_slice = X_pca_20[:, pca_dim]
     # iterate the ax rows and ax cols
     for ax_row_n, (ax_row, bandwise) in enumerate(zip(axes, [False, True])):
@@ -395,17 +402,17 @@ for pca_dim in range(2):
                             v = v.values / s.values
                             # 14 locations with 0 segment beta weight
                             v[np.isnan(v)] = 0
-                    corrs[t_idx][d_idx] = spearmanr(v, pca_slice)[0]
+                    corrs[t_idx][d_idx] = pearsonr(v, pca_slice)[0]
             if ax_col_n == 0:
                 display_row_labels = True
-                cbar = False
             else:
                 display_row_labels = False
-                cbar = True
-            if ax_row_n > 0:
-                display_col_labels = True
-            else:
+            if ax_row_n == 0:
                 display_col_labels = False
+                cbar = False
+            else:
+                display_col_labels = True
+                cbar = True
             # plot
             im = plot_funcs.plot_heatmap(ax,
                                          corrs,
@@ -414,21 +421,22 @@ for pca_dim in range(2):
                                          set_col_labels=display_col_labels,
                                          set_row_labels=display_row_labels,
                                          cbar=cbar,
-                                         text=corrs.round(2),
-                                         fontsize=6)
+                                         text=corrs.round(2))
             if bandwise and seg_norm:
-                ax_title = 'Correlations for bandwise and length-normalised mixed-uses'
+                ax_title = f'Bandwise & length-normalised to PCA {pca_dim + 1}.'
             elif bandwise:
-                ax_title = 'Correlations for bandwise mixed-uses'
+                ax_title = f'Bandwise mixed-uses to PCA {pca_dim + 1}.'
             elif seg_norm:
-                ax_title = 'Correlations for length-normalised mixed-uses'
+                ax_title = f'Length-normalised mixed-uses to PCA {pca_dim + 1}.'
             else:
-                ax_title = f'Correlations for mixed-uses to PCA {pca_dim + 1}'
-            ax.set_title(ax_title)
+                ax_title = f'Correlations for mixed-uses to PCA {pca_dim + 1}.'
+            ax.set_xlabel(ax_title)
 
-    plt.suptitle(r'Spearman $\rho$ ' + f'correlations for mixed-use measures to PCA component {pca_dim + 1}')
+    plt.suptitle(r'Pearson $\rho$ ' + f'correlations for mixed-use measures to PCA component {pca_dim + 1}',
+)
     path = f'../phd-doc/doc/part_2/diversity/images/mixed_use_measures_correlated_pca_{pca_dim + 1}.pdf'
     plt.savefig(path)
+
 
 # %%
 '''
@@ -436,9 +444,9 @@ decomposition set against full, 100m, 50m, 20m tables
 '''
 # plot
 util_funcs.plt_setup()
-fig, axes = plt.subplots(2, 1, figsize=(8, 6))
+fig, axes = plt.subplots(2, 1, figsize=(7, 7))
 theme = 'mu_hill_branch_wt_0_{dist}'
-label = 'Hill branch weighted $_{q=0}$'
+label = '$H_{0}$ branch weighted'
 theme_wt = True
 for ax, pca_dim in zip(axes, list(range(2))):
     print(f'plotting for dim: {pca_dim + 1}')
@@ -450,16 +458,16 @@ for ax, pca_dim in zip(axes, list(range(2))):
         # x_theme = theme.format(dist=dist)
         # full graph
         v = get_band(df_full, dist, theme, seg_beta_norm=True)
-        corrs_full.append(spearmanr(v, pca_transformed[0][:, pca_dim])[0])
+        corrs_full.append(pearsonr(v, pca_transformed[0][:, pca_dim])[0])
         # 100 graph
         v = get_band(df_100, dist, theme, seg_beta_norm=True)
-        corrs_100.append(spearmanr(v, pca_transformed[1][:, pca_dim])[0])
+        corrs_100.append(pearsonr(v, pca_transformed[1][:, pca_dim])[0])
         # 50 graph
         v = get_band(df_50, dist, theme, seg_beta_norm=True)
-        corrs_50.append(spearmanr(v, pca_transformed[2][:, pca_dim])[0])
+        corrs_50.append(pearsonr(v, pca_transformed[2][:, pca_dim])[0])
         # 20 graph
         v = get_band(df_20, dist, theme, seg_beta_norm=True)
-        corrs_20.append(spearmanr(v, pca_transformed[3][:, pca_dim])[0])
+        corrs_20.append(pearsonr(v, pca_transformed[3][:, pca_dim])[0])
 
     a = 1
     lw = 1
@@ -475,11 +483,11 @@ for ax, pca_dim in zip(axes, list(range(2))):
     ax.set_xticks(distances_bandwise)
     ax.set_xlabel(f'Bandwise & length-normalised correlation coefficients for {label} to PCA dim {pca_dim + 1}')
     ax.set_ylim([0, 1])
-    ax.set_ylabel(r"spearman $\rho$")
+    ax.set_ylabel(r"pearson $\rho$")
 
     ax.legend(loc='lower right', title='')
 
-plt.suptitle(r'Correlations for variants of Hill mixed-use measures to PCA at increasing network decomposition')
+plt.suptitle(r'Hill mixed-uses correlated to PCA at increasing network decomposition')
 
 path = f'../phd-doc/doc/part_2/diversity/images/mixed_use_measures_corr_pca_decompositions.pdf'
 plt.savefig(path)
@@ -706,14 +714,14 @@ while len(class_code_list):
         data_5[k]['gini_simpson'].append(diversity.gini_simpson_diversity(classes_counts))
         data_5[k]['raos_quad'].append(diversity.raos_quadratic_diversity(classes_unique, wt_matrix))
 
-#  %%
+ #%%
 '''
 6C
 '''
 
 util_funcs.plt_setup()
 
-fig, axes = plt.subplots(2, 1, figsize=(8, 12))
+fig, axes = plt.subplots(2, 1, figsize=(7, 7))
 
 lw_1 = 4
 lw_2 = 1
@@ -759,49 +767,124 @@ for ax, y_top, x_right in zip(axes, [None, 30], [5000, 500]):
     max_dist = 1600
     beta = data_5[k]['beta']
 
-    ax.plot(idx_arr, prep_arr(v['mu_hill_0'], x_right), linestyle=line_1, lw=lw_1, alpha=a_1, color=col_1,
-            label=r'Hill $_{q=0}$')
-    ax.plot(idx_arr, prep_arr(v['mu_hill_branch_wt_0'], x_right), linestyle=line_2, lw=lw_2, alpha=a_2, color=col_1,
-            label=r'Hill br. dist. wt. $_{q=0}$')
-    ax.plot(idx_arr, prep_arr(v['mu_hill_pairwise_wt_0'], x_right), linestyle=line_3, lw=lw_3, alpha=a_2, color=col_1,
-            label=r'Hill pw. dist. wt. $_{q=0}$')
-    ax.plot(idx_arr, prep_arr(v['mu_hill_dispar_wt_0'], x_right), linestyle=line_4, lw=lw_4, alpha=a_2, marker=marker_4,
-            color=col_1, label=r'Hill cl. disp. wt. $_{q=0}$')
-
-    ax.plot(idx_arr, prep_arr(v['mu_hill_1'], x_right), linestyle=line_1, lw=lw_1, alpha=a_1, color=col_2,
-            label=r'Hill $_{q=1}$')
-    ax.plot(idx_arr, prep_arr(v['mu_hill_branch_wt_1'], x_right), linestyle=line_2, lw=lw_2, alpha=a_2, color=col_2,
-            label=r'Hill br. dist. wt. $_{q=1}$')
-    ax.plot(idx_arr, prep_arr(v['mu_hill_pairwise_wt_1'], x_right), linestyle=line_3, lw=lw_3, alpha=a_2, color=col_2,
-            label=r'Hill pw. dist. wt. $_{q=1}$')
-    ax.plot(idx_arr, prep_arr(v['mu_hill_dispar_wt_1'], x_right), linestyle=line_4, lw=lw_4, alpha=a_2, marker=marker_4,
-            color=col_2, label=r'Hill cl. disp. wt. $_{q=1}$')
-
-    ax.plot(idx_arr, prep_arr(v['mu_hill_2'], x_right), linestyle=line_1, lw=lw_1, alpha=a_1, color=col_3,
-            label=r'Hill $_{q=2}$')
-    ax.plot(idx_arr, prep_arr(v['mu_hill_branch_wt_2'], x_right), linestyle=line_2, lw=lw_2, alpha=a_2, color=col_3,
-            label=r'Hill br. dist. wt. $_{q=2}$')
-    ax.plot(idx_arr, prep_arr(v['mu_hill_pairwise_wt_2'], x_right), linestyle=line_3, lw=lw_3, alpha=a_2, color=col_3,
-            label=r'Hill pw. dist. wt. $_{q=2}$')
-    ax.plot(idx_arr, prep_arr(v['mu_hill_dispar_wt_2'], x_right), linestyle=line_4, lw=lw_4, alpha=a_2, marker=marker_4,
-            color=col_3, label=r'Hill cl. disp. wt. $_{q=2}$')
-
-    ax.plot(idx_arr, prep_arr(v['shannon'], x_right), linestyle='-', lw=1, alpha=a_2, color='C6', marker='.',
+    ax.plot(idx_arr,
+            prep_arr(v['mu_hill_0'], x_right),
+            linestyle=line_1,
+            lw=lw_1,
+            alpha=a_1,
+            color=col_1,
+            label=r'$H_{0}$')
+    ax.plot(idx_arr,
+            prep_arr(v['mu_hill_branch_wt_0'], x_right),
+            linestyle=line_2,
+            lw=lw_2,
+            alpha=a_2,
+            color=col_1,
+            label=r'$H_{0}$ b.w.')
+    ax.plot(idx_arr,
+            prep_arr(v['mu_hill_pairwise_wt_0'], x_right),
+            linestyle=line_3,
+            lw=lw_3,
+            alpha=a_2,
+            color=col_1,
+            label=r'$H_{0}$ p.w.')
+    ax.plot(idx_arr,
+            prep_arr(v['mu_hill_dispar_wt_0'], x_right),
+            linestyle=line_4,
+            lw=lw_4,
+            alpha=a_2,
+            marker=marker_4,
+            color=col_1,
+            label=r'$H_{0}$ d.w.')
+    ax.plot(idx_arr,
+            prep_arr(v['mu_hill_1'], x_right),
+            linestyle=line_1,
+            lw=lw_1,
+            alpha=a_1,
+            color=col_2,
+            label=r'$H_{1}$')
+    ax.plot(idx_arr,
+            prep_arr(v['mu_hill_branch_wt_1'], x_right),
+            linestyle=line_2,
+            lw=lw_2,
+            alpha=a_2,
+            color=col_2,
+            label=r'$H_{1}$ b.w.')
+    ax.plot(idx_arr,
+            prep_arr(v['mu_hill_pairwise_wt_1'], x_right),
+            linestyle=line_3,
+            lw=lw_3,
+            alpha=a_2,
+            color=col_2,
+            label=r'$H_{1}$ p.w.')
+    ax.plot(idx_arr,
+            prep_arr(v['mu_hill_dispar_wt_1'], x_right),
+            linestyle=line_4,
+            lw=lw_4,
+            alpha=a_2,
+            marker=marker_4,
+            color=col_2,
+            label=r'$H_{1}$ d.w.')
+    ax.plot(idx_arr,
+            prep_arr(v['mu_hill_2'], x_right),
+            linestyle=line_1,
+            lw=lw_1,
+            alpha=a_1,
+            color=col_3,
+            label=r'$H_{2}$')
+    ax.plot(idx_arr,
+            prep_arr(v['mu_hill_branch_wt_2'], x_right),
+            linestyle=line_2,
+            lw=lw_2,
+            alpha=a_2,
+            color=col_3,
+            label=r'$H_{2}$ b.w.')
+    ax.plot(idx_arr,
+            prep_arr(v['mu_hill_pairwise_wt_2'], x_right),
+            linestyle=line_3,
+            lw=lw_3,
+            alpha=a_2,
+            color=col_3,
+            label=r'$H_{2}$ p.w.')
+    ax.plot(idx_arr,
+            prep_arr(v['mu_hill_dispar_wt_2'], x_right),
+            linestyle=line_4,
+            lw=lw_4,
+            alpha=a_2,
+            marker=marker_4,
+            color=col_3,
+            label=r'$H_{2}$ d.w.')
+    ax.plot(idx_arr,
+            prep_arr(v['shannon'], x_right),
+            linestyle='-',
+            lw=1,
+            alpha=a_2,
+            color='C6',
+            marker='.',
             label='Shannon')
-    ax.plot(idx_arr, prep_arr(v['gini_simpson'], x_right), linestyle=':', lw=1.5, alpha=a_3, color='C5',
-            label='Gini-Simpson')
-    ax.plot(idx_arr, prep_arr(v['raos_quad'], x_right), linestyle='-', lw=1, alpha=a_2, color='C3', marker='x',
-            label='Rao / Stirling')
-
-    ax.set_xlim(left=0, right=x_right)
-    ax.set_xlabel(
-        'Computed diversity for sets from 1 to ' + str(x_right) + r' classification codes ' +
-        r'$_{location:\ ' + str(round(data_lng, 3)) + r'\ lng,\ ' + str(round(data_lat, 3)) + r'\ lat\ ' +
-        r'd_{max}=' + str(max_dist) + r'm\ ' +
-        r'\beta=' + str(beta) + '}$')
-    ax.set_ylim(bottom=0, top=y_top)
+    ax.plot(idx_arr,
+            prep_arr(v['gini_simpson'], x_right),
+            linestyle=':',
+            lw=1.5,
+            alpha=a_3,
+            color='C5',
+            label='Gini')
+    ax.plot(idx_arr,
+            prep_arr(v['raos_quad'], x_right),
+            linestyle='-',
+            lw=1,
+            alpha=a_2,
+            color='C3',
+            marker='x',
+            label='Rao')
+    ax.set_xlim(left=0,
+                right=x_right)
+    fig.suptitle('Mixed use calculations for a 1600m radius from London Leicester Square')
+    ax.set_xlabel('Computed diversity for sets from 1 to ' + str(x_right) + r' classification codes.')
+    ax.set_ylim(bottom=0,
+                top=y_top)
     ax.set_ylabel('diversity / effective number of uses')
-    ax.legend(loc='upper right', title='')
+    ax.legend(loc='upper right')
 
 path = f'../phd-doc/doc/part_2/diversity/images/mixed_uses_random_removal.pdf'
 plt.savefig(path)

@@ -4,20 +4,24 @@ import numpy as np
 
 from src import util_funcs
 
-# %%
+#  %%
 # solve for beta using: log(1/y)/d where y = 0.01831563888873418
 # or, per Elsa's comment: beta = 4 / d_tau
 w_min = 0.01831563888873418
 betas = []
-for d_max in [50, 100, 150, 200, 300, 400, 600, 800, 1200, 1600]:
-    betas.append(np.log(1 / w_min) / d_max)
-# [0.08, 0.04, 0.02666666666666667, 0.02, 0.013333333333333334, 0.01, 0.006666666666666667, 0.005, 0.0033333333333333335, 0.0025]
+distances = np.array([50, 100, 150, 200, 300, 400, 600, 800, 1200, 1600])
+betas_a = np.log(1 / w_min) / distances
+betas_b = 4 / distances
+assert np.allclose(betas_a, betas_b)
+assert np.allclose(betas_a,
+                   np.array([0.08, 0.04, 0.0267, 0.02, 0.0134, 0.01, 0.0067, 0.005, 0.0035, 0.0025]),
+                   atol=0.001,
+                   rtol=0.0)
 
-
-# %%
+#  %%
 util_funcs.plt_setup()
 
-fig, ax = plt.subplots(1, 1, figsize=(5, 2.5))
+fig, ax = plt.subplots(1, 1, figsize=(7, 3.5))
 w_min = 0.01831563888873418
 # set the betas
 betas = []
@@ -33,7 +37,7 @@ for d_max in distances:
         spacer = '\ '
     else:
         spacer = '\ \ \ '
-    ax.plot(distances_arr, y_falloff, label=r'$d_{max}=' + f'{d_max}' + spacer + f'\ \\beta={round(-beta, 4)}$')
+    ax.plot(distances_arr, y_falloff, lw=1.25, label=r'$d_{max}=' + f'{d_max}' + spacer + f'\ \\beta={round(-beta, 4)}$')
 
 # add w_min
 plt.axhline(y=w_min, ls='--', lw=0.5, c='grey')

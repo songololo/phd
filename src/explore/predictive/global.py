@@ -41,7 +41,7 @@ df = util_funcs.load_data_as_pd_df(
 
 util_funcs.plt_setup()
 
-fig, axes = plt.subplots(1, 2, sharey='row', figsize=(6, 3))
+fig, axes = plt.subplots(1, 2, sharey='row', figsize=(7, 3.5))
 
 # data
 d = df.dropna(how='all')
@@ -117,7 +117,7 @@ plt.show()
 # clear previous figures and set matplotlib defaults
 util_funcs.plt_setup()
 
-fig, axes = plt.subplots(1, 2, sharey='row', figsize=(6, 3))
+fig, axes = plt.subplots(1, 2, sharey='row', figsize=(7, 3.5))
 
 # data
 d = df.dropna(how='all')
