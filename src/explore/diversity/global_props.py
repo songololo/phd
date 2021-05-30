@@ -66,7 +66,7 @@ axes[0].plot(x_fit_line,
 slope, intercept, rvalue, pvalue, stderr = stats.linregress(np.log(pop), np.log(species_count))
 axes[0].plot(x_fit_line,
              np.exp(slope * np.log(x_fit_line) + intercept),
-             label=f'$log(POI)=m log(P) + c$ where $m={round(slope, 2)}\ c={round(intercept, 2)}$',
+             label=f'$log(POI)=m \cdot log(P) + c$ where $m={round(slope, 2)}\ c={round(intercept, 2)}$',
              alpha=Style.alt_col_hl2_a,
              color=Style.alt_col_hl2,
              linestyle='-',
@@ -81,12 +81,12 @@ scat = axes[0].scatter(x=pop,
                        edgecolors='white',
                        linewidths=0.2,
                        zorder=2)
-axes[0].axhline(500,
+axes[0].axhline(700,
                 linewidth=0.4,
                 color='dimgrey',
                 linestyle='--')
 axes[0].text(10 ** 7.5,
-             5030,
+             725,
              'P.O.I. falloff at pop $x_{min}=5000$',
              horizontalalignment='right',
              fontdict={'size': 'xx-small'})
@@ -111,7 +111,7 @@ axes[1].scatter(x=count_dens,
                 edgecolors='white',
                 linewidths=0.2,
                 zorder=2)
-axes[1].axhline(500,
+axes[1].axhline(700,
                 linewidth=0.4,
                 color='dimgrey',
                 linestyle='--')
@@ -129,7 +129,7 @@ axes[1].set_xlim(3, 60)
 path = f'../phd-doc/doc/part_2/diversity/images/global_poi_count_pop.pdf'
 plt.savefig(path)
 
-#  %% plot population vs. unique number of POI
+# %% plot population vs. unique number of POI
 # clear previous figures and set matplotlib defaults
 util_funcs.plt_setup()
 fig, axes = plt.subplots(1, 2, figsize=(7, 3.5))
@@ -169,15 +169,15 @@ axes[0].scatter(x=pop,
                 marker='.',
                 edgecolors='white',
                 linewidths=0.2, zorder=2)
-axes[0].axhline(620,
+axes[0].axhline(616,
                 linewidth=0.4,
                 color='dimgrey',
                 linestyle='--')
 axes[0].text(5200,
-             616,
+             620,
              'taxonomic limit ($616$)',
              verticalalignment='bottom',
-             fontdict={'size': 5})
+             fontdict={'size': 'xx-small'})
 axes[0].set_xscale('log')
 axes[0].set_xlabel('Population per town / city')
 axes[0].set_xlim(5000, 10 ** 7.5)
@@ -212,12 +212,12 @@ scat = axes[1].scatter(x=pop,
                 edgecolors='white',
                 linewidths=0.2,
                 zorder=2)
-axes[1].axhline(620,
+axes[1].axhline(616,
                 linewidth=0.4,
                 color='dimgrey',
                 linestyle='--')
 axes[1].text(5200,
-             620,
+             617,
              'taxonomic limit ($616$)',
              verticalalignment='bottom',
              fontdict={'size': 'xx-small'})

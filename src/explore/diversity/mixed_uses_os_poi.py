@@ -5,7 +5,7 @@ import asyncpg
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from scipy.stats import pearsonr
+from scipy.stats import spearmanr
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 
@@ -29,16 +29,15 @@ columns = [
 ]
 
 columns_base = [
-    'c_segment_beta',
+    # using segment density weighted by distance
+    'c_segment_beta_',
     'mu_hill_0',
     'mu_hill_1',
     'mu_hill_2',
     'mu_hill_branch_wt_0',
     'mu_hill_branch_wt_1',
     'mu_hill_branch_wt_2',
-    'mu_hill_pairwise_wt_0',
-    'mu_hill_pairwise_wt_1',
-    'mu_hill_pairwise_wt_2',
+    # pairwise gives very similar results to branch weighted, so have removed
     'mu_hill_dispar_wt_0',
     'mu_hill_dispar_wt_1',
     'mu_hill_dispar_wt_2',
@@ -66,39 +65,12 @@ columns_base = [
     'ac_total'
 ]
 col_template = '{col}[{i}] as {col}_{dist}'
-distances = [50, 100, 200, 300, 400, 600, 800, 1000, 1200, 1600]
+distances = [50, 100, 200, 300, 400, 600, 800, 1200, 1600]
 for col_base in columns_base:
     for i, d in enumerate(distances):
         columns.append(col_template.format(col=col_base, i=i + 1, dist=d))
 # bandwise distances do not include 50m
 distances_bandwise = distances[1:]
-
-
-def get_band(df, dist, target, seg_beta_norm=False):
-    # don't want to use 50 - otherwise distance steps are inconsistent
-    if dist == 50:
-        print('Dont use 50')
-        return None
-    # the first band does not subtract anything
-    elif dist == 100:
-        t = df[target.format(dist=100)]
-        s = df[f'c_segment_beta_{dist}']
-    # subsequent bands subtract the prior band
-    else:
-        lag_dist = dist - 100
-        t_cur = df[target.format(dist=dist)]
-        t_lag = df[target.format(dist=lag_dist)]
-        t = t_cur - t_lag
-        s_cur = df[f'c_segment_beta_{dist}']
-        s_lag = df[f'c_segment_beta_{lag_dist}']
-        s = s_cur - s_lag
-    # whether or not to normalise values by edge lengths at equivalent betas
-    if not seg_beta_norm:
-        return t
-    else:
-        v = t.values / s.values
-        v[np.isnan(v)] = 0
-        return v
 
 
 #  %%
@@ -131,7 +103,7 @@ df_20 = util_funcs.load_data_as_pd_df(db_config,
 df_20 = df_20.set_index('id')
 df_20 = util_funcs.clean_pd(df_20, drop_na='all', fill_inf=np.nan)
 
-#%%
+# %%
 '''
 plot the geographic maps showing the distribution of respective mixed use measures
 '''
@@ -164,7 +136,8 @@ for theme_set, theme_labels, t_meta, p_meta, weighted in zip(theme_sets,
     util_funcs.plt_setup()
     fig, axes = plt.subplots(3, 2, figsize=(7, 11))
     for t_idx, (t, label) in enumerate(zip(theme_set, theme_labels)):
-        for d_idx, (dist, beta) in enumerate(zip([300, 1000], [r'-0.01\bar{3}', r'-0.004'])):
+        for d_idx, (dist, beta) in enumerate(zip([200, 800],
+                                                 [r'-0.02', r'-0.005'])):
             ax = axes[t_idx][d_idx]
             theme = t.format(dist=dist)
             data = df_20[theme]
@@ -181,7 +154,7 @@ for theme_set, theme_labels, t_meta, p_meta, weighted in zip(theme_sets,
     path = f'../phd-doc/doc/part_2/diversity/images/diversity_comparisons_{p_meta}.pdf'
     plt.savefig(path, dpi=300)
 
-#%% prepare PCA
+# %% prepare PCA
 # use of bands gives slightly more defined delineations for latent dimensions
 pca_columns_dist = [
     'ac_accommodation_{dist}',
@@ -223,28 +196,57 @@ for c in pca_columns_dist:
     lb = lb.replace('sports', 'sport')
     pca_columns_labels.append(lb)
 
+
+def get_band(_df, curr_dist, target_column, seg_beta_norm=False):
+    d_idx = distances.index(curr_dist)
+    if d_idx == 0:
+        print(f'No trailing edge for distance {curr_dist}m')
+        target_band = _df.loc[:, target_column.format(dist=curr_dist)]
+        seg_density_band = _df[f'c_segment_beta_{curr_dist}']
+    else:
+        lag_idx = d_idx - 1
+        lag_dist = distances[lag_idx]
+        print(f'Trailing edge: {lag_dist}m')
+        target_band = \
+            _df.loc[:, target_column.format(dist=curr_dist)] - _df.loc[:, target_column.format(dist=lag_dist)]
+        seg_density_band = _df[f'c_segment_beta_{curr_dist}'] - _df[f'c_segment_beta_{lag_dist}']
+    # whether or not to normalise values by edge lengths at equivalent betas
+    if not seg_beta_norm:
+        return target_band.values
+    else:
+        band_normalised = target_band.values / seg_density_band.values
+        band_normalised[np.isnan(band_normalised)] = 0
+        return band_normalised
+
+
 X_raw = []
 pca_models = []
 pca_transformed = []
-for table in [df_full, df_100, df_50, df_20]:
+for curr_df in [df_full, df_100, df_50, df_20]:
     X_pca = {}
-    abbrev_dist = [100, 200, 300, 400, 600, 800, 1200, 1600]
-    for c in pca_columns_dist:
-        for d in abbrev_dist:
+    for target_col in pca_columns_dist:
+        # use the full distances minus 50m (no lag) so that PCA dim#2 sign doesn't flip
+        for target_dist in distances:
             # bandwise and normalised gives cleanest principal components
-            X_pca[c.format(dist=d)] = np.array(get_band(table, d, c, seg_beta_norm=True))
+            X_pca[target_col.format(dist=target_dist)] = get_band(curr_df,
+                                                                  target_dist,
+                                                                  target_col,
+                                                                  seg_beta_norm=True)
     # create dataframe
     X_df = pd.DataFrame.from_dict(data=X_pca)
     X_raw.append(X_df)
     # transform
     X_df_trans = StandardScaler().fit_transform(X_df)
     # create model and fit
-    model = PCA(n_components=4, whiten=False)
+    model = PCA(n_components=4)
     model.fit(X_df_trans)
     pca_models.append(model)
-    pca_transformed.append(model.transform(X_df_trans))
+    _transformed = model.transform(X_df_trans)
+    # flip sign for PCA # 2
+    _transformed[:, 1] *= -1
+    pca_transformed.append(_transformed)
 
-# %%
+ # %%
 '''
 plot PCA components
 '''
@@ -256,13 +258,16 @@ exp_var_ratio = model_20.explained_variance_ratio_
 # eigenvector by eigenvalue - i.e. correlation to original
 loadings = model_20.components_.T * np.sqrt(exp_var)
 loadings = loadings.T  # transform for slicing
+# flip sign for second component
+# transformed PCA are already flipped
+loadings[1, :] *= -1
 # plot
 exp_var_str = [f'{e_v:.1%}' for e_v in exp_var_ratio]
 # clip out lower outliers to clean up plot
-X_pca_20_clipped = np.clip(X_pca_20, np.percentile(X_pca_20, 2.5), np.percentile(X_pca_20, 100))
+X_pca_20_clipped = np.clip(X_pca_20, np.percentile(X_pca_20, 2), np.percentile(X_pca_20, 100))
 plot_funcs.plot_components(list(range(4)),
                            pca_columns_labels,
-                           abbrev_dist,
+                           [f'{d}m' for d in distances],
                            None,  # X ignored if loadings is not None
                            X_pca_20_clipped,
                            df_20.x,
@@ -276,6 +281,7 @@ plot_funcs.plot_components(list(range(4)),
                            c_exp=1,
                            s_exp=2,
                            cbar=True,
+                           cbar_label='PCA loadings',
                            figsize=(7, 8))
 plt.suptitle(f'First 4 PCA components from POI landuse accessibilities')
 path = f'../phd-doc/doc/part_2/diversity/images/PCA.pdf'
@@ -348,9 +354,6 @@ themes = ['mu_hill_0_{dist}',
           'mu_hill_branch_wt_0_{dist}',
           'mu_hill_branch_wt_1_{dist}',
           'mu_hill_branch_wt_2_{dist}',
-          'mu_hill_pairwise_wt_0_{dist}',
-          'mu_hill_pairwise_wt_1_{dist}',
-          'mu_hill_pairwise_wt_2_{dist}',
           'mu_hill_dispar_wt_0_{dist}',
           'mu_hill_dispar_wt_1_{dist}',
           'mu_hill_dispar_wt_2_{dist}',
@@ -364,9 +367,6 @@ labels = ['$H_{0}$',
           '$H_{0}$ b.w.',
           '$H_{1}$ b.w.',
           '$H_{2}$ b.w.',
-          '$H_{0}$ p.w.',
-          '$H_{1}$ p.w.',
-          '$H_{2}$ p.w.',
           '$H_{0}$ d.w.',
           '$H_{1}$ d.w.',
           '$H_{2}$ d.w.',
@@ -379,7 +379,7 @@ for pca_dim in range(2):
     print(f'Processing dimension {pca_dim + 1}')
     # setup the plot
     util_funcs.plt_setup()
-    fig, axes = plt.subplots(2, 2, figsize=(7, 12.25))
+    fig, axes = plt.subplots(2, 2, figsize=(7, 10))
     # fetch the slice
     X_pca_20 = pca_transformed[-1]
     pca_slice = X_pca_20[:, pca_dim]
@@ -387,10 +387,10 @@ for pca_dim in range(2):
     for ax_row_n, (ax_row, bandwise) in enumerate(zip(axes, [False, True])):
         for ax_col_n, (ax, seg_norm) in enumerate(zip(ax_row, [False, True])):
             # create an empty numpy array for containing the correlations
-            corrs = np.full((len(themes), len(distances_bandwise)), np.nan)
+            corrs = np.full((len(themes), len(distances)), np.nan)
             # calculate the correlations for each type and respective distance of mixed-use measure
             for t_idx, (theme, label) in enumerate(zip(themes, labels)):
-                for d_idx, dist in enumerate(distances_bandwise):
+                for d_idx, dist in enumerate(distances):
                     # if bandwise - seg_norm case handled internally
                     if bandwise:
                         v = get_band(df_20, dist, theme, seg_beta_norm=seg_norm)
@@ -402,25 +402,16 @@ for pca_dim in range(2):
                             v = v.values / s.values
                             # 14 locations with 0 segment beta weight
                             v[np.isnan(v)] = 0
-                    corrs[t_idx][d_idx] = pearsonr(v, pca_slice)[0]
-            if ax_col_n == 0:
-                display_row_labels = True
-            else:
-                display_row_labels = False
-            if ax_row_n == 0:
-                display_col_labels = False
-                cbar = False
-            else:
-                display_col_labels = True
-                cbar = True
+                    corrs[t_idx][d_idx] = spearmanr(v, pca_slice)[0]
             # plot
             im = plot_funcs.plot_heatmap(ax,
                                          corrs,
                                          row_labels=labels,
-                                         col_labels=distances_bandwise,
-                                         set_col_labels=display_col_labels,
-                                         set_row_labels=display_row_labels,
-                                         cbar=cbar,
+                                         col_labels=[f'{d}m' for d in distances],
+                                         set_col_labels=ax_row_n == 0,
+                                         set_row_labels=ax_col_n == 0,
+                                         cbar=ax_row_n == 0,
+                                         cbar_label=r"Spearman $\rho$ correlation",
                                          text=corrs.round(2))
             if bandwise and seg_norm:
                 ax_title = f'Bandwise & length-normalised to PCA {pca_dim + 1}.'
@@ -431,12 +422,9 @@ for pca_dim in range(2):
             else:
                 ax_title = f'Correlations for mixed-uses to PCA {pca_dim + 1}.'
             ax.set_xlabel(ax_title)
-
-    plt.suptitle(r'Pearson $\rho$ ' + f'correlations for mixed-use measures to PCA component {pca_dim + 1}',
-)
+    plt.suptitle(r'Spearman $\rho$ ' + f'correlations for mixed-use measures to PCA component {pca_dim + 1}')
     path = f'../phd-doc/doc/part_2/diversity/images/mixed_use_measures_correlated_pca_{pca_dim + 1}.pdf'
     plt.savefig(path)
-
 
 # %%
 '''
@@ -458,16 +446,16 @@ for ax, pca_dim in zip(axes, list(range(2))):
         # x_theme = theme.format(dist=dist)
         # full graph
         v = get_band(df_full, dist, theme, seg_beta_norm=True)
-        corrs_full.append(pearsonr(v, pca_transformed[0][:, pca_dim])[0])
+        corrs_full.append(spearmanr(v, pca_transformed[0][:, pca_dim])[0])
         # 100 graph
         v = get_band(df_100, dist, theme, seg_beta_norm=True)
-        corrs_100.append(pearsonr(v, pca_transformed[1][:, pca_dim])[0])
+        corrs_100.append(spearmanr(v, pca_transformed[1][:, pca_dim])[0])
         # 50 graph
         v = get_band(df_50, dist, theme, seg_beta_norm=True)
-        corrs_50.append(pearsonr(v, pca_transformed[2][:, pca_dim])[0])
+        corrs_50.append(spearmanr(v, pca_transformed[2][:, pca_dim])[0])
         # 20 graph
         v = get_band(df_20, dist, theme, seg_beta_norm=True)
-        corrs_20.append(pearsonr(v, pca_transformed[3][:, pca_dim])[0])
+        corrs_20.append(spearmanr(v, pca_transformed[3][:, pca_dim])[0])
 
     a = 1
     lw = 1
@@ -483,7 +471,7 @@ for ax, pca_dim in zip(axes, list(range(2))):
     ax.set_xticks(distances_bandwise)
     ax.set_xlabel(f'Bandwise & length-normalised correlation coefficients for {label} to PCA dim {pca_dim + 1}')
     ax.set_ylim([0, 1])
-    ax.set_ylabel(r"pearson $\rho$")
+    ax.set_ylabel(r"spearman $\rho$")
 
     ax.legend(loc='lower right', title='')
 
@@ -714,7 +702,7 @@ while len(class_code_list):
         data_5[k]['gini_simpson'].append(diversity.gini_simpson_diversity(classes_counts))
         data_5[k]['raos_quad'].append(diversity.raos_quadratic_diversity(classes_unique, wt_matrix))
 
- #%%
+#  %%
 '''
 6C
 '''

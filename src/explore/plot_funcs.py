@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-from scipy.stats import pearsonr
+from scipy.stats import spearmanr
 from sklearn.preprocessing import minmax_scale
 
 from src import util_funcs
@@ -117,7 +117,7 @@ def correlate_heatmap(n_columns, n_distances, X_raw, X_latent_arr):
     counter = 0
     for i in range(n_columns):
         for j in range(n_distances):
-            heatmap_corrs[i][j] = pearsonr(X_raw[:, counter], X_latent_arr)[0]
+            heatmap_corrs[i][j] = spearmanr(X_raw[:, counter], X_latent_arr)[0]
             counter += 1
     return heatmap_corrs
 
@@ -131,6 +131,7 @@ def plot_heatmap(heatmap_ax,
                  dark: bool = False,
                  constrain: tuple = (-1, 1),
                  cbar: bool = False,
+                 cbar_label: str = '',
                  text: np.ndarray = None,
                  cmap=None,
                  tick_fontsize='x-small',
@@ -163,7 +164,9 @@ def plot_heatmap(heatmap_ax,
         heatmap_ax.set_yticks(list(range(len(row_labels))))
     if col_labels is not None:
         heatmap_ax.set_xticks(list(range(len(col_labels))))
-
+    # place ticks at top
+    heatmap_ax.xaxis.tick_top()
+    # row labels
     if row_labels is not None and set_row_labels:
         y_labels = [str(l) for l in row_labels]
         heatmap_ax.set_yticklabels(y_labels,
@@ -171,7 +174,7 @@ def plot_heatmap(heatmap_ax,
                                    fontsize=tick_fontsize)
     else:
         heatmap_ax.set_yticklabels([])
-
+    # col labels
     if col_labels is not None and set_col_labels:
         x_labels = [str(l) for l in col_labels]
         heatmap_ax.set_xticklabels(x_labels,
@@ -179,19 +182,17 @@ def plot_heatmap(heatmap_ax,
                                    fontsize=tick_fontsize)
     else:
         heatmap_ax.set_xticklabels([])
-
+    # colorbar
     if cbar:
-        divider = make_axes_locatable(heatmap_ax)
-        cax = divider.append_axes('top', size='2%', pad=0.05)
+        # DON'T mess around with cax / adding axes because this doesn't play nicely with title positioning etc.
         cbar = plt.colorbar(im,
-                            cax=cax,
-                            aspect=100,
+                            ax=heatmap_ax,
+                            aspect=50,
                             pad=0.02,
                             orientation='horizontal',
                             ticks=[constrain[0], 0.0, constrain[1]])
-        title = r"Pearson's $\rho$ correlation"
-        cbar.ax.set_xticklabels([constrain[0], title, constrain[1]])
-        cbar.ax.xaxis.set_ticks_position('top')
+        cbar.ax.set_xticklabels([constrain[0], cbar_label, constrain[1]])
+        cbar.ax.xaxis.set_ticks_position('bottom')
     if text is not None:
         for row_idx in range(text.shape[0]):
             for col_idx in range(text.shape[1]):
@@ -231,6 +232,7 @@ def plot_components(component_idxs,
                     c_exp=1,
                     s_exp=1,
                     cbar=False,
+                    cbar_label: str = '',
                     figsize=None,
                     rasterized=True):
     n_rows = 2
@@ -272,7 +274,8 @@ def plot_components(component_idxs,
                      set_row_labels=(label_all or n == 0),
                      set_col_labels=True,
                      dark=dark,
-                     cbar=cbar)
+                     cbar=cbar,
+                     cbar_label=cbar_label)
         col_data = X_latent[:, comp_idx]
         # map
         plot_scatter(map_ax,

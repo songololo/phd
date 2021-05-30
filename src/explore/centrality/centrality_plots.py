@@ -75,8 +75,8 @@ def get_band(df, dist, target, all_distances):
 
 #  %% load nodes data
 col_template = '{col}[{i}] as {col}_{dist}'
-all_distances = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 3200, 4800,
-                 6400, 8000]
+all_distances = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000,
+                 1100, 1200, 1300, 1400, 1500, 1600, 3200, 4800, 6400, 8000]
 columns = [c for c in columns_base]
 columns += [c for c in columns_rdm]
 for col in columns_interp:
@@ -145,7 +145,7 @@ for d in distances:
     df_20[f'conv_close_norm_{d}'] = df_20[f'c_node_density_{d}'] / df_20[f'c_node_farness_{d}']
 
 
-#  %%
+# %%
 '''
 correlation matrix plot
 '''
