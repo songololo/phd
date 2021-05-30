@@ -1,34 +1,32 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 from scipy.stats import spearmanr
 from sklearn.preprocessing import minmax_scale
 
 from src import util_funcs
 
 
-def view_idx(xs, ys, x_extents, y_extents, relative_extents):
-    if relative_extents:
-        x_mu = np.mean(xs)
-        x_left = x_mu + x_extents[0]
-        x_right = x_mu + x_extents[1]
-        y_mu = np.mean(ys)
-        y_bottom = y_mu + y_extents[0]
-        y_top = y_mu + y_extents[1]
-    else:
-        x_left = x_extents[0]
-        x_right = x_extents[1]
-        y_bottom = y_extents[0]
-        y_top = y_extents[1]
-
+def view_idx(xs, ys, x_left, x_right, y_bottom, y_top):
     select = xs > x_left
     select = np.logical_and(select, xs < x_right)
     select = np.logical_and(select, ys > y_bottom)
     select = np.logical_and(select, ys < y_top)
     select_idx = np.where(select)[0]
 
-    return select_idx, x_left, x_right, y_bottom, y_top
+    return select_idx
 
+
+def dynamic_view_extent(fig, ax, km_per_inch: float, centre: tuple):
+    bbox = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+    width, height = bbox.width, bbox.height
+    width_m = width * km_per_inch * 1000
+    height_m = height * km_per_inch * 1000
+    x_left = centre[0] - width_m / 2
+    x_right = centre[0] + width_m / 2
+    y_bottom = centre[1] - height_m / 2
+    y_top = centre[1] + height_m / 2
+
+    return x_left, x_right, y_bottom, y_top
 
 def prepare_v(vals):
     # don't reshape distribution: emphasise larger values if necessary using exponential
@@ -44,14 +42,14 @@ def prepare_v(vals):
 '''
 provide vals, otherwise provide explicit c and s params to override
 '''
-def plot_scatter(ax,
+def plot_scatter(fig,
+                 ax,
                  xs,
                  ys,
                  vals=None,
                  dark=False,
-                 x_extents=(-1250, 3750),
-                 y_extents=(-5000, 7000),
-                 relative_extents=True,
+                 centre=(530335, 182985),
+                 km_per_inch=4,
                  s_min=0,
                  s_max=0.6,
                  c_exp=1,
@@ -59,22 +57,21 @@ def plot_scatter(ax,
                  cmap=None,
                  rasterized=True,
                  **kwargs):
-    '''
-    :param relative_extents: Uses the centrepoint of all points as a starting point.
-                             Set to False when using explicit extents.
-    '''
     if vals is not None and vals.ndim == 2:
         raise ValueError('Please pass a single dimensional array')
-
     if cmap is None:
         cmap = util_funcs.cityseer_cmap_red(dark=dark)
-
-    select_idx, x_left, x_right, y_bottom, y_top = view_idx(xs,
-                                                            ys,
-                                                            x_extents,
-                                                            y_extents,
-                                                            relative_extents)
-
+    # get extents relative to centre and ax size
+    x_left, x_right, y_bottom, y_top = dynamic_view_extent(fig,
+                                                           ax,
+                                                           km_per_inch,
+                                                           centre=centre)
+    select_idx = view_idx(xs,
+                          ys,
+                          x_left,
+                          x_right,
+                          y_bottom,
+                          y_top)
     if 'c' in kwargs and isinstance(kwargs['c'], (list, np.ndarray)):
         c = np.array(kwargs['c'])
         kwargs['c'] = c[select_idx]
@@ -85,7 +82,6 @@ def plot_scatter(ax,
         # apply exponential - still [0, 1]
         c = v ** c_exp
         kwargs['c'] = c[select_idx]
-
     if 's' in kwargs and isinstance(kwargs['s'], (list, np.ndarray)):
         s = np.array(kwargs['s'])
         kwargs['s'] = s[select_idx]
@@ -95,7 +91,6 @@ def plot_scatter(ax,
         # rescale s to [s_min, s_max]
         s = minmax_scale(s, feature_range=(s_min, s_max))
         kwargs['s'] = s[select_idx]
-
     im = ax.scatter(xs[select_idx],
                     ys[select_idx],
                     linewidths=0,
@@ -103,7 +98,6 @@ def plot_scatter(ax,
                     cmap=cmap,
                     rasterized=rasterized,
                     **kwargs)
-
     ax.set_xlim(left=x_left, right=x_right)
     ax.set_ylim(bottom=y_bottom, top=y_top)
     ax.set_xticks([])
@@ -130,12 +124,9 @@ def plot_heatmap(heatmap_ax,
                  set_col_labels: bool = True,
                  dark: bool = False,
                  constrain: tuple = (-1, 1),
-                 cbar: bool = False,
-                 cbar_label: str = '',
                  text: np.ndarray = None,
                  cmap=None,
-                 tick_fontsize='x-small',
-                 grid_fontsize='xx-small'):
+                 grid_fontsize='x-small'):
     '''
     Modified to permit text only plots
     '''
@@ -158,41 +149,28 @@ def plot_heatmap(heatmap_ax,
     else:
         arr = np.full((len(row_labels), len(col_labels), 3), 1.0)
         im = heatmap_ax.imshow(arr, origin='upper')
-
     # set axes
     if row_labels is not None:
         heatmap_ax.set_yticks(list(range(len(row_labels))))
     if col_labels is not None:
         heatmap_ax.set_xticks(list(range(len(col_labels))))
-    # place ticks at top
-    heatmap_ax.xaxis.tick_top()
     # row labels
     if row_labels is not None and set_row_labels:
         y_labels = [str(l) for l in row_labels]
         heatmap_ax.set_yticklabels(y_labels,
-                                   rotation='horizontal',
-                                   fontsize=tick_fontsize)
+                                   rotation='horizontal')
     else:
         heatmap_ax.set_yticklabels([])
     # col labels
     if col_labels is not None and set_col_labels:
         x_labels = [str(l) for l in col_labels]
         heatmap_ax.set_xticklabels(x_labels,
-                                   rotation='vertical',
-                                   fontsize=tick_fontsize)
+                                   rotation='vertical')
     else:
         heatmap_ax.set_xticklabels([])
-    # colorbar
-    if cbar:
-        # DON'T mess around with cax / adding axes because this doesn't play nicely with title positioning etc.
-        cbar = plt.colorbar(im,
-                            ax=heatmap_ax,
-                            aspect=50,
-                            pad=0.02,
-                            orientation='horizontal',
-                            ticks=[constrain[0], 0.0, constrain[1]])
-        cbar.ax.set_xticklabels([constrain[0], cbar_label, constrain[1]])
-        cbar.ax.xaxis.set_ticks_position('bottom')
+    # move x ticks to top
+    heatmap_ax.xaxis.tick_top()
+    # text
     if text is not None:
         for row_idx in range(text.shape[0]):
             for col_idx in range(text.shape[1]):
@@ -212,6 +190,7 @@ def plot_heatmap(heatmap_ax,
                                 va='center',
                                 color=c,
                                 fontsize=grid_fontsize)
+    return im
 
 
 # %%
@@ -222,8 +201,9 @@ def plot_components(component_idxs,
                     X_latent,
                     xs,
                     ys,
-                    tag_string='',
-                    tag_values=None,
+                    title_tags=None,
+                    corr_tags=None,
+                    map_tags=None,
                     loadings=None,
                     dark=False,
                     label_all=True,
@@ -232,53 +212,45 @@ def plot_components(component_idxs,
                     c_exp=1,
                     s_exp=1,
                     cbar=False,
-                    cbar_label: str = '',
                     figsize=None,
                     rasterized=True):
     n_rows = 2
     n_cols = len(component_idxs)
-
     if figsize is None:
         figsize = (n_cols * 1.5, 8)
-
     util_funcs.plt_setup(dark=dark)
     fig, axes = plt.subplots(n_rows,
                              n_cols,
-                             figsize=figsize,
-                             gridspec_kw={
-                                 'height_ratios': [1] * n_rows,
-                                 'width_ratios': [1] * n_cols
-                             })
-
+                             figsize=figsize)
     # create heatmaps for original vectors plotted against the top PCA components
     for n, comp_idx in enumerate(component_idxs):
         print(f'processing component {comp_idx + 1}')
-
-        # split rows
-        heatmap_ax = axes[0][n]
-        map_ax = axes[1][n]
-
+        # loadings / correlations
         if loadings is not None:
-            l = loadings[comp_idx]
-            heatmap_corr = l.reshape(len(feature_labels), len(distances))
+            heatmap_corr = loadings[comp_idx].reshape(len(feature_labels),
+                                                      len(distances))
         else:
             heatmap_corr = correlate_heatmap(len(feature_labels),
                                              len(distances),
                                              X,
                                              X_latent[:, comp_idx])
-        # corr matrix
-        plot_heatmap(heatmap_ax,
-                     heatmap_corr,
-                     row_labels=feature_labels,
-                     col_labels=distances,
-                     set_row_labels=(label_all or n == 0),
-                     set_col_labels=True,
-                     dark=dark,
-                     cbar=cbar,
-                     cbar_label=cbar_label)
-        col_data = X_latent[:, comp_idx]
+        heatmap_ax = axes[0][n]
+        if title_tags is not None:
+            heatmap_ax.set_title(title_tags[n])
+        im = plot_heatmap(heatmap_ax,
+                          heatmap_corr,
+                          row_labels=feature_labels,
+                          col_labels=distances,
+                          set_row_labels=(label_all or n == 0),
+                          set_col_labels=True,
+                          dark=dark)
+        if corr_tags is not None:
+            heatmap_ax.set_xlabel(corr_tags[n])
         # map
-        plot_scatter(map_ax,
+        map_ax = axes[1][n]
+        col_data = X_latent[:, comp_idx]
+        plot_scatter(fig,
+                     map_ax,
                      xs,
                      ys,
                      col_data,
@@ -288,9 +260,16 @@ def plot_components(component_idxs,
                      c_exp=c_exp,
                      s_exp=s_exp,
                      rasterized=rasterized)
-        map_ax.set_title(f'Latent {comp_idx + 1}')
-        if tag_values is not None:
-            map_ax.set_xlabel(f'{tag_string} {tag_values[comp_idx]}')
+        if map_tags is not None:
+            map_ax.set_xlabel(map_tags[n])
+    if cbar:
+        fig.colorbar(im,
+                     ax=axes[0],
+                     aspect=50,
+                     pad=0.01,
+                     orientation='vertical',
+                     ticks=[-1, 0, 1],
+                     shrink=0.5)
 
 
 def plot_prob_clusters(X_raw,

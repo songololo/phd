@@ -72,7 +72,6 @@ for col_base in columns_base:
 # bandwise distances do not include 50m
 distances_bandwise = distances[1:]
 
-
 #  %%
 # load data
 df_full = util_funcs.load_data_as_pd_df(db_config,
@@ -134,27 +133,26 @@ for theme_set, theme_labels, t_meta, p_meta, weighted in zip(theme_sets,
                                                              theme_wt):
     print(f'processing metas: {t_meta}')
     util_funcs.plt_setup()
-    fig, axes = plt.subplots(3, 2, figsize=(7, 11))
+    fig, axes = plt.subplots(3, 2, figsize=(7, 10))
     for t_idx, (t, label) in enumerate(zip(theme_set, theme_labels)):
         for d_idx, (dist, beta) in enumerate(zip([200, 800],
                                                  [r'-0.02', r'-0.005'])):
             ax = axes[t_idx][d_idx]
             theme = t.format(dist=dist)
             data = df_20[theme]
-            plot_funcs.plot_scatter(ax,
+            plot_funcs.plot_scatter(fig,
+                                    ax,
                                     df_20.x,
                                     df_20.y,
+                                    km_per_inch=3.5,
                                     vals=data,
-                                    x_extents=(-5000, 6000),
-                                    y_extents=(-4500, 6500),
                                     s_exp=4)
             ax.set_xlabel(f'{label} ' + r'$d_{max}=' + f'{dist}m$')
-
     plt.suptitle(f'Plots of {t_meta} mixed-use measures for inner London')
     path = f'../phd-doc/doc/part_2/diversity/images/diversity_comparisons_{p_meta}.pdf'
     plt.savefig(path, dpi=300)
 
-# %% prepare PCA
+#  %% prepare PCA
 # use of bands gives slightly more defined delineations for latent dimensions
 pca_columns_dist = [
     'ac_accommodation_{dist}',
@@ -246,7 +244,7 @@ for curr_df in [df_full, df_100, df_50, df_20]:
     _transformed[:, 1] *= -1
     pca_transformed.append(_transformed)
 
- # %%
+#  %%
 '''
 plot PCA components
 '''
@@ -261,33 +259,32 @@ loadings = loadings.T  # transform for slicing
 # flip sign for second component
 # transformed PCA are already flipped
 loadings[1, :] *= -1
-# plot
-exp_var_str = [f'{e_v:.1%}' for e_v in exp_var_ratio]
 # clip out lower outliers to clean up plot
-X_pca_20_clipped = np.clip(X_pca_20, np.percentile(X_pca_20, 2), np.percentile(X_pca_20, 100))
-plot_funcs.plot_components(list(range(4)),
-                           pca_columns_labels,
-                           [f'{d}m' for d in distances],
-                           None,  # X ignored if loadings is not None
-                           X_pca_20_clipped,
-                           df_20.x,
-                           df_20.y,
-                           tag_string=r'explained $\sigma^{2}$',
-                           tag_values=exp_var_str,
-                           loadings=loadings,
-                           label_all=False,
-                           s_min=0,
-                           s_max=1,
-                           c_exp=1,
-                           s_exp=2,
-                           cbar=True,
-                           cbar_label='PCA loadings',
-                           figsize=(7, 8))
+X_pca_20_clipped = np.clip(X_pca_20,
+                           np.percentile(X_pca_20, 2),
+                           np.percentile(X_pca_20, 100))
+im = plot_funcs.plot_components([0, 1, 2, 3],
+                                pca_columns_labels,
+                                [f'{d}m' for d in distances],
+                                None,  # X ignored if loadings is not None
+                                X_pca_20_clipped,
+                                df_20.x,
+                                df_20.y,
+                                corr_tags=[f'Loadings #{n}' for n in range(1, 5)],
+                                map_tags=[r'explained $\sigma^{2}$' + f' {e_v:.1%}' for e_v in exp_var_ratio],
+                                loadings=loadings,
+                                label_all=False,
+                                s_min=0,
+                                 s_max=1,
+                                c_exp=1,
+                                s_exp=2,
+                                cbar=True,
+                                figsize=(7, 6.5))
 plt.suptitle(f'First 4 PCA components from POI landuse accessibilities')
 path = f'../phd-doc/doc/part_2/diversity/images/PCA.pdf'
 plt.savefig(path, dpi=300)
 
-# %%
+#  %%
 '''
 scatter and distributions for selected examples contrasting hill vs. non hill typical behaviour
 '''
@@ -342,7 +339,7 @@ plt.suptitle(f'A comparison of mixed-use measure distributions')
 path = f'../phd-doc/doc/part_2/diversity/images/mixed_uses_example_distributions.pdf'
 plt.savefig(path, dpi=300)
 
-# %%
+#  %%
 '''
 correlation matrix plots for all measures at all distances set against PCA dimensions
 one page each PCA dim
@@ -410,8 +407,6 @@ for pca_dim in range(2):
                                          col_labels=[f'{d}m' for d in distances],
                                          set_col_labels=ax_row_n == 0,
                                          set_row_labels=ax_col_n == 0,
-                                         cbar=ax_row_n == 0,
-                                         cbar_label=r"Spearman $\rho$ correlation",
                                          text=corrs.round(2))
             if bandwise and seg_norm:
                 ax_title = f'Bandwise & length-normalised to PCA {pca_dim + 1}.'
@@ -422,11 +417,20 @@ for pca_dim in range(2):
             else:
                 ax_title = f'Correlations for mixed-uses to PCA {pca_dim + 1}.'
             ax.set_xlabel(ax_title)
+    cbar = fig.colorbar(im,
+                        ax=axes,
+                        aspect=100,
+                        pad=0.01,
+                        orientation='horizontal',
+                        ticks=[-1.0, 0.0, 1.0])
+    cbar.ax.set_xticklabels([0, r'Spearman $\rho$ correlation', 1])
+    cbar.ax.xaxis.set_ticks_position('top')
+
     plt.suptitle(r'Spearman $\rho$ ' + f'correlations for mixed-use measures to PCA component {pca_dim + 1}')
     path = f'../phd-doc/doc/part_2/diversity/images/mixed_use_measures_correlated_pca_{pca_dim + 1}.pdf'
     plt.savefig(path)
 
-# %%
+#  %%
 '''
 decomposition set against full, 100m, 50m, 20m tables
 '''
@@ -480,7 +484,7 @@ plt.suptitle(r'Hill mixed-uses correlated to PCA at increasing network decomposi
 path = f'../phd-doc/doc/part_2/diversity/images/mixed_use_measures_corr_pca_decompositions.pdf'
 plt.savefig(path)
 
-# %%
+#  %%
 # RANDOM REMOVAL PLOTS
 '''
 6A

@@ -129,7 +129,7 @@ axes[1].set_xlim(3, 60)
 path = f'../phd-doc/doc/part_2/diversity/images/global_poi_count_pop.pdf'
 plt.savefig(path)
 
-# %% plot population vs. unique number of POI
+#  %% plot population vs. unique number of POI
 # clear previous figures and set matplotlib defaults
 util_funcs.plt_setup()
 fig, axes = plt.subplots(1, 2, figsize=(7, 3.5))

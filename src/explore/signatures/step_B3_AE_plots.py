@@ -25,7 +25,7 @@ df_20 = pd.read_feather(data_path / 'df_20.feather')
 df_20 = df_20.set_index('id')
 
 
-#  %%
+# %%
 def gather_loss(seeds, epochs, latent_dims, batch=256):
     vae_losses = ['train_loss',
                   'val_loss',
@@ -69,7 +69,22 @@ def gather_loss(seeds, epochs, latent_dims, batch=256):
     return vae_history_data
 
 
-def generate_heatmap(ax, theme, epochs, latent_dim, theme_data):
+def format_text(val):
+    if val < 1:
+        return f'{val:^.2f}'
+    elif val < 10:
+        return f'{val:^.1f}'
+    else:
+        return f'{val:^.0f}'
+
+
+def generate_heatmap(ax,
+                     theme,
+                     epochs,
+                     latent_dim,
+                     theme_data,
+                     set_row_labels,
+                     set_col_labels):
     # empty numpy array for containing
     betas = [0, 1, 2, 4, 8, 16, 32, 64]
     arr = np.full((len(betas), 6), np.nan)
@@ -98,17 +113,19 @@ def generate_heatmap(ax, theme, epochs, latent_dim, theme_data):
     text = arr.astype('str')
     for i in range(text.shape[0]):
         for j in range(text.shape[1]):
-            # beta == 0
             if i == 0 and j > 0:
                 text[i][j] = ''
             else:
-                text[i][j] = f'{arr[i][j]:^.2g}'
+                text[i][j] = format_text(arr[i][j])
     # plot
     plot_funcs.plot_heatmap(ax,
                             heatmap=scaled,
                             row_labels=[r'$\beta=' + f'{b}$' for b in betas],
+                            set_row_labels=set_row_labels,
                             col_labels=[f'$C={c}$' for c in [0, 4, 8, 12, 16, 20]],
-                            text=text)
+                            set_col_labels=set_col_labels,
+                            text=text,
+                            grid_fontsize='xx-small')
     if theme == 'val_loss':
         ax_title = 'Combined loss'
     elif theme == 'val_rec_loss':
@@ -121,7 +138,7 @@ def generate_heatmap(ax, theme, epochs, latent_dim, theme_data):
         ax_title = r'$\beta \cdot |D_{KL} - C|$'
     elif theme == 'val_capacity_term':
         ax_title = 'Capacity term $C$'
-    ax.set_title(ax_title)
+    ax.set_xlabel(ax_title)
 
 
 def generate_arr_heatmap(ax,
@@ -145,18 +162,21 @@ def generate_arr_heatmap(ax,
             if i == 0 and j > 0:
                 text[i][j] = ''
             else:
-                text[i][j] = f'{arr[i][j]:^.2g}'
+                text[i][j] = format_text(arr[i][j])
     # plot
     plot_funcs.plot_heatmap(ax,
                             heatmap=scaled,
-                            row_labels=[r'$\beta=' + f'{b}$' for b in betas],
+                            row_labels=None,
+                            set_row_labels=False,
                             col_labels=[f'$C={c}$' for c in caps],
+                            set_col_labels=True,
                             text=text,
                             constrain=constrain,
-                            cmap=cmap)
+                            cmap=cmap,
+                            grid_fontsize='xx-small')
 
 
-#  %%
+# %%
 '''
 Fine grid plots:
 Each block is beta x capacity
@@ -188,27 +208,44 @@ else:
 VAE losses
 '''
 util_funcs.plt_setup()
-fig, axes = plt.subplots(2, 4, figsize=(12, 8))
-theme_sets = [['val_loss', 'val_rec_loss', 'udr', 'mask'],
-              ['val_capacity_term', 'val_kl', 'val_kl_beta', 'val_kl_beta_cap']]
-ax_idx = 1
-for ax_row, theme_row in zip(axes, theme_sets):
-    for ax, theme in zip(ax_row, theme_row):
+fig, axes = plt.subplots(2, 4,
+                         figsize=(7, 5.5))
+theme_sets = [['val_loss',
+               'val_rec_loss',
+               'udr',
+               'mask'],
+              ['val_capacity_term',
+               'val_kl',
+               'val_kl_beta',
+               'val_kl_beta_cap']]
+for ax_row_n, (ax_row, theme_row) in enumerate(zip(axes, theme_sets)):
+    for ax_col_n, (ax, theme) in enumerate(zip(ax_row, theme_row)):
         if theme == 'udr':
             green_cmap = plt.get_cmap('Greens')
             # take mean across seeds on dimension 2
             udr_arr_mu = np.nanmean(udr_arr, axis=2)
-            generate_arr_heatmap(ax, udr_arr_mu, cmap=green_cmap, constrain=(0, 1))
-            ax.set_title('UDR score')
+            generate_arr_heatmap(ax,
+                                 udr_arr_mu,
+                                 cmap=green_cmap,
+                                 constrain=(0, 1))
+            ax.set_xlabel('UDR score')
         elif theme == 'mask':
             green_cmap = plt.get_cmap('Greens')
             # take mean across seeds on dimension 2
             udr_mask_count_arr_mu = np.nanmean(udr_mask_count_arr, axis=2)
-            generate_arr_heatmap(ax, udr_mask_count_arr_mu, cmap=green_cmap, constrain=(0, 1))
-            ax.set_title('Active axes')
+            generate_arr_heatmap(ax,
+                                 udr_mask_count_arr_mu,
+                                 cmap=green_cmap,
+                                 constrain=(0, 1))
+            ax.set_xlabel('Active axes')
         else:
-            generate_heatmap(ax, theme, epochs, latent_dims[0], history_data)
-
+            generate_heatmap(ax,
+                             theme,
+                             epochs,
+                             latent_dims[0],
+                             history_data,
+                             set_row_labels=ax_col_n == 0,
+                             set_col_labels=ax_row_n == 0)
 plt.suptitle(r'10 seed avg. losses for $\beta$ and $C$ hyperparameters (5 epochs)')
 path = f'../phd-doc/doc/part_3/signatures/images/model_scores_fine.pdf'
 plt.savefig(path, dpi=300)
@@ -271,25 +308,27 @@ plot latent maps
 '''
 # plot
 util_funcs.plt_setup()
-fig, axes = plt.subplots(2, 6, figsize=(10, 8))
+fig, axes = plt.subplots(2, 6, figsize=(7, 9))
 for ax_row, inverse in zip(axes, [False, True]):
     L = np.copy(Z_mu)
     if inverse:
         L *= -1
     for latent_idx in range(latent_dim):
         ax = ax_row[latent_idx]
-        plot_funcs.plot_scatter(ax,
+        plot_funcs.plot_scatter(fig,
+                                ax,
                                 table.x,
                                 table.y,
-                                L[:, latent_idx],
+                                vals=L[:, latent_idx],
                                 s_min=0,
                                 s_max=1,
                                 c_exp=2,
                                 s_exp=3,
                                 rasterized=True)
-        ax.set_title(f'#{latent_idx + 1} - ' + r'$D_{KL}=' + f'{kl_vec[latent_idx]:.4f}$')
-        if inverse:
-            ax.set_title(f'Dim. {latent_idx + 1} - Inverse')
+        if not inverse:
+            ax.set_xlabel(f'#{latent_idx + 1} - ' + r'$D_{KL}=' + f'{kl_vec[latent_idx]:.2f}$')
+        else:
+            ax.set_xlabel(f'#{latent_idx + 1} - Inverse')
 plt.suptitle(r"Geographic mappings (and inverses) for the latents of the VAE model")
 path = f'../phd-doc/doc/part_3/signatures/images/latents_map_inv_{beta}_{str(cap).replace(".", "_")}.pdf'
 plt.savefig(path, dpi=300)
@@ -299,24 +338,28 @@ plt.savefig(path, dpi=300)
 plot latent correlations
 '''
 util_funcs.plt_setup()
-fig, axes = plt.subplots(2, 6, figsize=(10, 7))
-for ax_row, inverse in zip(axes, [False, True]):
+fig, axes = plt.subplots(2, 6, figsize=(7, 5))
+for row_n, (ax_row, inverse) in enumerate(zip(axes, [False, True])):
     L = np.copy(Z_mu)
     if inverse:
         L *= -1
     for latent_idx in range(latent_dim):
         ax = ax_row[latent_idx]
-        heatmap_corrs = plot_funcs.correlate_heatmap(len(labels), len(distances), X_trans, L[:, latent_idx])
+        heatmap_corrs = plot_funcs.correlate_heatmap(len(labels),
+                                                     len(distances),
+                                                     X_trans,
+                                                     L[:, latent_idx])
         plot_funcs.plot_heatmap(ax,
                                 heatmap=heatmap_corrs,
                                 row_labels=labels,
-                                col_labels=distances,
                                 set_row_labels=latent_idx == 0,
-                                cbar=False)
-        ax.set_title(f'#{latent_idx + 1} - ' + r'$D_{KL}=' + f'{kl_vec[latent_idx]:.4f}$')
-        if inverse:
-            ax.set_title(f'Dim. {latent_idx + 1} - Inverse')
-plt.suptitle(r"Pearson's $\rho$ correlations (and inverses) to source variables for the latents of the VAE model")
+                                col_labels=distances,
+                                set_col_labels=row_n == 0)
+        if not inverse:
+            ax.set_xlabel(f'#{latent_idx + 1} - ' + r'$D_{KL}=' + f'{kl_vec[latent_idx]:.2f}$')
+        else:
+            ax.set_xlabel(f'#{latent_idx + 1} - Inverse')
+plt.suptitle(r"Spearman $\rho$ correlations to source variables for the VAE model latents")
 path = f'../phd-doc/doc/part_3/signatures/images/latents_corr_inv_{beta}_{str(cap).replace(".", "_")}.pdf'
 plt.savefig(path, dpi=300)
 
@@ -326,8 +369,9 @@ Plot split model latents - correlations
 '''
 for inverse in [False, True]:
     util_funcs.plt_setup()
-    fig = plt.figure(figsize=(10, 4.75))
+    fig = plt.figure(figsize=(7, 3.35))
     gs = fig.add_gridspec(3, 6, height_ratios=[2, 9, 2], width_ratios=[1, 1, 1, 1, 1, 1])
+    counter = 0
     for title, ax_row, label_indices, sub_latent_X in zip(
             ('Centrality: C-{n}', 'Land-use: LU-{n}', 'Population: P-{n}'),
             ((fig.add_subplot(gs[0, i]) for i in range(0, 4)),
@@ -350,13 +394,15 @@ for inverse in [False, True]:
             plot_funcs.plot_heatmap(ax,
                                     heatmap=heatmap_corrs,
                                     row_labels=lab,
+                                    set_row_labels=latent_idx == 0,
                                     col_labels=distances,
-                                    set_row_labels=latent_idx == 0)
-            ax.set_title(title.format(n=latent_idx + 1))
-    st = r"Pearson's $\rho$ correlations to source variables for the split sub-latents of the VAE model"
-    if inverse:
-        st += ' - Inverse'
-    plt.suptitle(st)
+                                    set_col_labels=counter == 0)
+            ax.set_xlabel(title.format(n=latent_idx + 1))
+        counter += 1
+    if not inverse:
+        plt.suptitle(r"Spearman $\rho$ correlations for the VAE model sub-latents")
+    else:
+        plt.suptitle(r"Spearman $\rho$ inverse correlations for the VAE model sub-latents")
     path = f'../phd-doc/doc/part_3/signatures/images/sub_latent_correlations_{beta}_{str(cap).replace(".", "_")}'
     if inverse:
         path += '_inverse'
@@ -367,13 +413,13 @@ for inverse in [False, True]:
 '''
 Plot split model latents - maps
 '''
-set_A = [('Cent: C-{n}', (0, 4), (0, 2), latent_A),
-         ('Pop: P-{n}', (4, 2), (2, 11), latent_C)]
-set_B = [('Uses: LU-{n}', (0, 6), (11, 13), latent_B)]
+set_A = [('Cent. #{n}', (0, 4), (0, 2), latent_A),
+         ('Pop. #{n}', (4, 2), (2, 11), latent_C)]
+set_B = [('Land-use #{n}', (0, 6), (11, 13), latent_B)]
 
 for lb, set in zip(['A', 'B'], [set_A, set_B]):
     util_funcs.plt_setup()
-    fig, axes = plt.subplots(2, 6, figsize=(10, 8), gridspec_kw={'height_ratios': [1] * 2, 'width_ratios': [1] * 6})
+    fig, axes = plt.subplots(2, 6, figsize=(7, 9))
     for title, ax_indices, label_indices, sub_latent_X in set:
         lab = labels[label_indices[0]:label_indices[1]]  # five row labels
         start_src_idx, end_src_idx = label_indices
@@ -381,43 +427,42 @@ for lb, set in zip(['A', 'B'], [set_A, set_B]):
         end_src_idx *= len(distances)
         col_start_idx, n_latents = ax_indices
         for latent_idx in range(n_latents):
-            # pick colour map based on strongest correlations - i.e. positive vs negative = red vs blue
-            heatmap_corrs = plot_funcs.correlate_heatmap(len(lab),
-                                                         len(distances),
-                                                         X_trans[:, start_src_idx:end_src_idx],
-                                                         sub_latent_X[:, latent_idx])
             # find largest magnitude
             t = title.format(n=latent_idx + 1)
             v = sub_latent_X[:, latent_idx]
             if title == 'Cent: C-{n}' and latent_idx == 0:
-                # remove outliers for dimension 1 of centrality?
+                # remove outliers for centrality
                 v = np.clip(v, np.percentile(v, 0.05), np.percentile(v, 99.5))
-            plot_funcs.plot_scatter(axes[0][col_start_idx + latent_idx],
+            ax = axes[0][col_start_idx + latent_idx]
+            plot_funcs.plot_scatter(fig,
+                                    ax,
                                     table.x,
                                     table.y,
-                                    v,
+                                    vals=v,
                                     s_min=0,
                                     s_max=1,
                                     c_exp=2,
                                     s_exp=3,
                                     rasterized=True)
-            axes[0][col_start_idx + latent_idx].set_title(t)
+            ax.set_xlabel(t)
             # plot inverses
-            plot_funcs.plot_scatter(axes[1][col_start_idx + latent_idx],
+            ax = axes[1][col_start_idx + latent_idx]
+            plot_funcs.plot_scatter(fig,
+                                    ax,
                                     table.x,
                                     table.y,
-                                    -v,
+                                    vals=-v,
                                     s_min=0,
                                     s_max=1,
                                     c_exp=2,
                                     s_exp=3,
                                     rasterized=True)
-            axes[1][col_start_idx + latent_idx].set_title(t + ' - Inverse')
-    plt.suptitle(r"Geographic mapping of the split sub-latents of the VAE model")
+            ax.set_xlabel(f'{t} inv.')
+    plt.suptitle(r"Geographic mappings (and inverses) for the sub-latents of the VAE model")
     path = f'../phd-doc/doc/part_3/signatures/images/sub_latent_maps_{lb}_{beta}_{str(cap).replace(".", "_")}.pdf'
     plt.savefig(path, dpi=300)
 
-# %%
+#  %%
 '''
 Generate tables of the weight mappings from Z mu and Z log var to main latents
 '''
@@ -540,7 +585,7 @@ path = f'../phd-doc/doc/part_3/signatures/images/latent_spiders.pdf'
 plt.savefig(path, dpi=300)
 '''
 
-# %%
+#  %%
 '''
 Sweep plots - x by y grids
 '''
@@ -569,30 +614,26 @@ for l1, l2 in [[1, 0]]:
     arrs /= max_val
     # plot
     util_funcs.plt_setup()
-    fig, ax_rows = plt.subplots(5, 5, figsize=(5, 10))
+    fig, ax_rows = plt.subplots(5, 5, figsize=(4, 8))
     for i_idx, i_key in enumerate(sweeps):
         for j_idx, j_key in enumerate(sweeps):
             arr = arrs[i_idx][j_idx]
             arr = np.reshape(arr, (len(labels), len(distances)))
             ax = ax_rows[i_idx][j_idx]
-            rl = False
-            if j_idx == 0:
-                rl = True
-            cl = False
-            if i_idx == len(sweeps) - 1:
-                cl = True
+            ax.set_xticks([])
+            ax.set_yticks([])
             plot_funcs.plot_heatmap(ax,
                                     arr,
                                     labels,
                                     distances,
-                                    set_row_labels=rl,
-                                    set_col_labels=cl)
-            ax.set_title(f'{i_key} $\sigma$ / {j_key} $\sigma$')
-    plt.suptitle(f'2D decoded sweep across latent dimensions {l1 + 1} & {l2 + 1}.')
+                                    set_row_labels=False,
+                                    set_col_labels=False)
+            ax.set_xlabel(f'{i_key} $\sigma$ / {j_key} $\sigma$')
+    plt.suptitle(f'2D decoded sweep across latents {l1 + 1} & {l2 + 1}')
     path = f'../phd-doc/doc/part_3/signatures/images/vae_grid_{beta}_{str(cap).replace(".", "_")}_{l1}_{l2}.pdf'
     plt.savefig(path, dpi=300)
 
-# %%
+#  %%
 '''
 Sweep plots - each latent
 '''
@@ -616,7 +657,7 @@ max_val = np.min(max_val)
 arrs /= max_val
 
 util_funcs.plt_setup()
-fig, ax_rows = plt.subplots(6, 7, figsize=(6, 10))
+fig, ax_rows = plt.subplots(6, 7, figsize=(4, 8))
 for latent_idx in range(6):
     for sweep_idx, sweep in enumerate(sweeps):
         arr = arrs[latent_idx][sweep_idx]
@@ -626,9 +667,9 @@ for latent_idx in range(6):
                                 arr,
                                 labels,
                                 distances,
-                                set_row_labels=sweep_idx == 0,
-                                set_col_labels=latent_idx == 5)
-        ax.set_title(f'${sweep}\sigma$')
-plt.suptitle(f'Decoded sweeps across individual latent dimensions.')
+                                set_row_labels=False,
+                                set_col_labels=False)
+        ax.set_xlabel(f'${sweep}\sigma$')
+plt.suptitle(f'Decoded sweeps across each latent dim.')
 path = f'../phd-doc/doc/part_3/signatures/images/vae_sweep_{beta}_{str(cap).replace(".", "_")}.pdf'
 plt.savefig(path, dpi=300)

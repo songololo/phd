@@ -135,8 +135,8 @@ columns_all_towns = [
     'cens_dwellings_{dist}'
 ]
 labels_all_towns = [
-    'node harm. ang.',
-    r'node betw. $\beta$',
+    'h. closeness',
+    r'\beta betweenness',
     'mixed_uses',
     'eating',
     'drinking',
