@@ -203,7 +203,7 @@ else:
     udr_arr = np.load(udr_path)
     udr_mask_count_arr = np.load(udr_mask_path)
 
-#  %%
+# %%
 '''
 VAE losses
 '''
@@ -250,7 +250,7 @@ plt.suptitle(r'10 seed avg. losses for $\beta$ and $C$ hyperparameters (5 epochs
 path = f'../phd-doc/doc/part_3/signatures/images/model_scores_fine.pdf'
 plt.savefig(path, dpi=300)
 
-#  %%
+# %%
 '''
 Prepare split model
 '''
@@ -302,7 +302,7 @@ kl_vec = np.mean(kl_loss, axis=0)
 # get sub latents
 latent_A, latent_B, latent_C = vae.encode_sub_latents(X_trans)
 
-#  %%
+# %%
 '''
 plot latent maps
 '''
@@ -333,12 +333,12 @@ plt.suptitle(r"Geographic mappings (and inverses) for the latents of the VAE mod
 path = f'../phd-doc/doc/part_3/signatures/images/latents_map_inv_{beta}_{str(cap).replace(".", "_")}.pdf'
 plt.savefig(path, dpi=300)
 
-#  %%
+# %%
 '''
 plot latent correlations
 '''
 util_funcs.plt_setup()
-fig, axes = plt.subplots(2, 6, figsize=(7, 5))
+fig, axes = plt.subplots(2, 6, figsize=(7, 5.5))
 for row_n, (ax_row, inverse) in enumerate(zip(axes, [False, True])):
     L = np.copy(Z_mu)
     if inverse:
@@ -349,21 +349,30 @@ for row_n, (ax_row, inverse) in enumerate(zip(axes, [False, True])):
                                                      len(distances),
                                                      X_trans,
                                                      L[:, latent_idx])
-        plot_funcs.plot_heatmap(ax,
-                                heatmap=heatmap_corrs,
-                                row_labels=labels,
-                                set_row_labels=latent_idx == 0,
-                                col_labels=distances,
-                                set_col_labels=row_n == 0)
+        hm = plot_funcs.plot_heatmap(ax,
+                                     heatmap=heatmap_corrs,
+                                     row_labels=labels,
+                                     set_row_labels=latent_idx == 0,
+                                     col_labels=distances,
+                                     set_col_labels=row_n == 0)
         if not inverse:
             ax.set_xlabel(f'#{latent_idx + 1} - ' + r'$D_{KL}=' + f'{kl_vec[latent_idx]:.2f}$')
         else:
             ax.set_xlabel(f'#{latent_idx + 1} - Inverse')
-plt.suptitle(r"Spearman $\rho$ correlations to source variables for the VAE model latents")
+cbar = fig.colorbar(hm,
+                    ax=axes,
+                    aspect=50,
+                    pad=0.01,
+                    orientation='horizontal',
+                    shrink=0.5)
+cbar.ax.xaxis.set_ticks_position('top')
+cbar.ax.xaxis.set_label_position('bottom')
+cbar.set_label('Spearman $\\rho$ correlations against source variables')
+plt.suptitle(r"Correlations to source variables for the VAE model latents")
 path = f'../phd-doc/doc/part_3/signatures/images/latents_corr_inv_{beta}_{str(cap).replace(".", "_")}.pdf'
 plt.savefig(path, dpi=300)
 
-#  %%
+# %%
 '''
 Plot split model latents - correlations
 '''
@@ -409,7 +418,7 @@ for inverse in [False, True]:
     path += '.pdf'
     plt.savefig(path, dpi=300)
 
-#  %%
+# %%
 '''
 Plot split model latents - maps
 '''
@@ -462,7 +471,8 @@ for lb, set in zip(['A', 'B'], [set_A, set_B]):
     path = f'../phd-doc/doc/part_3/signatures/images/sub_latent_maps_{lb}_{beta}_{str(cap).replace(".", "_")}.pdf'
     plt.savefig(path, dpi=300)
 
-#  %%
+# %%
+"""
 '''
 Generate tables of the weight mappings from Z mu and Z log var to main latents
 '''
@@ -544,7 +554,7 @@ table_complete = table_start + table_rows + table_end
 print(table_complete)
 
 #  %%
-'''
+
 NOT USED spider plots of weights from sub-latents to main latents
 
 # weights is a tuple of the weights 12x6 and biases x 6
@@ -583,17 +593,15 @@ for ax_idx in range(6):
 plt.suptitle('Spider plots showing distribution of sub-latent weights relative to latents.')
 path = f'../phd-doc/doc/part_3/signatures/images/latent_spiders.pdf'
 plt.savefig(path, dpi=300)
-'''
+"""
 
-#  %%
+# %%
 '''
 Sweep plots - x by y grids
 '''
 for l1, l2 in [[1, 0]]:
     # extract latents into a placeholder array
     arrs = np.full((5, 5, X_trans.shape[1]), np.nan)
-    mins = np.inf
-    maxs = -np.inf
     sweeps = [-2, -1, 0, 1, 2]
     for i_idx, i_key in enumerate(sweeps):
         for j_idx, j_key in enumerate(sweeps):
@@ -603,15 +611,7 @@ for l1, l2 in [[1, 0]]:
             z_key[0][l1] = i_key
             z_key[0][l2] = j_key
             arr = vae.decode(z_key).numpy()
-            if arr.min() < mins:
-                mins = arr.min()
-            if arr.max() > maxs:
-                maxs = arr.max() * 1.1
             arrs[i_idx][j_idx] = arr
-    max_val = np.array([mins, maxs])
-    max_val = np.abs(max_val)
-    max_val = np.min(max_val)
-    arrs /= max_val
     # plot
     util_funcs.plt_setup()
     fig, ax_rows = plt.subplots(5, 5, figsize=(4, 8))
@@ -622,39 +622,40 @@ for l1, l2 in [[1, 0]]:
             ax = ax_rows[i_idx][j_idx]
             ax.set_xticks([])
             ax.set_yticks([])
-            plot_funcs.plot_heatmap(ax,
-                                    arr,
-                                    labels,
-                                    distances,
-                                    set_row_labels=False,
-                                    set_col_labels=False)
+            hm = plot_funcs.plot_heatmap(ax,
+                                         arr,
+                                         labels,
+                                         distances,
+                                         constrain=(-3, 3),
+                                         set_row_labels=False,
+                                         set_col_labels=False)
             ax.set_xlabel(f'{i_key} $\sigma$ / {j_key} $\sigma$')
-    plt.suptitle(f'2D decoded sweep across latents {l1 + 1} & {l2 + 1}')
+    cbar = fig.colorbar(hm,
+                        ax=ax_rows,
+                        aspect=50,
+                        pad=0.01,
+                        orientation='horizontal',
+                        shrink=0.75)
+    cbar.ax.xaxis.set_ticks_position('top')
+    cbar.ax.xaxis.set_label_position('bottom')
+    cbar.set_label('Standard deviations from the mean for decoded parameter sweeps',
+                   fontsize='x-small')
+    plt.suptitle(f'2D decoded "sweep" across latents {l1 + 1} & {l2 + 1}')
     path = f'../phd-doc/doc/part_3/signatures/images/vae_grid_{beta}_{str(cap).replace(".", "_")}_{l1}_{l2}.pdf'
     plt.savefig(path, dpi=300)
 
-#  %%
+# %%
 '''
 Sweep plots - each latent
 '''
 arrs = np.full((6, 7, X_trans.shape[1]), np.nan)
-mins = np.inf
-maxs = -np.inf
 sweeps = [-3, -2, 1, 0, 1, 2, 3]
 for latent_idx in range(6):
     for sweep_idx, sweep in enumerate(sweeps):
         z_key = np.array([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]], dtype=float)
         z_key[0][latent_idx] = sweep
         arr = vae.decode(z_key).numpy()
-        if arr.min() < mins:
-            mins = arr.min()
-        if arr.max() > maxs:
-            maxs = arr.max()
         arrs[latent_idx][sweep_idx] = arr
-max_val = np.array([mins, maxs])
-max_val = np.abs(max_val)
-max_val = np.min(max_val)
-arrs /= max_val
 
 util_funcs.plt_setup()
 fig, ax_rows = plt.subplots(6, 7, figsize=(4, 8))
@@ -663,13 +664,26 @@ for latent_idx in range(6):
         arr = arrs[latent_idx][sweep_idx]
         arr = np.reshape(arr, (len(labels), len(distances)))
         ax = ax_rows[latent_idx][sweep_idx]
-        plot_funcs.plot_heatmap(ax,
-                                arr,
-                                labels,
-                                distances,
-                                set_row_labels=False,
-                                set_col_labels=False)
+        hm = plot_funcs.plot_heatmap(ax,
+                                     arr,
+                                     labels,
+                                     distances,
+                                     constrain=(-3, 3),
+                                     set_row_labels=False,
+                                     set_col_labels=False)
+        if sweep_idx == 0:
+            ax.set_ylabel(f'Latent #{latent_idx + 1}')
         ax.set_xlabel(f'${sweep}\sigma$')
-plt.suptitle(f'Decoded sweeps across each latent dim.')
+cbar = fig.colorbar(hm,
+                    ax=ax_rows,
+                    aspect=50,
+                    pad=0.01,
+                    orientation='horizontal',
+                    shrink=0.75)
+cbar.ax.xaxis.set_ticks_position('top')
+cbar.ax.xaxis.set_label_position('bottom')
+cbar.set_label('Standard deviations from the mean for decoded parameter sweeps',
+               fontsize='x-small')
+plt.suptitle(f'Decoded "sweeps" across each latent')
 path = f'../phd-doc/doc/part_3/signatures/images/vae_sweep_{beta}_{str(cap).replace(".", "_")}.pdf'
 plt.savefig(path, dpi=300)

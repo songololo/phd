@@ -59,26 +59,49 @@ dens_norm = plt.Normalize()(dens)
 x_fit_line = np.arange(pop.min(), pop.max())
 
 
-def powerFunc(x, c, a):
-    return c * np.power(x, a)
+def powerFunc(x, c, z):
+    return c * np.power(x, z)
 
 
-fp1, fc1 = optimize.curve_fit(powerFunc, pop, area)  # use log-log linear OLS as starting point
-axes[0].plot(x_fit_line, powerFunc(x_fit_line, *fp1),
-             label=f'non-linear LS curve-fit: $\\alpha={round(fp1[1], 2)}$', alpha=Style.def_col_hl1_a,
-             color=Style.def_col_hl1, linestyle='-', linewidth=3)
+popt, _ = optimize.curve_fit(powerFunc, pop, area)
+c = popt[0]
+z = popt[1]
+axes[0].plot(x_fit_line,
+             powerFunc(x_fit_line, c, z),
+             label=f'$A=cP^z$ where $c={round(c, 2)}\ z={round(z, 2)}$',
+             alpha=Style.def_col_hl1_a,
+             color=Style.def_col_hl1,
+             linestyle='-',
+             linewidth=3)
 # linear regression on the log log
 slope, intercept, rvalue, pvalue, stderr = stats.linregress(np.log(pop), np.log(area))
-axes[0].plot(x_fit_line, np.exp(slope * np.log(x_fit_line) + intercept),
-             label=f'log-log OLS: $\\alpha={round(slope, 2)}$', alpha=Style.def_col_hl2_a, color=Style.def_col_hl2,
-             linestyle='-', linewidth=3)
+axes[0].plot(x_fit_line,
+             np.exp(slope * np.log(x_fit_line) + intercept),
+             label=f'$log(A)=m \cdot log(P) + c$ where $m={round(slope, 2)}\ c={round(intercept, 2)}$',
+             alpha=Style.def_col_hl2_a,
+             color=Style.def_col_hl2,
+             linestyle='-',
+             linewidth=3)
 # plot the area and population
-axes[0].scatter(x=pop, y=area, c=dens, cmap=Style.def_cmap, s=pop_log_norm * 80 + 10,
-                marker='.', edgecolors='white', linewidths=0.2, zorder=2)
+axes[0].scatter(x=pop,
+                y=area,
+                c=dens,
+                cmap=Style.def_cmap,
+                s=pop_log_norm * 80 + 10,
+                marker='.',
+                edgecolors='white',
+                linewidths=0.2,
+                zorder=2)
 # insert a line showing area threshold
-axes[0].axhline(400, linewidth=0.4, color='dimgrey', linestyle='--')
-axes[0].text(10 ** 7.5, 430, 'area falloff at pop $x_{min}=5000$', horizontalalignment='right',
-             fontdict={'size': 5})
+axes[0].axhline(400,
+                linewidth=0.4,
+                color='dimgrey',
+                linestyle='--')
+axes[0].text(10 ** 7.5,
+             430,
+             'P.O.I. falloff at pop $x_{min}=5000$',
+             horizontalalignment='right',
+             fontdict={'size': 'xx-small'})
 axes[0].set_xscale('log')
 axes[0].set_xlabel('City Population')
 axes[0].set_xlim(5000, 10 ** 7.5)
@@ -88,7 +111,7 @@ axes[0].set_ylim(100, 10 ** 5.5)
 axes[0].legend(loc=2)
 
 # plot the density against area
-axes[1].scatter(x=dens,
+scat = axes[1].scatter(x=dens,
                 y=area,
                 c=dens,
                 cmap=Style.def_cmap,
@@ -98,19 +121,30 @@ axes[1].scatter(x=dens,
                 linewidths=0.2,
                 zorder=2,
                 rasterized=True)
-axes[1].axhline(400, linewidth=0.4, color='dimgrey', linestyle='--')
+axes[1].axhline(400,
+                linewidth=0.4,
+                color='dimgrey',
+                linestyle='--')
 # density colour fill
 dens_col = plt.cm.plasma_r(dens_norm)
-axes[1].vlines(x=dens, ymin=0, ymax=area, colors=dens_col, alpha=0.15,
-               linewidths=pop_log_norm + .4, zorder=1)
+axes[1].vlines(x=dens,
+               ymin=0,
+               ymax=area,
+               colors=dens_col,
+               alpha=0.15,
+               linewidths=pop_log_norm + .4,
+               zorder=1)
 # insert a line showing area threshold
 axes[1].set_xlabel('City Density (persons per hectare)')
 axes[1].set_xlim(10, 70)
-
+cbar = fig.colorbar(scat,
+                    ax=axes,
+                    aspect=50,
+                    pad=0.02)
+cbar.set_label(label='Population density',
+               loc='bottom')
 path = f'../phd-doc/doc/part_3/predictive/images/area_pop_density.pdf'
 plt.savefig(path, dpi=300)
-
-plt.show()
 
 #  %% plot powerlaw distributions for city population
 
@@ -185,5 +219,3 @@ axes[1].legend(loc=3)
 
 path = f'../phd-doc/doc/part_3/predictive/images/pop_scale_fit.pdf'
 plt.savefig(path, dpi=300)
-
-plt.show()

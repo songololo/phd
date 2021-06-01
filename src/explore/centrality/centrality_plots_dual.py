@@ -82,7 +82,7 @@ y_labels = [
     r'commercial $d_{max}=1000m$']
 
 util_funcs.plt_setup()
-fig, axes = plt.subplots(2, 2, figsize=(5, 5.5))
+fig, axes = plt.subplots(2, 2, figsize=(5, 6))
 theme_dim = 0
 for ax_row in range(2):
     for ax_col in range(2):
@@ -95,10 +95,8 @@ for ax_row in range(2):
         # calculate the correlations for each type and respective distance of mixed-use measure
         for t_idx, (theme, label) in enumerate(zip(themes, labels)):
             for d_idx, dist in enumerate(distances):
-                # prepare theme and send to data prep function
                 x_val = df_full[theme.format(dist=dist)]
                 y_val = df_full[y_theme]
-                # deduce correlation
                 corrs[t_idx][d_idx] = spearmanr(x_val, y_val)[0]
         if ax_col == 0:
             display_row_labels = True
@@ -120,6 +118,14 @@ for ax_row in range(2):
                                      text=corrs.round(2))
         ax.set_xlabel(y_label)
         theme_dim += 1
+cbar = fig.colorbar(im,
+                    ax=axes,
+                    aspect=50,
+                    pad=0.02,
+                    orientation='horizontal',
+                    ticks=[-1, 0, 1],
+                    shrink=0.5)
+cbar.ax.set_xticklabels(['-1', r'Spearman $\rho$ correlations', '1'])
 plt.suptitle('Dual centrality measures correlated to mixed & landuses')
 path = f'../phd-doc/doc/part_2/centrality/images/dual_centralities_corr_grid.pdf'
 plt.savefig(path)

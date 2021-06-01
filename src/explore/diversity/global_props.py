@@ -97,9 +97,7 @@ axes[0].set_yscale('log')
 axes[0].set_ylabel('Points of Interest per town / city')
 axes[0].set_ylim(100, 10 ** 6)
 axes[0].legend(loc=2)
-cbar = plt.colorbar(scat, aspect=50, pad=0.02)
-cbar.set_label(label='Persons per Point Of Interest',
-               loc='bottom')
+
 # second ax
 # plot the density against area
 axes[1].scatter(x=count_dens,
@@ -126,6 +124,12 @@ axes[1].vlines(x=count_dens,
                zorder=1)
 axes[1].set_xlabel('Persons per Point of Interest')
 axes[1].set_xlim(3, 60)
+cbar = fig.colorbar(scat,
+                    ax=axes,
+                    aspect=50,
+                    pad=0.02)
+cbar.set_label(label='Persons per Point Of Interest',
+               loc='bottom')
 path = f'../phd-doc/doc/part_2/diversity/images/global_poi_count_pop.pdf'
 plt.savefig(path)
 
@@ -197,7 +201,7 @@ c = popt[0]
 z = popt[1]
 axes[1].plot(x_fit_line,
              semiLogFunc(x_fit_line, c, z),
-             label=f'$S=c+z log(A)$ where $c={round(c, 2)}\ z={round(z, 2)}$',
+             label=f'$S=c+z\ log(A)$ where $c={round(c, 2)}\ z={round(z, 2)}$',
              alpha=Style.def_col_hl2_a,
              color=Style.def_col_hl2,
              linestyle='-',
@@ -228,9 +232,11 @@ axes[1].set_xlim(5000, 10 ** 7.5)
 axes[1].set_ylabel('Unique Points of Interest per town / city')
 axes[1].set_ylim(40, 840)
 axes[1].legend(loc=2)
-cbar = plt.colorbar(scat, aspect=50, pad=0.02)
+cbar = plt.colorbar(scat,
+                    ax=axes,
+                    aspect=50,
+                    pad=0.02)
 cbar.set_label(label='$log$ population per town / city',
                loc='bottom')
-
 path = f'../phd-doc/doc/part_2/diversity/images/global_poi_unique_pop.pdf'
 plt.savefig(path)

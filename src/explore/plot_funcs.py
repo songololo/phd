@@ -28,6 +28,7 @@ def dynamic_view_extent(fig, ax, km_per_inch: float, centre: tuple):
 
     return x_left, x_right, y_bottom, y_top
 
+
 def prepare_v(vals):
     # don't reshape distribution: emphasise larger values if necessary using exponential
     # i.e. amplify existing distribution rather than using a reshaped normal or uniform distribution
@@ -272,14 +273,35 @@ def plot_components(component_idxs,
                      shrink=0.5)
 
 
+def make_mu_means(X_raw, cluster_assignments, n_components, shape_exp=0.5):
+    '''
+    returns:
+    - mixed-use mean for each cluster
+    - colour for each of these, based on the average (distance weighted) number of accessible mixed-uses
+    - an index for sorting based on these means, from greatest to least
+    '''
+    mu_means = []
+    for n in range(n_components):
+        mu_means.append(X_raw['mu_hill_branch_wt_0_100'][cluster_assignments == n].mean())
+    # normalise
+    mu_means = np.array(mu_means)
+    mu_means_normalised = (mu_means - np.nanmin(mu_means)) / (np.nanmax(mu_means) - np.nanmin(mu_means))
+    # shift to 0.1 - 0.9
+    mu_means_normalised = mu_means_normalised * 0.8 + 0.05
+    # reshape so that outliers don't bunch low-lying colours
+    mu_means_normalised **= shape_exp
+    # sort and return
+    sorted_cluster_idx = np.argsort(mu_means_normalised)[::-1]
+
+    return mu_means, mu_means_normalised, sorted_cluster_idx
+
+
 def plot_prob_clusters(X_raw,
                        cluster_probs,
                        n_components,
                        path_theme,
                        xs,
                        ys,
-                       x_extents=(0, 3500),
-                       y_extents=(0, 6000),
                        max_only=False,
                        plt_cmap='gist_ncar',
                        shape_exp=0.5,
@@ -288,19 +310,20 @@ def plot_prob_clusters(X_raw,
     # get the assignments based on maximum probability
     cluster_assignments = np.argmax(cluster_probs, axis=1)
     # get the colours for each cluster based on mean mixed uses
-    m_m = mu_mus(X_raw, cluster_assignments, n_components, shape_exp)
-    # print the axes in order of the strength of m_m
-    sorted_cluster_idx = np.argsort(m_m)[::-1]
+    mu_means, mu_means_normalised, sorted_cluster_idx = make_mu_means(X_raw,
+                                                                      cluster_assignments,
+                                                                      n_components,
+                                                                      shape_exp)
     # plot the axes
     util_funcs.plt_setup()
-    fig, axes = plt.subplots(3, 7, figsize=(12, 8))
+    fig, axes = plt.subplots(3, 7, figsize=(7, 10))
     counter = 0
     cmap = plt.cm.get_cmap(plt_cmap)
     for ax_row in axes:
         for ax in ax_row:
             if counter < cluster_probs.shape[1]:
                 cluster_idx = sorted_cluster_idx[counter]
-                c = cmap(m_m[cluster_idx])
+                c = cmap(mu_means_normalised[cluster_idx])
                 vals = cluster_probs[:, cluster_idx]
                 if max_only:
                     max_idx = (cluster_assignments == cluster_idx)
@@ -314,15 +337,14 @@ def plot_prob_clusters(X_raw,
                     s = vals
                 s **= 1
                 # override vals with explicit "c" and "s"
-                plot_scatter(ax,
+                plot_scatter(fig,
+                             ax,
                              xs,
                              ys,
                              c=c,
                              s=s,
-                             x_extents=x_extents,
-                             y_extents=y_extents,
                              rasterized=rasterized)
-                ax.set_title(f'Cluster {cluster_idx + 1}')
+                ax.set_xlabel(f'Cluster #{cluster_idx + 1}')
             counter += 1
     plt.suptitle(suptitle)
     path = f'../phd-doc/doc/part_3/signatures/images/{path_theme}_cluster_composite'
@@ -332,35 +354,29 @@ def plot_prob_clusters(X_raw,
     plt.savefig(path, dpi=300)
 
 
-def mu_mus(X_raw, cluster_assignments, n_components, shape_exp=0.5):
-    '''
-    prepare matrix for generating colours from mean mixed uses for each cluster
-    '''
-    mu_mus = []
-    for n in range(n_components):
-        mu_mus.append(X_raw['mu_hill_branch_wt_0_100'][cluster_assignments == n].mean())
-    # normalise
-    mu_mus = np.array(mu_mus)
-    mu_mus = (mu_mus - np.nanmin(mu_mus)) / (np.nanmax(mu_mus) - np.nanmin(mu_mus))
-    # shift to 0.1 - 0.9
-    mu_mus = mu_mus * 0.8 + 0.05
-    # reshape so that outliers don't bunch low-lying colours
-    mu_mus **= shape_exp
-    return mu_mus
-
-
 def map_diversity_colour(X_raw,
                          cluster_assignments,
                          n_components,
                          plt_cmap='gist_ncar',
                          shape_exp=0.5):
+    '''
+    returns:
+    - plot colour for each sample
+    - plot size for each sample
+    - mixed-use mean value for each cluster
+    - colour for each cluster
+    '''
     # get the colours based on mean mixed uses
-    m_m = mu_mus(X_raw, cluster_assignments, n_components, shape_exp)
+    mu_means, mu_means_normalised, sorted_cluster_idx = make_mu_means(X_raw, cluster_assignments, n_components,
+                                                                      shape_exp)
     # set colours in the full array - length of samples x rgba
-    colours = np.full(shape=(cluster_assignments.shape[0], 4), fill_value=np.nan)
-    sizes = np.full(shape=(cluster_assignments.shape[0], 1), fill_value=np.nan)
+    sample_colours = np.full(shape=(cluster_assignments.shape[0], 4), fill_value=np.nan)
+    sample_sizes = np.full(shape=(cluster_assignments.shape[0], 1), fill_value=np.nan)
     cmap = plt.cm.get_cmap(plt_cmap)
+    mu_means_cols = np.full(shape=(n_components, 4), fill_value=np.nan)  # colours for legend
     for n in range(n_components):
-        colours[cluster_assignments == n] = cmap(m_m[n])
-        sizes[cluster_assignments == n] = m_m[n]
-    return colours, sizes
+        sample_colours[cluster_assignments == n] = cmap(mu_means_normalised[n])
+        sample_sizes[cluster_assignments == n] = mu_means_normalised[n]
+        mu_means_cols[n] = cmap(mu_means_normalised[n])
+
+    return sample_colours, sample_sizes, mu_means, mu_means_cols, sorted_cluster_idx

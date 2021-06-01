@@ -130,18 +130,23 @@ def kde_plot(data, theme, label, x_max=100, y_chunks=500):
             y_scales.append(target / y_max)
 
     util_funcs.plt_setup()
-    fig, axes = plt.subplots(1, 4, figsize=(8, 4))
+    fig, axes = plt.subplots(1, 4, figsize=(7, 5))
     for n, (dist, y_scale) in enumerate(zip(['200', '400', '800', '1600'], y_scales)):
         col_key = theme.format(dist=dist)
-        axes[n].set_xlabel(label + r' $d_{max}=' + f'{dist}m$')
-
+        # turn off y-ax ticks
+        axes[n].set_yticks([])
+        axes[n].set_yticks([], minor=True)
+        if n == 0:
+            axes[n].set_ylabel('Towns & cities by population size')
+        else:
+            axes[n].get_yaxis().set_visible(False)
+        axes[n].set_xlabel(f'{dist}m')
         xlims, ylims = compound_kde(data,
                                     col_key,
                                     city_pop_range,
                                     axes[n],
                                     y_scale,
                                     y_chunks=y_chunks)
-        axes[n].get_yaxis().set_visible(False)
         # x_max is per ax
         right_most = np.nanpercentile(xlims, x_max)
         axes[n].set_xlim(0, right_most)
@@ -173,18 +178,18 @@ def kde_plot(data, theme, label, x_max=100, y_chunks=500):
                          horizontalalignment='right',
                          fontdict={'size': 6},
                          color=c)
-
+    fig.suptitle(f'KDE plots for {label} by distance threshold')
     path = f'../phd-doc/doc/part_3/predictive/images/kde/{theme.strip("_{dist}")}.pdf'
     plt.savefig(path, dpi=300)
 
 
 #  %%
 # census aggregation plot compound KDE
-kde_plot(X_raw, 'cens_tot_pop_{dist}', 'KDE Population', x_max=99)
+kde_plot(X_raw, 'cens_tot_pop_{dist}', 'population density', x_max=99)
 # kde_plot(X_raw, 'cens_dwellings_{dist}', 'KDE Dwellings', x_max=99)
 
 # centrality plot compound KDE
-kde_plot(X_raw, 'c_node_harmonic_angular_{dist}', 'Node Harmonic Angular', x_max=99)
+kde_plot(X_raw, 'c_node_harmonic_angular_{dist}', 'angular harmonic closeness centrality', x_max=99)
 # kde_plot(X_raw, 'c_node_betweenness_beta_{dist}', r'Node Betweenness $\beta$', x_max=99)
 
 # landuses compound KDE
@@ -197,4 +202,4 @@ kde_plot(X_raw, 'c_node_harmonic_angular_{dist}', 'Node Harmonic Angular', x_max
 # kde_plot(X_raw, 'ac_education_{dist}', 'Education', x_max=99)
 
 # mixeduses compound KDE
-kde_plot(X_raw, 'mu_hill_branch_wt_0_{dist}', 'Hill wt. $q=0$', x_max=99)
+kde_plot(X_raw, 'mu_hill_branch_wt_0_{dist}', 'weighted mixed-use richness', x_max=99)

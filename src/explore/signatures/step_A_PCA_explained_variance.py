@@ -49,24 +49,26 @@ exp_var_ratio = model.explained_variance_ratio_
 loadings = model.components_.T * np.sqrt(exp_var)
 loadings = loadings.T  # transform for slicing
 # plot
-exp_var_str = [f'{e_v:.1%}' for e_v in exp_var_ratio]
-plot_funcs.plot_components(list(range(n_components)),
-                           labels,
-                           distances,
-                           X_trans,
-                           X_latent,
-                           table.x,
-                           table.y,
-                           map_tag_str='$\sigma^{2}$:',
-                           map_tag_vals=exp_var_str,
-                           loadings=loadings,
-                           label_all=False,
-                           s_min=0,
-                           s_max=1,
-                           c_exp=2,
-                           s_exp=3,
-                           cbar=False,
-                           figsize=(10, 7.5))
+X_latent_clipped = np.clip(X_latent,
+                           np.percentile(X_latent, 2),
+                           np.percentile(X_latent, 100))
+im = plot_funcs.plot_components([0, 1, 2, 3],
+                                labels,
+                                [f'{d}m' for d in distances],
+                                None,  # X ignored if loadings is not None
+                                X_latent_clipped,
+                                df_20.x,
+                                df_20.y,
+                                corr_tags=[f'Loadings #{n}' for n in range(1, 5)],
+                                map_tags=[r'explained $\sigma^{2}$' + f' {e_v:.1%}' for e_v in exp_var_ratio],
+                                loadings=loadings,
+                                label_all=False,
+                                s_min=0,
+                                 s_max=1,
+                                c_exp=1,
+                                s_exp=2,
+                                cbar=True,
+                                figsize=(7, 7.5))
 plt.suptitle('Principal Component Analysis')
 path = f'../phd-doc/doc/part_3/signatures/images/pca.pdf'
 plt.savefig(path, dpi=300)

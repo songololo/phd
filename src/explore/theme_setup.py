@@ -19,34 +19,16 @@ weights_path = Path('./src/temp_weights/')
 
 # use of bands gives slightly more defined delineations for latent dimensions
 columns_cent = [
-    # 'c_node_density_{dist}',
-    # 'c_node_cycles_{dist}',
-    # 'c_node_harmonic_{dist}',
-    # 'c_node_beta_{dist}',
     'c_segment_density_{dist}',
-    # 'c_segment_harmonic_{dist}',
     'c_segment_beta_{dist}',
-    # 'c_node_harmonic_angular_{dist}',
     'c_segment_harmonic_hybrid_{dist}',
-    # 'c_node_betweenness_{dist}',
-    # 'c_node_betweenness_beta_{dist}',
     'c_segment_betweenness_{dist}',
-    # 'c_node_betweenness_angular_{dist}',
     'c_segment_betweeness_hybrid_{dist}']
 labels_cent = [
-    # 'node density',
-    # 'node cycles',
-    # 'node harmonic',
-    # 'node beta',
     'seg. density',
-    # 'segment harmonic',
-    r'segment $\beta$',
-    # 'node harm. ang.',
-    'seg. harm. hyb.',
-    # 'node betw.',
-    # r'node betw. $\beta$',
-    'segment betw.',
-    # 'seg. betw. ang.',
+    r'seg. $\beta$',
+    'seg. harm. ang.',
+    'seg. betw.',
     'seg betw. hyb.'
 ]
 
@@ -71,7 +53,7 @@ columns_lu = [
     'ac_total_{dist}'
 ]
 labels_lu = [
-    'mixed_uses',
+    'mixed-uses',
     'accomod.',
     'eating',
     'drinking',
@@ -93,14 +75,12 @@ labels_lu = [
 
 columns_cens = [
     'cens_tot_pop_{dist}',
-    # 'cens_adults_{dist}',
     'cens_employed_{dist}',
     'cens_dwellings_{dist}',
     'cens_students_{dist}'
 ]
 labels_cens = [
     'total pop.',
-    # 'adults pop.',
     'employed',
     'dwellings',
     'students'
@@ -113,9 +93,9 @@ columns_select = [
     'cens_tot_pop_{dist}'
 ]
 labels_select = [
-    r'segment $\beta$',
+    r'seg. $\beta$',
     'seg betw. hyb.',
-    'mixed_uses',
+    'mixed-uses',
     'total pop.'
 ]
 
@@ -135,9 +115,9 @@ columns_all_towns = [
     'cens_dwellings_{dist}'
 ]
 labels_all_towns = [
-    'h. closeness',
-    r'\beta betweenness',
-    'mixed_uses',
+    'harm. closen.',
+    r'betw. $\beta$',
+    'mixed-uses',
     'eating',
     'drinking',
     'commerc.',
@@ -160,20 +140,18 @@ columns_pred_mixed = [
     'cens_employed_{dist}',
     'cens_dwellings_{dist}',
     'cens_students_{dist}'
-    # 'ac_transport_{dist}'
 ]
 
 labels_pred_mixed = [
     'seg. density',
-    r'segment $\beta$',
-    'seg. harm. hyb.',
-    'segment betw.',
+    r'seg. $\beta$',
+    'seg. harm. ang.',
+    'seg. betw.',
     'seg betw. hyb.',
     'total pop.',
     'employed',
     'dwellings',
     'students'
-    # 'transp.'
 ]
 
 columns_pred_sim = [
@@ -186,8 +164,8 @@ columns_pred_sim = [
 ]
 
 labels_pred_sim = [
-    'node harm. ang.',
-    r'node betw. $\beta$',
+    'nd. harm. ang.',
+    r'nd. betw. $\beta$',
     'commerc.',
     'manuf.',
     'retail food',

@@ -99,7 +99,6 @@ df_full[np.isnan(df_full)] = 0
 
 distances = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600]
 
-#  %%
 columns = [c for c in columns_base]
 for col in columns_interp:
     for i, d in enumerate(distances):
@@ -251,14 +250,18 @@ for rdm in [False, True]:
         else:
             app_title = ''
             app_path = ''
-        fig.colorbar(im,
-                     ax=axes,
-                     aspect=50,
-                     pad=0.01,
-                     orientation='vertical',
-                     ticks=[-1, 0, 1],
-                     shrink=0.5)
-        plt.suptitle( )
+        cbar = fig.colorbar(im,
+                            ax=axes,
+                            aspect=50,
+                            pad=0.02,
+                            orientation='horizontal',
+                            ticks=[-1, 0, 1],
+                            shrink=0.5)
+        cbar.ax.set_xticklabels(['-1', r'Spearman $\rho$ correlations', '1'])
+        if rdm:
+            plt.suptitle(f'Centrality measures correlated to randomised {lu_label}')
+        else:
+            plt.suptitle(f'Centrality measures correlated to {lu_label}')
         path = f'../phd-doc/doc/part_2/centrality/images/primal_centralities_corr_grid_{lu_theme_base}{app_path}.pdf'
         plt.savefig(path)
 
@@ -371,7 +374,7 @@ axes[1][0].set_xlim(left=0, right=6000)
 # right panel - hexbin
 axes[0][1].hexbin(x2[x2 > 0],
                   y[x2 > 0],
-                  gridsize=(160, 50),
+                  gridsize=(180, 50),
                   mincnt=5,
                   bins='log',
                   xscale='log',
@@ -427,10 +430,12 @@ cbar = fig.colorbar(sp,
                     aspect=50,
                     pad=0.01,
                     orientation='vertical',
-                    shrink=0.8,
-                    ticks=[0, 50, 100, 150],
-                    label='mixed-use richness')
-cbar.ax.set_yticklabels([0, 50, 100, 150])
+                    ticks=[0, 10, 100],
+                    shrink=0.9)
+cbar.set_label('mixed-use richness',
+               labelpad=-10,
+               loc='bottom',
+               fontsize='xx-small')
 ax.set_xlim(left=0, right=6000)
 ax.set_ylim(bottom=300, top=100000)
 ax.set_yscale('log')

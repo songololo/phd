@@ -47,7 +47,7 @@ bound_data = util_funcs.load_data_as_pd_df(db_config,
 
 
 #%%
-def pop_corr_plot(city_data, theme_1, theme_2, towns_data, label):
+def pop_corr_plot(city_data, theme_1, theme_2, towns_data, xlabel, sup_title):
     new_towns = []
     other_towns = []
     for i, d in bound_data.iterrows():
@@ -57,7 +57,7 @@ def pop_corr_plot(city_data, theme_1, theme_2, towns_data, label):
             other_towns.append(d['pop_id'])
 
     util_funcs.plt_setup()
-    fig, axes = plt.subplots(2, 1, figsize=(8, 4))
+    fig, axes = plt.subplots(2, 1, figsize=(7, 5))
 
     max_pop_id = city_data.city_pop_id.max()
     for n, dist in enumerate(['200', '1600']):  # , '400', '800',
@@ -65,8 +65,8 @@ def pop_corr_plot(city_data, theme_1, theme_2, towns_data, label):
         key_1 = theme_1.format(dist=dist)
         key_2 = theme_2.format(dist=dist)
 
-        axes[n].set_ylabel(r'spearman $\rho$')
-        axes[n].set_xlabel(label + ' $d_{max}=' + f'{dist}m$')
+        axes[n].set_ylabel(r'spearman $\rho$' + r' $d_{max}=' + f'{dist}m$')
+        axes[n].set_xlabel(xlabel)
 
         x = []
         y = []
@@ -187,26 +187,30 @@ def pop_corr_plot(city_data, theme_1, theme_2, towns_data, label):
         axes[n].set_ylim(bottom=lower_y_extent, top=upper_y_extent)
         axes[n].set_xscale('log')
         axes[n].legend(loc=2)
-
+    fig.suptitle(sup_title)
     path = f'../phd-doc/doc/part_3/predictive/images/corr/{theme_1.strip("_{dist}")}_{theme_2.strip("_{dist}")}.pdf'
     plt.savefig(path, dpi=300)
 
 
 #  %%
+bound_text = 'City population by town / city boundary'
 pop_corr_plot(X_raw,
               'cens_tot_pop_{dist}',
               'c_node_harmonic_angular_{dist}',
               bound_data,
-              'Population and closeness centrality')
+              bound_text,
+              'Population correlated to closeness centrality')
 
 pop_corr_plot(X_raw,
               'cens_tot_pop_{dist}',
               'mu_hill_branch_wt_0_{dist}',
               bound_data,
-              'Population and mixed-uses')
+              bound_text,
+              'Population correlated to mixed-uses')
 
 pop_corr_plot(X_raw,
               'c_node_harmonic_angular_{dist}',
               'mu_hill_branch_wt_0_{dist}',
               bound_data,
-              'Closeness centrality and mixed-uses')
+              bound_text,
+              'Closeness centrality correlated to mixed-uses')

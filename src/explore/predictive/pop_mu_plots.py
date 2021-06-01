@@ -32,20 +32,20 @@ db_config = {
 # load boundaries data
 bound_data = util_funcs.load_data_as_pd_df(db_config,
                                            ['pop_id',
-                                          'city_name',
-                                          'city_type',
-                                          'city_area',
-                                          'city_area_petite',
-                                          'city_population',
-                                          'city_species_count',
-                                          'city_species_unique',
-                                          'city_streets_len',
-                                          'city_intersections_count'],
+                                            'city_name',
+                                            'city_type',
+                                            'city_area',
+                                            'city_area_petite',
+                                            'city_population',
+                                            'city_species_count',
+                                            'city_species_unique',
+                                            'city_streets_len',
+                                            'city_intersections_count'],
                                            'analysis.city_boundaries_150',
                                            'WHERE pop_id IS NOT NULL ORDER BY pop_id')
 
 
-#  %%
+# %%
 def pop_plot(city_data, city_theme, city_label, bound_data, bound_label):
     new_towns = []
     other_towns = []
@@ -56,13 +56,13 @@ def pop_plot(city_data, city_theme, city_label, bound_data, bound_label):
             other_towns.append(d['pop_id'])
 
     util_funcs.plt_setup()
-    fig, axes = plt.subplots(2, 1, figsize=(8, 4))
+    fig, axes = plt.subplots(2, 1, figsize=(7, 5))
 
     max_pop_id = city_data.city_pop_id.max()
     for n, dist in enumerate(['200', '1600']):  # , '400', '800',
 
         city_key = city_theme.format(dist=dist)
-        axes[n].set_ylabel(city_label + ' $d_{max}=' + f'{dist}m$')
+        axes[n].set_ylabel(city_label + r' $d_{max}=' + f'{dist}m$')
         axes[n].set_xlabel(bound_label)
 
         x = []
@@ -152,10 +152,19 @@ def pop_plot(city_data, city_theme, city_label, bound_data, bound_label):
             else:
                 align = 'bottom'
                 y_end = lower_y_end
-            axes[n].text(t_x * 1.02, y_end, t_n, rotation=90, verticalalignment=align,
-                         fontdict={'size': 5}, color='#D3A1A6')
-            axes[n].vlines(t_x, ymin=t_y, ymax=y_end, color='#D3A1A6', lw=0.5, alpha=0.4)
-
+            axes[n].text(t_x * 1.02,
+                         y_end,
+                         t_n,
+                         rotation=90,
+                         verticalalignment=align,
+                         fontdict={'size': 5},
+                         color='#D3A1A6')
+            axes[n].vlines(t_x,
+                           ymin=t_y,
+                           ymax=y_end,
+                           color='#D3A1A6',
+                           lw=0.5,
+                           alpha=0.4)
         # other towns
         for t_x, t_y, t_id, t_n in zip(x, y, o_id, o_n):
             # to avoid overlap, plot certain from top and others from bottom
@@ -184,26 +193,27 @@ def pop_plot(city_data, city_theme, city_label, bound_data, bound_label):
 
 #  %%
 # census to population plots
+bound_text = 'City population by town / city boundary'
 pop_plot(X_raw,
          'cens_tot_pop_{dist}',
          'Population $\mu$',
          bound_data,
-         'Global city population')
+         bound_text)
 pop_plot(X_raw,
          'c_node_harmonic_angular_{dist}',
          'Closeness $\mu$',
          bound_data,
-         'Global city population')
+         bound_text)
 pop_plot(X_raw,
          'mu_hill_branch_wt_0_{dist}',
          'Hill wt. $q=0$ $\mu$',
          bound_data,
-         'Global city population')
+         bound_text)
 pop_plot(X_raw,
          'ac_eating_{dist}',
          'Eat & Drink $\mu$',
          bound_data,
-         'Global city population')
+         bound_text)
 '''
 #  %%
 pop_plot(X_raw,

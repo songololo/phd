@@ -7,6 +7,7 @@ import pathlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from matplotlib.patches import Patch
 from pyproj import Proj, transform
 from sklearn.decomposition import PCA
 from sklearn.mixture import GaussianMixture
@@ -49,28 +50,45 @@ vade.load_weights(str(dir_path / 'weights'))
 cluster_probs_VaDE = vade.classify(X_trans).numpy()
 cluster_assign_VaDE = np.argmax(cluster_probs_VaDE, axis=1)
 
-#  %%
+# %%
 '''
 Overall cluster max plot
 '''
 util_funcs.plt_setup()
-fig, ax = plt.subplots(1, 1, figsize=(12, 8))
-colours, sizes = plot_funcs.map_diversity_colour(X_raw,
-                                                 cluster_assign_VaDE,
-                                                 n_components=n_components)
-plot_funcs.plot_scatter(ax,
+fig, ax = plt.subplots(1, 1, figsize=(7, 7))
+sample_colours, sample_sizes, mu_means, mu_means_cols, sorted_cluster_idx = \
+    plot_funcs.map_diversity_colour(X_raw,
+                                    cluster_assign_VaDE,
+                                    n_components=n_components)
+plot_funcs.plot_scatter(fig,
+                        ax,
                         table.x,
                         table.y,
-                        c=colours,
-                        s=sizes,
-                        x_extents=(-7000, 11500),
-                        y_extents=(-4500, 7500),
+                        c=sample_colours,
+                        s=sample_sizes,
+                        km_per_inch=3.25,
                         rasterized=True)
-plt.suptitle('Individual probabilistic components - VaDE GMM')
+# custom legend
+mu_means_sorted = mu_means[sorted_cluster_idx]
+mu_means_cols_sorted = mu_means_cols[sorted_cluster_idx]
+legend_elements = []
+for cluster_idx, mu_mean, mu_mean_col in zip(sorted_cluster_idx, mu_means_sorted, mu_means_cols_sorted):
+    legend_elements.append(
+        Patch(facecolor=mu_mean_col,
+              edgecolor='w',
+              label=f'#{cluster_idx + 1}: {mu_mean:.2f}')
+    )
+leg = ax.legend(handles=legend_elements,
+                title=r'100m mixed-uses (cluster means)',
+                fontsize='x-small',
+                title_fontsize='small',
+                ncol=7,
+                loc=9)
+plt.suptitle('Individual probabilistically assigned components - VaDE GMM')
 path = f'../phd-doc/doc/part_3/signatures/images/{vade.theme}_cluster.pdf'
 plt.savefig(path, dpi=300)
 
-#  %%
+# %%
 '''
 mu of each cluster
 simultaneously find locations closest to the means of the respective clusters (least norm?)
@@ -118,14 +136,18 @@ Lng: -0.10234238117032159 Lat: 51.63070046494594
 # for getting lng lat of targeted examples
 bng = Proj('epsg:27700')
 lng_lat = Proj('epsg:4326')
-#  %%
 util_funcs.plt_setup()
-fig, axes = plt.subplots(3, 7, figsize=(6, 10))
-cluster_idx = 0
+fig, axes = plt.subplots(3, 7, figsize=(7, 11))
+counter = 0
 for row_idx, ax_row in enumerate(axes):
     for ax_idx, ax in enumerate(ax_row):
-        X_cluster = X_trans[cluster_assign_VaDE == cluster_idx]
-        print(f'cluster {cluster_idx + 1}: n: {X_cluster.shape[0]}')
+        # get sorted cluster index as mapped from current iter
+        cluster_sorted_idx = sorted_cluster_idx[counter]
+        counter += 1
+        #
+        X_cluster = X_trans[cluster_assign_VaDE == cluster_sorted_idx]
+        X_cluster = X_cluster.clip(-3, 3)
+        print(f'cluster {cluster_sorted_idx + 1}: n: {X_cluster.shape[0]}')
         if X_cluster.shape[0] != 0:
             X_mu = np.mean(X_cluster, axis=0)
             # find least norm
@@ -138,28 +160,34 @@ for row_idx, ax_row in enumerate(axes):
                                  df_20.loc[sample_id, 'x'],
                                  df_20.loc[sample_id, 'y'])
             print(f'''
-                Cluster {cluster_idx + 1} centre at df iloc idx: {X_smallest_idx}
+                Cluster {cluster_sorted_idx + 1} centre at df iloc idx: {X_smallest_idx}
                 Sample id: {sample_id}
                 Lng: {lng} Lat: {lat}
             ''')
             X_mu = X_mu.reshape((len(labels), -1))
-            plot_funcs.plot_heatmap(ax,
-                                    heatmap=X_mu,
-                                    row_labels=labels,
-                                    col_labels=distances,
-                                    constrain=(-5, 5),
-                                    set_row_labels=ax_idx == 0,
-                                    set_col_labels=row_idx == 2,
-                                    cbar=False)
-            ax.set_title(f'#{cluster_idx + 1}')
+            im = plot_funcs.plot_heatmap(ax,
+                                         heatmap=X_mu,
+                                         row_labels=labels,
+                                         col_labels=distances,
+                                         constrain=(-3, 3),
+                                         set_row_labels=ax_idx == 0,
+                                         set_col_labels=row_idx == 0)
+            ax.set_xlabel(f'#{cluster_sorted_idx + 1}')
         else:
             ax.axis('off')
-        cluster_idx += 1
-plt.suptitle('Mean composition of each VaDE - GMM component')
+cbar = fig.colorbar(im,
+                    ax=axes,
+                    aspect=80,
+                    pad=0.02,
+                    orientation='horizontal',
+                    ticks=[-3, -2, -1, 0, 1, 2, 3],
+                    shrink=0.5)
+cbar.ax.set_xticklabels([-3, -2, -1, r'$\sigma$', 1, 2, 3])
+plt.suptitle('Mean composition of each VaDE - GMM cluster')
 path = f'../phd-doc/doc/part_3/signatures/images/{vade.theme}_cluster_mus.pdf'
 plt.savefig(path, dpi=300)
 
-#  %%
+# %%
 '''
 Individual probabilistic clusters
 '''
@@ -169,11 +197,9 @@ plot_funcs.plot_prob_clusters(X_raw,
                               f'{vade.theme}_clust_ind',
                               table.x,
                               table.y,
-                              x_extents=(0, 4500),
-                              y_extents=(500, 7000),
                               suptitle='Individual probabilistic components - VaDE GMM')
 
-#  %%
+# %%
 '''
 Plots maps comparing X + GMM, Z + GMM, X + PCA + GMM, and VaDE  
 '''
@@ -224,29 +250,47 @@ cluster_assign_X = np.argmax(cluster_probs_X, axis=1)
 cluster_assign_VAE_Z = np.argmax(cluster_probs_VAE_Z_gmm, axis=1)
 cluster_assign_PCA = np.argmax(cluster_probs_PCA, axis=1)
 
-#  %%
+# %%
 # Map plots
 themes = ['GMM - Input variables', 'GMM - autoencoder latents', 'GMM - PCA latents', 'GMM - VaDE']
 assignments = [cluster_assign_X, cluster_assign_VAE_Z, cluster_assign_PCA, cluster_assign_VaDE]
 util_funcs.plt_setup()
-fig, axes = plt.subplots(2, 2, figsize=(12, 8))
+fig, axes = plt.subplots(2, 2, figsize=(7, 7))
 theme_idx = 0
 for ax_row in axes:
     for ax in ax_row:
         theme = themes[theme_idx]
         assigned = assignments[theme_idx]
-        cmap = plt.cm.get_cmap('hsv')
-        colours, sizes = plot_funcs.map_diversity_colour(X_raw, assigned, n_components)
-        plot_funcs.plot_scatter(ax,
+
+        sample_colours, sample_sizes, mu_means, mu_means_cols, sorted_cluster_idx = \
+            plot_funcs.map_diversity_colour(X_raw,
+                                            assigned,
+                                            n_components=n_components)
+        plot_funcs.plot_scatter(fig,
+                                ax,
                                 table.x,
                                 table.y,
-                                c=colours,
-                                s=sizes / 2,
-                                x_extents=(-5500, 8500),
-                                y_extents=(-1500, 7000),
+                                c=sample_colours,
+                                s=sample_sizes,
+                                km_per_inch=3.25,
                                 rasterized=True)
-        ax.set_title(theme)
+        ax.set_xlabel(theme)
         theme_idx += 1
+        mu_means_sorted = mu_means[sorted_cluster_idx]
+        mu_means_cols_sorted = mu_means_cols[sorted_cluster_idx]
+        legend_elements = []
+        for cluster_idx, mu_mean, mu_mean_col in zip(sorted_cluster_idx, mu_means_sorted, mu_means_cols_sorted):
+            legend_elements.append(
+                Patch(facecolor=mu_mean_col,
+                      edgecolor='w',
+                      label=f'#{mu_mean:.2f}')
+            )
+        leg = ax.legend(handles=legend_elements,
+                        title=r'100m mixed-uses (cluster means)',
+                        fontsize='xx-small',
+                        title_fontsize='x-small',
+                        ncol=6,
+                        loc=9)
 plt.suptitle('Comparative GMM clustering scenarios')
 path = f'../phd-doc/doc/part_3/signatures/images/{vade.theme}_gmm_comparisons_maps.pdf'
 plt.savefig(path, dpi=300)

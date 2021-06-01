@@ -118,35 +118,31 @@ else:
         hist_float = json.load(h_file)
     reg.load_weights(str(dir_path / 'weights'))
 
-#  %%
+#   %%
 y_hat_test = reg.predict(X_trans_test)
 # split score between 400 vs 1600 threshold
 y_score_r2 = round(r2_score(y_test, y_hat_test), 2)
 print('r2 accuracy on test set at 400m', y_score_r2)
 
 #  %%
-x_extents = (-4000, 6500)
-y_extents = (-8000, 10000)
-extents_idx, _, _, _, _ = plot_funcs.view_idx(df_20.x,
-                                              df_20.y,
-                                              x_extents=x_extents,
-                                              y_extents=y_extents,
-                                              relative_extents=True)
-x_extents = (-2000, 4500)
-y_extents = (-6000, 8000)
-X_trans_idx = X_trans_all[extents_idx]
-y_all_idx = y_all[extents_idx]
+util_funcs.plt_setup()
+fig, axes = plt.subplots(1, 3, figsize=(12, 8))
+# get selected extents and prepare data
+# all axes same
+km_per_inch = 3
+centre = (530335, 182985)
+x_left, x_right, y_bottom, y_top = plot_funcs.dynamic_view_extent(fig, axes[0], km_per_inch, centre)
+select_idx = plot_funcs.view_idx(df_20.x, df_20.y, x_left, x_right, y_bottom, y_top)
+X_trans_idx = X_trans_all[select_idx]
+y_all_idx = y_all[select_idx]
 y_pred = reg.predict(X_trans_idx, verbose=1).flatten()
 y_diff = y_pred - y_all_idx
 
-#  %%
-util_funcs.plt_setup()
-fig, axes = plt.subplots(1, 3, figsize=(12, 8))
 for ax_idx, (ax, vals, title) in enumerate(zip(axes,
                                                (y_all_idx, y_pred, y_diff),
                                                ('Observed eateries',
                                                 'Predicted eateries',
-                                                'Differenced'))):
+                                                'Predicted minus Observed'))):
     if ax_idx == 2:
         mm = 20
         vmin, vmax = -mm, mm
@@ -162,27 +158,27 @@ for ax_idx, (ax, vals, title) in enumerate(zip(axes,
         pow = 1.25
         c = vals ** pow
         s = 0.01 + (vals ** pow / vmax * 1.5)
-
-    im = plot_funcs.plot_scatter(ax,
-                                 df_20.x[extents_idx],
-                                 df_20.y[extents_idx],
+    im = plot_funcs.plot_scatter(fig,
+                                 ax,
+                                 df_20.x[select_idx],
+                                 df_20.y[select_idx],
                                  c=c,
                                  s=s,
-                                 x_extents=x_extents,
-                                 y_extents=y_extents,
                                  vmin=vmin,
                                  vmax=vmax,
-                                 cmap=cmap)
-    ax.set_title(title)
-    divider = make_axes_locatable(ax)
-    cax = divider.append_axes('right', size='3%', pad=0.05)
-    plt.colorbar(im, cax=cax)
-
+                                 cmap=cmap,
+                                 centre=centre,
+                                 km_per_inch=km_per_inch)
+    ax.set_xlabel(title)
+    cbar = fig.colorbar(im,
+                        ax=ax,
+                        aspect=100,
+                        pad=0.05)
 plt.suptitle(f'Observed, predicted, differenced eateries at 400m threshold. Test set accuracy: {y_score_r2:.1%} r2')
 path = f'../phd-doc/doc/part_3/predictive/images/eatery_predictions_400_{reg.theme}.pdf'
 plt.savefig(path, dpi=300)
 
-#  %%
+# %%
 util_funcs.plt_setup()
 fig, ax = plt.subplots(1, 1, figsize=(8, 6))
 

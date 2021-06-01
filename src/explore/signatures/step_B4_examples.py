@@ -98,13 +98,13 @@ dir_path = pathlib.Path(
 vae.load_weights(str(dir_path / 'weights'))
 Z_mu, Z_log_var, Z = vae.encode(X_trans, training=False)
 
-#  %%
+# %%
 '''
 Plots decoded landuses from latents for respective example locations
 '''
 # plots decoded exemplar landuses
 util_funcs.plt_setup()
-fig, axes = plt.subplots(1, len(indices), figsize=(10, 4.25))
+fig, axes = plt.subplots(1, len(indices), figsize=(7, 3.5))
 names = [n for n in location_keys.keys()]
 indices = [i['iloc'] for i in location_keys.values()]
 z_keys = []
@@ -129,23 +129,24 @@ for ax_idx, ax in enumerate(axes):
     for row_idx in range(arr.shape[0]):
         norm_arr[row_idx] = arr[row_idx] / maxes[row_idx]
     plot_funcs.plot_heatmap(ax,
-                            norm_arr,
-                            labels,
-                            distances,
+                            heatmap=norm_arr,
+                            row_labels=labels,
+                            col_labels=distances,
                             set_row_labels=ax_idx == 0)
+    ax.set_title(f'{name}')
+    # prepare lng, lat
     lng = location_keys[name]["lng"]
     if lng < 0:
-        lng = f'{lng}°W'
+        lng = f'{lng:.3f}°W'
     else:
-        lng = f'{lng}°E'
-    lat = f'{location_keys[name]["lat"]}°N'
-    ax.set_title(f'{name}\n{lng} {lat}')
+        lng = f'{lng:.3f}°E'
+    lat = f'{location_keys[name]["lat"]:.3f}°N'
     # prepare codes
     loc_idx = indices[ax_idx]
     z_state = Z_mu[loc_idx]
     z_txt = [str(f'{z:.1f}') for z in z_state]
     z_txt = '|'.join(z_txt)
-    ax.set_xlabel(f'encoded latents:\n{z_txt}', fontsize='x-small', )
+    ax.set_xlabel(f'Decoded from latents:\n{z_txt}\nFor location:\n{lng} {lat}', fontsize='xx-small', loc='left')
 plt.suptitle('Landuse decodings for example locations')
 path = f'../phd-doc/doc/part_3/signatures/images/vae_example_decodings.pdf'
 plt.savefig(path, dpi=300)
