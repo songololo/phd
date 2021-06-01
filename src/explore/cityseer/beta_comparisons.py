@@ -21,24 +21,20 @@ def avg_distances(beta):
 # solve for beta using: log(1/y)/d where y = 0.01831563888873418
 # or, per Elsa's comment: beta = 4 / d_tau
 w_min = 0.01831563888873418
-distances = np.array([50, 100, 150, 200, 300, 400, 600, 800, 1200, 1600])
+distances = np.array([100, 200, 400, 800, 1600])
 betas_a = np.log(1 / w_min) / distances
 betas_b = 4 / distances
 assert np.allclose(betas_a, betas_b)
 assert np.allclose(betas_a,
-                   np.array([0.08, 0.04, 0.0267, 0.02, 0.0134, 0.01, 0.0067, 0.005, 0.0035, 0.0025]),
+                   np.array([0.04, 0.02, 0.01, 0.005, 0.0025]),
                    atol=0.001,
                    rtol=0.0)
-
+avg_ds = avg_distances(betas_a)
 
 # %%
 util_funcs.plt_setup()
 fig, ax = plt.subplots(1, 1, figsize=(7, 3.5))
-w_min = 0.01831563888873418
-distances = np.array([100, 200, 400, 800, 1600])
-betas = np.log(1 / w_min) / distances
-avg_ds = avg_distances(betas)
-for d_max, beta, avg_d in zip(distances, betas, avg_ds):
+for d_max, beta, avg_d in zip(distances, betas_a, avg_ds):
     distances_arr = []
     for d in range(0, d_max + 1):
         distances_arr.append(d)
@@ -59,7 +55,7 @@ for d_max, beta, avg_d in zip(distances, betas, avg_ds):
             lw=1.25,
             label=r'$d_{max}=' + f'{d_max}' + spacer_a +
                   f'\ \\beta={round(-beta, 4)}' + spacer_b +
-                  f'\ d \mu={round(avg_d)}m$'
+                  f'\ \\mu={round(avg_d)}m$'
             )
 # add w_min
 plt.axhline(y=w_min, ls='--', lw=0.5, c='grey')
