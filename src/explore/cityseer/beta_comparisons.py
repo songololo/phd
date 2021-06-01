@@ -1,14 +1,26 @@
 # %% plot beta falloffs
 import matplotlib.pyplot as plt
 import numpy as np
+from cityseer.metrics import networks
 
 from src import util_funcs
 
 #  %%
+def avg_distances(beta):
+    # looking for the average weight from 0 to d_max based on an impedance curve to d_max
+    d = networks.distance_from_beta(beta)
+    # area under the curve from 0 to d_max
+    a = ((np.exp(-beta * d) - 1) / -beta)
+    # divide by base (distance) for height, which gives weight
+    w = a / d
+    # then solve for the avg_d
+    avg_d = -np.log(w) / beta
+    # otherwise return the array
+    return avg_d
+
 # solve for beta using: log(1/y)/d where y = 0.01831563888873418
 # or, per Elsa's comment: beta = 4 / d_tau
 w_min = 0.01831563888873418
-betas = []
 distances = np.array([50, 100, 150, 200, 300, 400, 600, 800, 1200, 1600])
 betas_a = np.log(1 / w_min) / distances
 betas_b = 4 / distances
@@ -18,27 +30,37 @@ assert np.allclose(betas_a,
                    atol=0.001,
                    rtol=0.0)
 
-#  %%
-util_funcs.plt_setup()
 
+# %%
+util_funcs.plt_setup()
 fig, ax = plt.subplots(1, 1, figsize=(7, 3.5))
 w_min = 0.01831563888873418
-# set the betas
-betas = []
-distances = [100, 200, 400, 800, 1600]
-for d_max in distances:
-    beta = np.log(w_min) / d_max
+distances = np.array([100, 200, 400, 800, 1600])
+betas = np.log(1 / w_min) / distances
+avg_ds = avg_distances(betas)
+for d_max, beta, avg_d in zip(distances, betas, avg_ds):
     distances_arr = []
     for d in range(0, d_max + 1):
         distances_arr.append(d)
     distances_arr = np.array(distances_arr)
-    y_falloff = np.exp(beta * distances_arr)
+    y_falloff = np.exp(-beta * distances_arr)
     if d_max == 1600:
-        spacer = '\ '
+        spacer_a = '\ '
     else:
-        spacer = '\ \ \ '
-    ax.plot(distances_arr, y_falloff, lw=1.25, label=r'$d_{max}=' + f'{d_max}' + spacer + f'\ \\beta={round(-beta, 4)}$')
-
+        spacer_a = '\ \ \ '
+    if d_max < 800:
+        spacer_b = '\ \ \ \ \ '
+    elif d_max < 1600:
+        spacer_b = '\ \ \ '
+    else:
+        spacer_b = '\ '
+    ax.plot(distances_arr,
+            y_falloff,
+            lw=1.25,
+            label=r'$d_{max}=' + f'{d_max}' + spacer_a +
+                  f'\ \\beta={round(-beta, 4)}' + spacer_b +
+                  f'\ d \mu={round(avg_d)}m$'
+            )
 # add w_min
 plt.axhline(y=w_min, ls='--', lw=0.5, c='grey')
 ax.text(1500, 0.035, '$w_{min}$')
@@ -51,7 +73,6 @@ ax.set_ylim([0, 1.0])
 ax.set_ylabel('effective weight $w$')
 ax.set_title('$w = exp(-\\beta \\cdot d)\ \ \ \\beta=4/d_{max}$')
 ax.legend(loc='upper right', labelspacing=0.8)
-
 plt.savefig('../phd-doc/doc/part_1/cityseer/images/gravity_decay.pdf')
 
 # %%
