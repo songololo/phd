@@ -68,7 +68,7 @@ c = popt[0]
 z = popt[1]
 axes[0].plot(x_fit_line,
              powerFunc(x_fit_line, c, z),
-             label=f'$A=cP^z$ where $c={round(c, 2)}\ z={round(z, 2)}$',
+             label=f'$A=cP^\\alpha$ where $c={round(c, 2)}\ \\alpha={round(z, 2)}$',
              alpha=Style.def_col_hl1_a,
              color=Style.def_col_hl1,
              linestyle='-',
@@ -77,7 +77,7 @@ axes[0].plot(x_fit_line,
 slope, intercept, rvalue, pvalue, stderr = stats.linregress(np.log(pop), np.log(area))
 axes[0].plot(x_fit_line,
              np.exp(slope * np.log(x_fit_line) + intercept),
-             label=f'$log(A)=m \cdot log(P) + c$ where $m={round(slope, 2)}\ c={round(intercept, 2)}$',
+             label=f'$log(A)=\\alpha \cdot log(P) + c$ where $\\alpha={round(slope, 2)}\ c={round(intercept, 2)}$',
              alpha=Style.def_col_hl2_a,
              color=Style.def_col_hl2,
              linestyle='-',

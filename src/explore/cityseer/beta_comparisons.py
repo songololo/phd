@@ -54,7 +54,7 @@ for d_max, beta, avg_d in zip(distances, betas_a, avg_ds):
             y_falloff,
             lw=1.25,
             label=r'$d_{max}=' + f'{d_max}' + spacer_a +
-                  f'\ \\beta={round(-beta, 4)}' + spacer_b +
+                  f'\ \\beta={round(beta, 4)}' + spacer_b +
                   f'\ \\mu={round(avg_d)}m$'
             )
 # add w_min
