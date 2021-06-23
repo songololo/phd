@@ -143,7 +143,7 @@ cbar = fig.colorbar(scat,
                     pad=0.02)
 cbar.set_label(label='Population density',
                loc='bottom')
-path = f'../phd-doc/doc/part_3/predictive/images/area_pop_density.pdf'
+path = f'../phd-doc/doc/images/predictive/area_pop_density.pdf'
 plt.savefig(path, dpi=300)
 
 #  %% plot powerlaw distributions for city population
@@ -217,5 +217,5 @@ axes[1].set_xlabel(r'Population $x_{min}' + f'={pl_xmin}$')
 axes[1].set_xlim(10 ** 4, 10 ** 7)
 axes[1].legend(loc=3)
 
-path = f'../phd-doc/doc/part_3/predictive/images/pop_scale_fit.pdf'
+path = f'../phd-doc/doc/images/predictive/pop_scale_fit.pdf'
 plt.savefig(path, dpi=300)

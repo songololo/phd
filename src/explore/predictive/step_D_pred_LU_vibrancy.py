@@ -175,7 +175,7 @@ for ax_idx, (ax, vals, title) in enumerate(zip(axes,
                         aspect=100,
                         pad=0.05)
 plt.suptitle(f'Observed, predicted, differenced eateries at 400m threshold. Test set accuracy: {y_score_r2:.1%} r2')
-path = f'../phd-doc/doc/part_3/predictive/images/eatery_predictions_400_{reg.theme}.pdf'
+path = f'../phd-doc/doc/images/predictive/eatery_predictions_400_{reg.theme}.pdf'
 plt.savefig(path, dpi=300)
 
 # %%
@@ -205,5 +205,5 @@ ax.legend(loc='upper right', prop={'size': 5})
 ax.yaxis.set_major_formatter(mtick.PercentFormatter(xmax=1))
 
 plt.suptitle(f'Learning Curve and Validation Curve')
-path = f'../phd-doc/doc/part_3/predictive/images/validation_curve_{reg.theme}.pdf'
+path = f'../phd-doc/doc/images/predictive/validation_curve_{reg.theme}.pdf'
 plt.savefig(path, dpi=300)

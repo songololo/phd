@@ -347,7 +347,7 @@ def plot_prob_clusters(X_raw,
                 ax.set_xlabel(f'Cluster #{cluster_idx + 1}')
             counter += 1
     plt.suptitle(suptitle)
-    path = f'../phd-doc/doc/part_3/signatures/images/{path_theme}_cluster_composite'
+    path = f'../phd-doc/doc/images/signatures/{path_theme}_cluster_composite'
     if max_only:
         path += '_max'
     path += '.pdf'

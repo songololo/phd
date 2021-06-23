@@ -69,7 +69,9 @@ ax.set_ylim([0, 1.0])
 ax.set_ylabel('effective weight $w$')
 ax.set_title('$w = exp(-\\beta \\cdot d)\ \ \ \\beta=4/d_{max}$')
 ax.legend(loc='upper right', labelspacing=0.8)
-plt.savefig('../phd-doc/doc/part_1/cityseer/images/gravity_decay.pdf')
+plt.savefig('../phd-doc/doc/images/cityseer/gravity_decay.pdf')
+plt.savefig('../phd-doc/doc/images/centrality/gravity_decay.pdf')
+plt.savefig('../phd-doc/doc/images/diversity/gravity_decay.pdf')
 
 # %%
 

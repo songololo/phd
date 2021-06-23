@@ -108,7 +108,7 @@ for x, y, town_name in [(485970, 236920, 'Milton Keynes'),
                             y_extents=y_extents,
                             relative_extents=False)
     plt.suptitle(f"{town_name} hyperlocal predictions")
-    path = f'../phd-doc/doc/part_3/predictive/images/stage_2_DNN_{town_name}_{clf.theme}_yc{y_conf}.pdf'
+    path = f'../phd-doc/doc/images/predictive/stage_2_DNN_{town_name}_{clf.theme}_yc{y_conf}.pdf'
     plt.savefig(path, dpi=300)
 
 #  %%
@@ -160,5 +160,5 @@ for ax_theme, y_pred, points_perc, points_perc_norm in zip(
 
 plt.suptitle(
     'New Town probabilities compared for towns between 8,200 and 290,000 people.')
-path = f'../phd-doc/doc/part_3/predictive/images/nt_dists_probs_{clf.theme}.pdf'
+path = f'../phd-doc/doc/images/predictive/nt_dists_probs_{clf.theme}.pdf'
 plt.savefig(path, dpi=300)

@@ -16,7 +16,7 @@ G = mock.mock_graph()
 plot.plot_nX(G,
              labels=True,
              node_size=80,
-             path='../phd-doc/doc/part_1/cityseer/images/graph.pdf')
+             path='../phd-doc/doc/images/cityseer/graph.pdf')
 
 
 # INTRO EXAMPLE PLOTS
@@ -46,7 +46,7 @@ segment_harmonic_cols = cmap(segment_harmonic_vals)
 plot.plot_nX(G_metrics,
              plot_geoms=True,
              node_colour=segment_harmonic_cols,
-             path='../phd-doc/doc/part_1/cityseer/images/intro_segment_harmonic.pdf')
+             path='../phd-doc/doc/images/cityseer/intro_segment_harmonic.pdf')
 
 # plot hill mixed uses
 mixed_uses_vals = colors.Normalize()(mixed_uses_vals)
@@ -56,7 +56,7 @@ plot.plot_assignment(N,
                      D,
                      node_colour=mixed_uses_cols,
                      data_labels=landuse_labels,
-                     path='../phd-doc/doc/part_1/cityseer/images/intro_mixed_uses.pdf')
+                     path='../phd-doc/doc/images/cityseer/intro_mixed_uses.pdf')
 
 #
 #
@@ -67,19 +67,19 @@ plot.plot_nX(G,
              plot_geoms=True,
              labels=True,
              node_size=80,
-             path='../phd-doc/doc/part_1/cityseer/images/graph_example.pdf')  # WITH LABELS
+             path='../phd-doc/doc/images/cityseer/graph_example.pdf')  # WITH LABELS
 
 G_simple = graphs.nX_simple_geoms(G)
 G_decomposed = graphs.nX_decompose(G_simple, 100)
 plot.plot_nX(G_decomposed,
              plot_geoms=True,
-             path='../phd-doc/doc/part_1/cityseer/images/graph_decomposed.pdf')
+             path='../phd-doc/doc/images/cityseer/graph_decomposed.pdf')
 
 G_dual = graphs.nX_to_dual(G_simple)
 plot.plot_nX_primal_or_dual(G_simple,
                             G_dual,
                             plot_geoms=True,
-                            path='../phd-doc/doc/part_1/cityseer/images/graph_dual.pdf')
+                            path='../phd-doc/doc/images/cityseer/graph_dual.pdf')
 
 # graph cleanup examples
 lng, lat = -0.13396079424572427, 51.51371088849723
@@ -113,12 +113,12 @@ def simple_plot(_G, _path=None, plot_geoms=True):
 
 
 G = graphs.nX_simple_geoms(G_utm)
-simple_plot(G, '../phd-doc/doc/part_1/cityseer/images/graph_cleaning_1.pdf', plot_geoms=False)
+simple_plot(G, '../phd-doc/doc/images/cityseer/graph_cleaning_1.pdf', plot_geoms=False)
 
 G = graphs.nX_remove_filler_nodes(G)
 G = graphs.nX_remove_dangling_nodes(G, despine=20, remove_disconnected=True)
 G = graphs.nX_remove_filler_nodes(G)
-simple_plot(G, '../phd-doc/doc/part_1/cityseer/images/graph_cleaning_2.pdf')
+simple_plot(G, '../phd-doc/doc/images/cityseer/graph_cleaning_2.pdf')
 
 # first pass of consolidation
 G1 = graphs.nX_consolidate_nodes(G, buffer_dist=10, min_node_group=3)
@@ -128,7 +128,7 @@ x, y, _, _ = utm.from_latlon(51.51528273825814, -0.1420027833678597)
 circle = plt.Circle((x, y), 30, color='#0064b7')
 target_ax.add_patch(circle)
 # save manually
-plt.savefig('../phd-doc/doc/part_1/cityseer/images/graph_cleaning_3.pdf',
+plt.savefig('../phd-doc/doc/images/cityseer/graph_cleaning_3.pdf',
             facecolor='#2e2e2e')
 
 # split opposing line geoms to facilitate parallel merging
@@ -160,7 +160,7 @@ x, y, _, _ = utm.from_latlon(51.515554117773895, -0.139900305630671)
 circle = plt.Circle((x, y), 20, color='green')
 target_ax.add_patch(circle)
 # save manually
-plt.savefig('../phd-doc/doc/part_1/cityseer/images/graph_cleaning_4.pdf',
+plt.savefig('../phd-doc/doc/images/cityseer/graph_cleaning_4.pdf',
             facecolor='#2e2e2e')
 
 # second pass of consolidation
@@ -169,7 +169,7 @@ G3 = graphs.nX_consolidate_nodes(G2,
                                  crawl=False,
                                  min_node_degree=2,
                                  cent_min_degree=4)
-simple_plot(G3, '../phd-doc/doc/part_1/cityseer/images/graph_cleaning_5.pdf')
+simple_plot(G3, '../phd-doc/doc/images/cityseer/graph_cleaning_5.pdf')
 
 #
 #
@@ -185,7 +185,7 @@ L = layers.DataLayerFromDict(data_dict)
 L.assign_to_network(N, max_dist=500)
 plot.plot_assignment(N,
                      L,
-                     path='../phd-doc/doc/part_1/cityseer/images/assignment.pdf')
+                     path='../phd-doc/doc/images/cityseer/assignment.pdf')
 
 G_decomposed = graphs.nX_decompose(G, 50)
 N_decomposed = networks.NetworkLayerFromNX(G_decomposed, distances=[200, 400, 800, 1600])
@@ -194,7 +194,7 @@ L = layers.DataLayerFromDict(data_dict)
 L.assign_to_network(N_decomposed, max_dist=500)
 plot.plot_assignment(N_decomposed,
                      L,
-                     path='../phd-doc/doc/part_1/cityseer/images/assignment_decomposed.pdf')
+                     path='../phd-doc/doc/images/cityseer/assignment_decomposed.pdf')
 
 #
 #
@@ -207,7 +207,7 @@ G_dual = graphs.nX_to_dual(G_simple)
 plot.plot_nX_primal_or_dual(G_simple,
                             G_dual,
                             plot_geoms=False,
-                            path='../phd-doc/doc/part_1/cityseer/images/graph_dual.pdf')
+                            path='../phd-doc/doc/images/cityseer/graph_dual.pdf')
 
 # INTRO EXAMPLE PLOTS
 G = graphs.nX_simple_geoms(G)
@@ -236,7 +236,7 @@ segment_harmonic_cols = cmap(segment_harmonic_vals)
 plot.plot_nX(G_metrics,
              plot_geoms=True,
              node_colour=segment_harmonic_cols,
-             path='../phd-doc/doc/part_1/cityseer/images/intro_segment_harmonic.pdf')
+             path='../phd-doc/doc/images/cityseer/intro_segment_harmonic.pdf')
 
 # plot hill mixed uses
 mixed_uses_vals = colors.Normalize()(mixed_uses_vals)
@@ -246,4 +246,4 @@ plot.plot_assignment(N,
                      D,
                      node_colour=mixed_uses_cols,
                      data_labels=landuse_labels,
-                     path='../phd-doc/doc/part_1/cityseer/images/intro_mixed_uses.pdf')
+                     path='../phd-doc/doc/images/cityseer/intro_mixed_uses.pdf')

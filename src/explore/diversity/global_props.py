@@ -130,7 +130,7 @@ cbar = fig.colorbar(scat,
                     pad=0.02)
 cbar.set_label(label='Persons per Point Of Interest',
                loc='bottom')
-path = f'../phd-doc/doc/part_2/diversity/images/global_poi_count_pop.pdf'
+path = f'../phd-doc/doc/images/diversity/global_poi_count_pop.pdf'
 plt.savefig(path)
 
 #  %% plot population vs. unique number of POI
@@ -238,5 +238,5 @@ cbar = plt.colorbar(scat,
                     pad=0.02)
 cbar.set_label(label='$log$ population per town / city',
                loc='bottom')
-path = f'../phd-doc/doc/part_2/diversity/images/global_poi_unique_pop.pdf'
+path = f'../phd-doc/doc/images/diversity/global_poi_unique_pop.pdf'
 plt.savefig(path)

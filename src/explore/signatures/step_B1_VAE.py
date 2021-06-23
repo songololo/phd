@@ -106,5 +106,5 @@ for seed in range(10):
                         if inverse:
                             ax.set_title(f'Dim. {latent_idx + 1} - Inverse')
                 plt.suptitle(r"Geographic mappings (and inverses) for the latents of the VAE model")
-                path = f'../phd-doc/doc/part_3/signatures/images/latents_map_{beta}_{cap}_{seed}_{theme_base}.pdf'
+                path = f'../phd-doc/doc/images/signatures/latents_map_{beta}_{cap}_{seed}_{theme_base}.pdf'
                 plt.savefig(path, dpi=300)

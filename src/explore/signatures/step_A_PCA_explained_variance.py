@@ -70,7 +70,7 @@ im = plot_funcs.plot_components([0, 1, 2, 3],
                                 cbar=True,
                                 figsize=(7, 7.5))
 plt.suptitle('Principal Component Analysis')
-path = f'../phd-doc/doc/part_3/signatures/images/pca.pdf'
+path = f'../phd-doc/doc/images/signatures/pca.pdf'
 plt.savefig(path, dpi=300)
 
 # %%
@@ -122,5 +122,5 @@ ax.legend(loc='center right')
 ax.legend()
 
 plt.suptitle(f'PCA explained $\sigma^2$ / $MSE$ reconstruction losses for ${components[-1]}$ components')
-path = f'../phd-doc/doc/part_3/signatures/images/pca_components.pdf'
+path = f'../phd-doc/doc/images/signatures/pca_components.pdf'
 plt.savefig(path)

@@ -187,7 +187,7 @@ for ax_row, ax_theme, y_pred, points_perc, points_perc_norm in zip(
 
 plt.suptitle(
     'New (vs. historic) probabilities compared for towns between 8,200 and 290,000 people.')
-path = f'../phd-doc/doc/part_3/predictive/images/nt_dists_probs.pdf'
+path = f'../phd-doc/doc/images/predictive/nt_dists_probs.pdf'
 plt.savefig(path, dpi=300)
 
 # %%
@@ -295,7 +295,7 @@ for set, set_theme, path_theme in zip([[((460329.88, 451894.37), 'York', 41),
     cbar.ax.xaxis.set_label_position('bottom')
     cbar.set_label('Probability of "artificial" development')
     plt.suptitle(f"{set_theme}: localised predictions of newer vs. historic development")
-    path = f'../phd-doc/doc/part_3/predictive/images/hyperlocal_pred_{path_theme}.pdf'
+    path = f'../phd-doc/doc/images/predictive/hyperlocal_pred_{path_theme}.pdf'
     plt.savefig(path, dpi=300)
 
 # %%
@@ -361,7 +361,7 @@ cbar.ax.xaxis.set_ticks_position('top')
 cbar.ax.xaxis.set_label_position('bottom')
 cbar.set_label('Spearman $\\rho$ correlations against source variables')
 plt.suptitle('DNN "pre-hat", M2 latents split by "historic" (OT), M2 latents split by "artificial" (NT)')
-plt.savefig(f'../phd-doc/doc/part_3/predictive/images/dnn_m2_latents.pdf', dpi=300)
+plt.savefig(f'../phd-doc/doc/images/predictive/dnn_m2_latents.pdf', dpi=300)
 
 # %%
 '''
@@ -389,6 +389,6 @@ for ax_idx, (t_pred, t_title) in enumerate(zip(
 plt.suptitle(
     'M2 predictions for new and historic towns correlated against source variables.')
 plt.savefig(
-    f'../phd-doc/doc/part_3/predictive/images/nt_hist_corrs.pdf',
+    f'../phd-doc/doc/images/predictive/nt_hist_corrs.pdf',
     dpi=300)
 '''

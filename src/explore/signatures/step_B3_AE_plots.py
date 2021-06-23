@@ -247,7 +247,7 @@ for ax_row_n, (ax_row, theme_row) in enumerate(zip(axes, theme_sets)):
                              set_row_labels=ax_col_n == 0,
                              set_col_labels=ax_row_n == 0)
 plt.suptitle(r'10 seed avg. losses for $\beta$ and $C$ hyperparameters (5 epochs)')
-path = f'../phd-doc/doc/part_3/signatures/images/model_scores_fine.pdf'
+path = f'../phd-doc/doc/images/signatures/model_scores_fine.pdf'
 plt.savefig(path, dpi=300)
 
 # %%
@@ -330,7 +330,7 @@ for ax_row, inverse in zip(axes, [False, True]):
         else:
             ax.set_xlabel(f'#{latent_idx + 1} - Inverse')
 plt.suptitle(r"Geographic mappings (and inverses) for the latents of the VAE model")
-path = f'../phd-doc/doc/part_3/signatures/images/latents_map_inv_{beta}_{str(cap).replace(".", "_")}.pdf'
+path = f'../phd-doc/doc/images/signatures/latents_map_inv_{beta}_{str(cap).replace(".", "_")}.pdf'
 plt.savefig(path, dpi=300)
 
 # %%
@@ -369,7 +369,7 @@ cbar.ax.xaxis.set_ticks_position('top')
 cbar.ax.xaxis.set_label_position('bottom')
 cbar.set_label('Spearman $\\rho$ correlations against source variables')
 plt.suptitle(r"Correlations to source variables for the VAE model latents")
-path = f'../phd-doc/doc/part_3/signatures/images/latents_corr_inv_{beta}_{str(cap).replace(".", "_")}.pdf'
+path = f'../phd-doc/doc/images/signatures/latents_corr_inv_{beta}_{str(cap).replace(".", "_")}.pdf'
 plt.savefig(path, dpi=300)
 
 # %%
@@ -412,7 +412,7 @@ for inverse in [False, True]:
         plt.suptitle(r"Spearman $\rho$ correlations for the VAE model sub-latents")
     else:
         plt.suptitle(r"Spearman $\rho$ inverse correlations for the VAE model sub-latents")
-    path = f'../phd-doc/doc/part_3/signatures/images/sub_latent_correlations_{beta}_{str(cap).replace(".", "_")}'
+    path = f'../phd-doc/doc/images/signatures/sub_latent_correlations_{beta}_{str(cap).replace(".", "_")}'
     if inverse:
         path += '_inverse'
     path += '.pdf'
@@ -468,7 +468,7 @@ for lb, set in zip(['A', 'B'], [set_A, set_B]):
                                     rasterized=True)
             ax.set_xlabel(f'{t} inv.')
     plt.suptitle(r"Geographic mappings (and inverses) for the sub-latents of the VAE model")
-    path = f'../phd-doc/doc/part_3/signatures/images/sub_latent_maps_{lb}_{beta}_{str(cap).replace(".", "_")}.pdf'
+    path = f'../phd-doc/doc/images/signatures/sub_latent_maps_{lb}_{beta}_{str(cap).replace(".", "_")}.pdf'
     plt.savefig(path, dpi=300)
 
 # %%
@@ -591,7 +591,7 @@ for ax_idx in range(6):
         ax.plot(theta, values, linewidth=1, linestyle='solid', label=f'latent {data_label}')
         ax.fill(theta, values, 'b', alpha=0.1)
 plt.suptitle('Spider plots showing distribution of sub-latent weights relative to latents.')
-path = f'../phd-doc/doc/part_3/signatures/images/latent_spiders.pdf'
+path = f'../phd-doc/doc/images/signatures/latent_spiders.pdf'
 plt.savefig(path, dpi=300)
 """
 
@@ -641,7 +641,7 @@ for l1, l2 in [[1, 0]]:
     cbar.set_label('Standard deviations from the mean for decoded parameter sweeps',
                    fontsize='x-small')
     plt.suptitle(f'2D decoded "sweep" across latents {l1 + 1} & {l2 + 1}')
-    path = f'../phd-doc/doc/part_3/signatures/images/vae_grid_{beta}_{str(cap).replace(".", "_")}_{l1}_{l2}.pdf'
+    path = f'../phd-doc/doc/images/signatures/vae_grid_{beta}_{str(cap).replace(".", "_")}_{l1}_{l2}.pdf'
     plt.savefig(path, dpi=300)
 
 # %%
@@ -685,5 +685,5 @@ cbar.ax.xaxis.set_label_position('bottom')
 cbar.set_label('Standard deviations from the mean for decoded parameter sweeps',
                fontsize='x-small')
 plt.suptitle(f'Decoded "sweeps" across each latent')
-path = f'../phd-doc/doc/part_3/signatures/images/vae_sweep_{beta}_{str(cap).replace(".", "_")}.pdf'
+path = f'../phd-doc/doc/images/signatures/vae_sweep_{beta}_{str(cap).replace(".", "_")}.pdf'
 plt.savefig(path, dpi=300)

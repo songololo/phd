@@ -179,7 +179,7 @@ def kde_plot(data, theme, label, x_max=100, y_chunks=500):
                          fontdict={'size': 6},
                          color=c)
     fig.suptitle(f'KDE plots for {label} by distance threshold')
-    path = f'../phd-doc/doc/part_3/predictive/images/kde/{theme.strip("_{dist}")}.pdf'
+    path = f'../phd-doc/doc/images/predictive/kde/{theme.strip("_{dist}")}.pdf'
     plt.savefig(path, dpi=300)
 
 

@@ -127,5 +127,5 @@ cbar = fig.colorbar(im,
                     shrink=0.5)
 cbar.ax.set_xticklabels(['-1', r'Spearman $\rho$ correlations', '1'])
 plt.suptitle('Dual centrality measures correlated to mixed & landuses')
-path = f'../phd-doc/doc/part_2/centrality/images/dual_centralities_corr_grid.pdf'
+path = f'../phd-doc/doc/images/centrality/dual_centralities_corr_grid.pdf'
 plt.savefig(path)

@@ -85,7 +85,7 @@ leg = ax.legend(handles=legend_elements,
                 ncol=7,
                 loc=9)
 plt.suptitle('Individual probabilistically assigned components - VaDE GMM')
-path = f'../phd-doc/doc/part_3/signatures/images/{vade.theme}_cluster.pdf'
+path = f'../phd-doc/doc/images/signatures/{vade.theme}_cluster.pdf'
 plt.savefig(path, dpi=300)
 
 # %%
@@ -184,7 +184,7 @@ cbar = fig.colorbar(im,
                     shrink=0.5)
 cbar.ax.set_xticklabels([-3, -2, -1, r'$\sigma$', 1, 2, 3])
 plt.suptitle('Mean composition of each VaDE - GMM cluster')
-path = f'../phd-doc/doc/part_3/signatures/images/{vade.theme}_cluster_mus.pdf'
+path = f'../phd-doc/doc/images/signatures/{vade.theme}_cluster_mus.pdf'
 plt.savefig(path, dpi=300)
 
 # %%
@@ -292,5 +292,5 @@ for ax_row in axes:
                         ncol=6,
                         loc=9)
 plt.suptitle('Comparative GMM clustering scenarios')
-path = f'../phd-doc/doc/part_3/signatures/images/{vade.theme}_gmm_comparisons_maps.pdf'
+path = f'../phd-doc/doc/images/signatures/{vade.theme}_gmm_comparisons_maps.pdf'
 plt.savefig(path, dpi=300)
