@@ -649,7 +649,7 @@ for l1, l2 in [[1, 0]]:
 Sweep plots - each latent
 '''
 arrs = np.full((6, 7, X_trans.shape[1]), np.nan)
-sweeps = [-3, -2, 1, 0, 1, 2, 3]
+sweeps = [-3, -2, -1, 0, 1, 2, 3]
 for latent_idx in range(6):
     for sweep_idx, sweep in enumerate(sweeps):
         z_key = np.array([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]], dtype=float)
