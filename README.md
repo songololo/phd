@@ -4,8 +4,7 @@ _Detection and prediction of urban archetypes at the pedestrian scale: computati
 
 Completed in 2021, though this work was developed over the span of the preceding five years during the PhD.
 
-This work is also available through the accompanying papers released in the `arXiv` preprint repository:
-- links pending.
+This work is also available through the accompanying papers released in the `arXiv` preprint repository: [https://arxiv.org/a/simons_g_1.html]()
 
 ### Dataset preparation:
 
